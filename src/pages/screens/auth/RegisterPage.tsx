@@ -319,7 +319,7 @@ export const RegisterPage: React.FC = () => {
                   </div>
                 </div>
               )}
-            </form>
+      </form>
 
             {/* Alt Linkler */}
             <div className="mt-6 text-center">
