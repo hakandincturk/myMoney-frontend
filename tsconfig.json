@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/store/*": [
+        "src/store/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}
+
