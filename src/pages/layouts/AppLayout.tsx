@@ -18,7 +18,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <ThemeToggle />
         </div>
       )}
-      <main className={`${isAuth ? 'min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0f0f0f] dark:to-[#151515]' : 'max-w-6xl mx-auto px-4 py-6'}`}>
+      <main className={`${isAuth ? '' : 'max-w-6xl mx-auto px-4 py-6'}`}>
         {children}
       </main>
     </div>

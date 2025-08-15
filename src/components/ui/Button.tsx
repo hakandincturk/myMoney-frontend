@@ -19,13 +19,13 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   fullWidth = false,
 }) => {
-  const base = 'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2'
+  const base = 'relative inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden group'
 
   const variants: Record<'primary' | 'secondary', string> = {
     primary:
-      'bg-mm-accent text-mm-bg hover:bg-mm-accentHover focus:ring-mm-primary disabled:bg-mm-disabled disabled:text-mm-placeholder disabled:cursor-not-allowed',
+      'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-mm-accent dark:via-mm-accentHover dark:to-mm-accent text-white dark:text-mm-bg hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 dark:hover:from-mm-accentHover dark:hover:via-mm-accent dark:hover:to-mm-accentHover focus:ring-slate-900/50 dark:focus:ring-mm-accent/50 disabled:from-slate-400 disabled:via-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed shadow-lg shadow-slate-900/25 dark:shadow-mm-accent/25 hover:shadow-xl hover:shadow-slate-900/30 dark:hover:shadow-mm-accent/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover:before:translate-x-full before:transition-transform before:duration-700',
     secondary:
-      'border border-mm-primary text-mm-primary hover:border-mm-primaryHover hover:bg-slate-50 dark:hover:bg-[#151515] focus:ring-mm-primary disabled:border-mm-disabled disabled:text-mm-placeholder disabled:cursor-not-allowed',
+      'border-2 border-slate-300 dark:border-mm-primary bg-white/80 dark:bg-mm-surface/80 backdrop-blur-sm text-slate-700 dark:text-mm-primary hover:border-slate-400 dark:hover:border-mm-primaryHover hover:bg-white dark:hover:bg-mm-surface focus:ring-slate-300 dark:focus:ring-mm-primary/50 disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all duration-300',
   }
 
   const size = 'px-4 py-3 text-sm'
