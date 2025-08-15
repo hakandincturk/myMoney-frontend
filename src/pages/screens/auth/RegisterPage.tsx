@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRegisterMutation } from '@/services/authApi'
 import { Link, useNavigate } from 'react-router-dom'
-import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { PasswordInput } from '@/components/ui/PasswordInput'
+import { AuthContainer } from '@/components/ui/AuthContainer'
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate()
@@ -128,18 +129,8 @@ export const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-mm-secondary/30 via-mm-primary/30 to-mm-accent/30 flex items-center justify-center mb-4 border border-mm-border backdrop-blur">
-            <svg className="h-8 w-8 text-mm-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-mm-text mb-2">Hesap Oluştur</h2>
-          <p className="text-slate-500 dark:text-mm-subtleText">Kişisel finans yönetiminizi başlatın</p>
-        </div>
-        <Card className="shadow-2xl shadow-black/30">
-          <form onSubmit={handleSubmit} className="space-y-5">
+    <AuthContainer title="Hesap Oluştur" subtitle="Kişisel finans yönetiminizi başlatın">
+      <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               id="fullName"
               label="Ad Soyad"
@@ -158,28 +149,18 @@ export const RegisterPage: React.FC = () => {
               onChange={v => update('email', v)}
               error={fieldErrors.email}
             />
-            <div>
-              <Input
-                id="password"
-                label="Şifre"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="En az 6 karakter"
-                value={form.password}
-                onChange={v => update('password', v)}
-                error={fieldErrors.password}
-              />
-              <button
-                type="button"
-                className="-mt-10 mr-3 float-right text-mm-placeholder hover:text-mm-text"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? 'Gizle' : 'Göster'}
-              </button>
-            </div>
+            <PasswordInput
+              id="password"
+              label="Şifre"
+              value={form.password}
+              onChange={v => update('password', v)}
+              placeholder="En az 6 karakter"
+              error={fieldErrors.password}
+            />
             <Input
               id="confirmPassword"
               label="Şifre (Tekrar)"
-              type={showPassword ? 'text' : 'password'}
+              type="password"
               placeholder="Şifrenizi tekrar girin"
               value={form.confirmPassword}
               onChange={v => update('confirmPassword', v)}
@@ -213,9 +194,8 @@ export const RegisterPage: React.FC = () => {
                 Giriş yapın
               </Link>
             </div>
-          </form>
-        </Card>
-      </div>
+      </form>
+    </AuthContainer>
   )
 }
 

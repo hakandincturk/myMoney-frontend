@@ -7,6 +7,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { PasswordInput } from '@/components/ui/PasswordInput'
+import { AuthContainer } from '@/components/ui/AuthContainer'
 
 export const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -91,20 +93,8 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-mm-primary/30 via-mm-secondary/30 to-mm-accent/30 flex items-center justify-center mb-4 border border-mm-border backdrop-blur">
-            <svg className="h-8 w-8 text-mm-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-mm-text mb-2">Hoş Geldiniz</h2>
-          <p className="text-slate-500 dark:text-mm-subtleText">
-						Kişisel finans yönetiminizi kolaylaştırın, hedeflerinize ulaşın
-					</p>
-        </div>
-        <Card className="shadow-2xl shadow-black/30">
-          <form onSubmit={handleSubmit} className="space-y-5">
+    <AuthContainer title="Hoş Geldiniz" subtitle="Hesabınıza giriş yapın">
+      <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               id="email"
               label="E-posta Adresi"
@@ -114,24 +104,14 @@ export const LoginPage: React.FC = () => {
               onChange={handleEmailChange}
               error={emailError}
             />
-            <div>
-              <Input
-                id="password"
-                label="Şifre"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Şifrenizi girin"
-                value={password}
-                onChange={handlePasswordChange}
-                error={passwordError}
-              />
-              <button
-                type="button"
-                className="-mt-10 mr-3 float-right text-mm-placeholder hover:text-mm-text"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? 'Gizle' : 'Göster'}
-              </button>
-            </div>
+            <PasswordInput
+              id="password"
+              label="Şifre"
+              value={password}
+              onChange={handlePasswordChange}
+              placeholder="Şifrenizi girin"
+              error={passwordError}
+            />
             {successMessage && (
               <div className="bg-mm-surface border border-mm-border rounded-xl p-3 text-mm-secondary">
                 {successMessage}
@@ -151,9 +131,8 @@ export const LoginPage: React.FC = () => {
                 Kayıt olun
               </Link>
             </div>
-          </form>
-        </Card>
-      </div>
+      </form>
+    </AuthContainer>
   )
 }
 
