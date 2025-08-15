@@ -10,7 +10,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    dispatch(authSlice.actions.setToken(''))
+    dispatch(authSlice.actions.logout())
     navigate('/login')
   }
 
