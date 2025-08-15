@@ -74,7 +74,6 @@ export const LoginPage: React.FC = () => {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsSubmitted(true)
-    setError('')
     // Manuel validasyon
     const emailValidation = validateEmail(email)
     const passwordValidation = validatePassword(password)
@@ -85,10 +84,27 @@ export const LoginPage: React.FC = () => {
     }
     try {
       const result = await login({ email: email.trim(), password }).unwrap()
+      if (result.type === false) {
+        setError(result.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+        return
+      }
       dispatch(authSlice.actions.setToken(result.data.token))
       // useEffect ile yönlendirme yapılacak
-    } catch (err) {
-      setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+    } catch (err: any) {
+      // API'den gelen hata response'unu kontrol et
+      if (err?.status === 400 && err?.data?.data) {
+        // Validation hatalarını ilgili field'lara ata
+        const validationErrors = err.data.data
+        if (validationErrors.email?.[0]) {
+          setEmailError(validationErrors.email[0])
+        }
+        if (validationErrors.password?.[0]) {
+          setPasswordError(validationErrors.password[0])
+        }
+        setError('') // Genel hata mesajını temizle
+      } else {
+        setError(err?.data?.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+      }
     }
   }
 
@@ -103,6 +119,7 @@ export const LoginPage: React.FC = () => {
               value={email}
               onChange={handleEmailChange}
               error={emailError}
+              required
             />
             <PasswordInput
               id="password"
@@ -111,19 +128,25 @@ export const LoginPage: React.FC = () => {
               onChange={handlePasswordChange}
               placeholder="Şifrenizi girin"
               error={passwordError}
+              required
             />
             {successMessage && (
-              <div className="bg-mm-surface border border-mm-border rounded-xl p-3 text-mm-secondary">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 rounded-xl p-3 text-green-700 dark:text-green-400">
                 {successMessage}
               </div>
             )}
             {error && (
-              <div className="bg-mm-surface border border-red-500/30 rounded-xl p-3 text-red-400">
+              <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-xl p-3 text-red-700 dark:text-red-400 transition-opacity duration-200 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
                 {error}
               </div>
             )}
-            <Button type="submit" variant="primary" fullWidth disabled={isLoading} className="shadow-md shadow-mm-accent/20">
-              {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Giriş yapılıyor...</span>
+                </div>
+              ) : 'Giriş Yap'}
             </Button>
             <div className="text-center text-sm text-mm-subtleText">
               Hesabınız yok mu?{' '}

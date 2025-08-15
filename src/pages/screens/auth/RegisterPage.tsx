@@ -100,7 +100,6 @@ export const RegisterPage: React.FC = () => {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsSubmitted(true)
-    setError('')
     const fullNameValidation = validateFullName(form.fullName)
     const emailValidation = validateEmail(form.email)
     const passwordValidation = validatePassword(form.password)
@@ -117,14 +116,32 @@ export const RegisterPage: React.FC = () => {
       return
     }
     try {
-      await register({
+      const result = await register({
         fullName: form.fullName.trim(),
         email: form.email.trim(),
         password: form.password,
         phone: form.phone.trim(),
       }).unwrap()
-    } catch {
-      setError('Kayıt işlemi başarısız. Lütfen tekrar deneyin.')
+      if (result.type === false) {
+        setError(result.message || 'Kayıt işlemi başarısız. Lütfen tekrar deneyin.')
+        return
+      }
+    } catch (err: any) {
+      // API'den gelen hata response'unu kontrol et
+      if (err?.status === 400 && err?.data?.data) {
+        // Validation hatalarını ilgili field'lara ata
+        const validationErrors = err.data.data
+        setFieldErrors({
+          fullName: validationErrors.fullName?.[0] || '',
+          email: validationErrors.email?.[0] || '',
+          password: validationErrors.password?.[0] || '',
+          confirmPassword: validationErrors.password?.[0] || '',
+          phone: validationErrors.phone?.[0] || '',
+        })
+        setError('') // Genel hata mesajını temizle
+      } else {
+        setError(err?.data?.message || 'Kayıt işlemi başarısız. Lütfen tekrar deneyin.')
+      }
     }
   }
 
@@ -139,6 +156,7 @@ export const RegisterPage: React.FC = () => {
               value={form.fullName}
               onChange={v => update('fullName', v)}
               error={fieldErrors.fullName}
+              required
             />
             <Input
               id="email"
@@ -148,6 +166,7 @@ export const RegisterPage: React.FC = () => {
               value={form.email}
               onChange={v => update('email', v)}
               error={fieldErrors.email}
+              required
             />
             <PasswordInput
               id="password"
@@ -156,6 +175,7 @@ export const RegisterPage: React.FC = () => {
               onChange={v => update('password', v)}
               placeholder="En az 6 karakter"
               error={fieldErrors.password}
+              required
             />
             <Input
               id="confirmPassword"
@@ -165,6 +185,7 @@ export const RegisterPage: React.FC = () => {
               value={form.confirmPassword}
               onChange={v => update('confirmPassword', v)}
               error={fieldErrors.confirmPassword}
+              required
             />
             <Input
               id="phone"
@@ -174,17 +195,23 @@ export const RegisterPage: React.FC = () => {
               value={form.phone}
               onChange={v => update('phone', v)}
               error={fieldErrors.phone}
+              required
             />
             {error && (
-              <div className="bg-mm-surface border border-red-500/30 rounded-xl p-3 text-red-400">
+              <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-xl p-3 text-red-700 dark:text-red-400 transition-opacity duration-200 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
                 {error}
               </div>
             )}
-            <Button type="submit" variant="primary" fullWidth disabled={isLoading} className="shadow-md shadow-mm-accent/20">
-              {isLoading ? 'Kayıt oluşturuluyor...' : 'Hesap Oluştur'}
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Kayıt oluşturuluyor...</span>
+                </div>
+              ) : 'Hesap Oluştur'}
             </Button>
             {isSuccess && (
-              <div className="bg-mm-surface border border-mm-border rounded-xl p-3 text-mm-secondary">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 rounded-xl p-3 text-green-700 dark:text-green-400">
                 Kayıt başarılı! Giriş yapabilirsiniz.
               </div>
             )}

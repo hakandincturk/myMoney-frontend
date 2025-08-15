@@ -9,6 +9,7 @@ type InputProps = {
   placeholder?: string
   error?: string
   className?: string
+  required?: boolean
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -20,6 +21,7 @@ export const Input: React.FC<InputProps> = ({
   placeholder,
   error,
   className = '',
+  required = false,
 }) => {
   const base = 'w-full px-4 py-3 rounded-xl transition-all duration-300 placeholder-slate-400 dark:placeholder-mm-placeholder bg-white/90 dark:bg-mm-surface/90 backdrop-blur-sm text-slate-900 dark:text-mm-text focus:ring-2 focus:ring-slate-500/50 dark:focus:ring-mm-primary/50 focus:border-transparent outline-none hover:bg-white dark:hover:bg-mm-surface focus:shadow-lg border-2'
   const border = error ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' : 'border-slate-200/60 dark:border-mm-border/60 focus:border-slate-400 dark:focus:border-mm-primary'
@@ -29,6 +31,7 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label htmlFor={id} className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <input
