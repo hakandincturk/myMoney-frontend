@@ -12,8 +12,8 @@ type PasswordInputProps = {
 export const PasswordInput: React.FC<PasswordInputProps> = ({ id, label = 'Şifre', value, onChange, placeholder = 'Şifrenizi girin', error }) => {
   const [visible, setVisible] = useState(false)
 
-  const base = 'w-full px-4 py-3 rounded-xl transition-all duration-300 placeholder-slate-400 dark:placeholder-mm-placeholder bg-white/90 dark:bg-mm-surface/90 backdrop-blur-sm text-slate-900 dark:text-mm-text focus:ring-2 focus:ring-slate-500/50 dark:focus:ring-mm-primary/50 focus:border-transparent outline-none pr-12 hover:bg-white dark:hover:bg-mm-surface focus:shadow-lg'
-  const border = error ? 'border-2 border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' : 'border border-slate-200/60 dark:border-mm-border/60 focus:border-slate-400 dark:focus:border-mm-primary'
+  const base = 'w-full px-4 py-3 rounded-xl transition-all duration-300 placeholder-slate-400 dark:placeholder-mm-placeholder bg-white/90 dark:bg-mm-surface/90 backdrop-blur-sm text-slate-900 dark:text-mm-text focus:ring-2 focus:ring-slate-500/50 dark:focus:ring-mm-primary/50 focus:border-transparent outline-none pr-12 hover:bg-white dark:hover:bg-mm-surface focus:shadow-lg border-2'
+  const border = error ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' : 'border-slate-200/60 dark:border-mm-border/60 focus:border-slate-400 dark:focus:border-mm-primary'
 
   return (
     <div className="w-full">
