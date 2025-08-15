@@ -1,17 +1,14 @@
 import React from 'react'
 
-type CardProps = {
-  children: React.ReactNode
-  className?: string
-}
+type CardProps = React.PropsWithChildren<{ className?: string; title?: string }>
 
-export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
+export const Card: React.FC<CardProps> = ({ className = '', title, children }) => {
   return (
-    <div className={`relative bg-white/95 dark:bg-mm-surface/95 backdrop-blur-xl border border-white/20 dark:border-mm-border/20 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-white/20 dark:from-mm-surface/50 dark:to-transparent rounded-2xl pointer-events-none"></div>
-      <div className="relative z-10">
-        {children}
-      </div>
+    <div className={`rounded-xl border border-slate-200 dark:border-mm-border bg-white dark:bg-mm-card ${className}`}>
+      {title && (
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-mm-border font-semibold text-slate-900 dark:text-mm-text">{title}</div>
+      )}
+      <div className="p-4">{children}</div>
     </div>
   )
 }

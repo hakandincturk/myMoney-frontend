@@ -55,7 +55,7 @@ export const transactionApi = createApi({
   endpoints: (build) => ({
     createTransaction: build.mutation<{ type: boolean }, CreateTransactionRequestDto>({
       query: (body) => ({ url: '/api/transaction/', method: 'POST', body }),
-      invalidatesTags: ['Transaction', 'Account'],
+      invalidatesTags: ['Transaction'],
     }),
   }),
 })

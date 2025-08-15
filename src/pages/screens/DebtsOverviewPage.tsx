@@ -1,0 +1,195 @@
+import React, { useMemo, useState } from 'react'
+import { Table } from '@/components/ui/Table'
+import { Modal } from '@/components/ui/Modal'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+import { useCreateTransactionMutation, TransactionType } from '@/services/transactionApi'
+import { useListMyActiveContactsQuery } from '@/services/contactApi'
+import { useListMyActiveAccountsQuery } from '@/services/accountApi'
+import { createColumnHelper } from '@tanstack/react-table'
+
+// Mock veri - gerçek servisler hazır olana kadar
+const MOCK_DEBTS = [
+  { id: 1, contact: 'Ahmet Yılmaz', account: 'Nakit', amount: 1200, status: 'PENDING' },
+  { id: 2, contact: 'Market', account: 'Banka', amount: 4500, status: 'PARTIAL' },
+]
+
+type Debt = {
+  id: number
+  contact: string
+  account: string
+  amount: number
+  status: string
+}
+
+const columnHelper = createColumnHelper<Debt>()
+
+const columns = [
+  columnHelper.accessor('contact', {
+    header: 'Kişi',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('account', {
+    header: 'Hesap',
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor('amount', {
+    header: 'Tutar',
+    cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
+  }),
+  columnHelper.accessor('status', {
+    header: 'Durum',
+    cell: (info) => (
+      <span className={
+        info.getValue() === 'PENDING' ? 'text-amber-600' : 
+        info.getValue() === 'PARTIAL' ? 'text-blue-600' : 'text-emerald-600'
+      }>
+        {info.getValue() === 'PENDING' ? 'Bekliyor' : 
+         info.getValue() === 'PARTIAL' ? 'Kısmi' : 'Ödendi'}
+      </span>
+    ),
+  }),
+]
+
+export const DebtsOverviewPage: React.FC = () => {
+  const { data: contactsData } = useListMyActiveContactsQuery()
+  const { data: accountsData } = useListMyActiveAccountsQuery()
+  const contacts = useMemo(() => contactsData?.data ?? [], [contactsData])
+  const accounts = useMemo(() => accountsData?.data ?? [], [accountsData])
+  const [createTransaction, { isLoading }] = useCreateTransactionMutation()
+  
+  const [modalOpen, setModalOpen] = useState(false)
+  const [form, setForm] = useState({
+    contactId: undefined as number | undefined,
+    accountId: undefined as number | undefined,
+    type: TransactionType.DEBT as TransactionType,
+    totalAmount: '0',
+    totalInstallment: 1,
+    description: '',
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.accountId || !form.totalAmount) return
+    
+    // Para formatından sayıya çevir
+    const totalAmountNumber = parseFloat(form.totalAmount.replace(/\./g, '').replace(',', '.')) || 0
+    
+    await createTransaction({
+      accountId: form.accountId,
+      contactId: form.contactId,
+      description: form.description || undefined,
+      totalAmount: totalAmountNumber,
+      type: form.type,
+      totalInstallment: form.totalInstallment || undefined,
+    })
+    
+    setForm({ contactId: undefined, accountId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '' })
+    setModalOpen(false)
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Borçlar</h2>
+          <button 
+            onClick={() => setModalOpen(true)} 
+            className="px-4 py-2 rounded-lg bg-mm-primary text-white hover:bg-mm-primaryHover transition-colors"
+          >
+            Yeni Borç
+          </button>
+        </div>
+
+        <Table 
+          data={MOCK_DEBTS} 
+          columns={columns} 
+          title="Borç Listesi"
+          showPagination={MOCK_DEBTS.length > 10}
+          pageSize={10}
+        />
+
+        {/* Borç Girişi Modal */}
+        <Modal 
+          open={modalOpen} 
+          onClose={() => setModalOpen(false)} 
+          title="Yeni Borç Girişi"
+          footer={(
+            <div className="flex justify-end gap-2">
+              <button 
+                onClick={() => setModalOpen(false)} 
+                type="button" 
+                className="px-3 py-2 rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover"
+              >
+                İptal
+              </button>
+              <button 
+                onClick={handleSubmit as unknown as () => void} 
+                disabled={isLoading}
+                className="px-3 py-2 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover disabled:opacity-60"
+              >
+                {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
+              </button>
+            </div>
+          )}
+        >
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+            <Select 
+              id="accountId"
+              label="Hesap *"
+              value={form.accountId ?? ''}
+              onChange={(value) => setForm((p) => ({ ...p, accountId: value as number }))}
+              options={accounts.map((a) => ({ value: a.id, label: a.name }))}
+              placeholder="Hesap seçiniz"
+              required
+            />
+            
+            <Select 
+              id="contactId"
+              label="Kişi"
+              value={form.contactId ?? ''}
+              onChange={(value) => setForm((p) => ({ ...p, contactId: value as number }))}
+              options={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
+              placeholder="Kişi seçiniz (opsiyonel)"
+            />
+            
+            <div className="grid grid-cols-2 gap-4">
+              <Input 
+                id="totalAmount"
+                label="Tutar *"
+                value={form.totalAmount}
+                onChange={(value) => setForm((p) => ({ ...p, totalAmount: value as string }))}
+                placeholder="0,00"
+                formatCurrency
+                currencySymbol="₺"
+                required
+              />
+              <Input 
+                id="totalInstallment"
+                label="Taksit Sayısı"
+                type="number"
+                value={form.totalInstallment}
+                onChange={(value) => setForm((p) => ({ ...p, totalInstallment: value as number }))}
+                placeholder="1"
+                min={1}
+                step={1}
+              />
+            </div>
+            
+            <Input 
+              id="description"
+              label="Açıklama"
+              value={form.description}
+              onChange={(value) => setForm((p) => ({ ...p, description: value as string }))}
+              placeholder="Açıklama ekleyiniz (opsiyonel)"
+            />
+          </form>
+        </Modal>
+      </div>
+    </div>
+  )
+}
+
+export default DebtsOverviewPage
+
+

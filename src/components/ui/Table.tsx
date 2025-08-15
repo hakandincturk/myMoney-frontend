@@ -1,0 +1,117 @@
+import React from 'react'
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+} from '@tanstack/react-table'
+
+type TableProps<T> = {
+  data: T[]
+  columns: any[]
+  className?: string
+  title?: string
+  showPagination?: boolean
+  pageSize?: number
+}
+
+export const Table = <T extends object>({ 
+  data, 
+  columns, 
+  className = '', 
+  title,
+  showPagination = true,
+  pageSize = 10
+}: TableProps<T>) => {
+  
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize,
+      },
+    },
+  })
+
+  return (
+    <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-hidden ${className}`}>
+      {title && (
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-mm-text">{title}</h3>
+        </div>
+      )}
+      
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50 dark:bg-mm-bg">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase tracking-wider"
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-mm-border">
+            {table.getRowModel().rows.map((row) => (
+              <tr 
+                key={row.id} 
+                className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-6 py-4 text-sm text-slate-900 dark:text-mm-text">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {showPagination && (
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-mm-border bg-slate-50 dark:bg-mm-bg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
+              <span>
+                Sayfa {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+              </span>
+              <span>•</span>
+              <span>
+                Toplam {table.getFilteredRowModel().rows.length} kayıt
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="px-3 py-1.5 text-sm rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Önceki
+              </button>
+              <button
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="px-3 py-1.5 text-sm rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sonraki
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Table
