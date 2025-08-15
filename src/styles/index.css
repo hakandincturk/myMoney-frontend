@@ -8,7 +8,13 @@
     height: 100%;
   }
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-white text-slate-900 antialiased;
+  }
+  ::selection {
+    @apply bg-blue-200 text-slate-900 dark:bg-mm-primary dark:text-mm-bg;
+  }
+  .dark body {
+    @apply bg-mm-bg text-mm-text;
   }
 }
 

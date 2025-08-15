@@ -1,0 +1,163 @@
+--- LIGHT MODE ---
+
+(Not) Varsayılan tema: LIGHT. Kullanıcı Tema Değiştir ile dilediği an Dark moda geçebilir. Tercih localStorage'a kaydedilir.
+
+İşte aynı paletin Light Mode için detaylı kullanım rehberi:
+
+⸻
+
+✅ Light Mode Palet: “Pastel Breeze Light”
+• Ana Renk (Pastel Mavi) → #64B5F6
+• İkincil (Mint Yeşil) → #81C784
+• Vurgu (CTA için Pastel Turuncu) → #FFB74D (hover: #FFA726)
+• Arka Plan → #FAFAFA
+• Kart Arka Plan → #FFFFFF
+• Metin (Ana Gri) → #212121
+
+📌 Karakter: Açık, ferah, pastel ve modern bir görünüm. Kullanıcı dostu, finans uygulaması için ideal.
+
+⸻
+
+✅ Arka Planlar
+	•	Ana Arka Plan: #FAFAFA (uygulamanın ana arka planı)
+	•	Kart Arka Plan: #FFFFFF (kartlar, modallar, içerik kutuları)
+	•	Hover Arka Plan: #F5F5F5 (kart hover, buton hover arka planı)
+	•	Border / Divider: #E0E0E0
+
+⸻
+
+✅ Metin Renkleri
+	•	Başlık ve Ana Metin: #212121
+	•	İkincil Metin: #616161
+	•	Disabled Metin: #9E9E9E
+
+⸻
+
+✅ Buton Kullanımı
+
+Primary CTA (Ödeme, Onay gibi kritik aksiyonlar)
+	•	Background: #FFB74D
+	•	Hover: #FFA726
+	•	Text: #FFFFFF
+	•	Border: Yok (flat, modern görünüm)
+
+Secondary Button (Geri, İptal, daha az kritik aksiyonlar)
+	•	Border + Text: #64B5F6 (Pastel Mavi)
+	•	Background: Transparent
+	•	Hover: rgba(100, 181, 246, 0.1) (hafif mavi tonlu şeffaf arka plan)
+
+Tertiary (İkon butonlar)
+	•	Icon Color: #81C784 (Mint Yeşil)
+	•	Hover: rgba(129, 199, 132, 0.1)
+
+⸻
+
+✅ Input ve Form Elemanları
+	•	Input Arka Plan: #FFFFFF
+	•	Placeholder: #9E9E9E
+	•	Text: #212121
+	•	Border: #E0E0E0 (focus olunca #64B5F6)
+
+⸻
+
+✅ Tab Bar / Navigation
+	•	Arka Plan: #FFFFFF
+	•	Aktif Sekme: #64B5F6
+	•	Pasif Sekme: #9E9E9E
+
+⸻
+
+✅ Grafikler ve Chart Renkleri
+	•	Gelir: #81C784 (mint)
+	•	Gider: #FFB74D (pastel turuncu)
+	•	Tasarruf: #64B5F6 (mavi)
+
+
+--- DARK MODE ---
+
+İşte “Pastel Breeze” Dark Mode Tema Detaylı Kullanım Kılavuzu:
+
+⸻
+
+✅ Temel Palet
+• Ana Renk (Primary) → #90CAF9 (Pastel Mavi)
+• İkincil (Secondary) → #A5D6A7 (Mint Yeşil)
+• Vurgu (Accent / CTA) → #FFB74D (hover: #FFA726)
+• Arka Plan → #121212
+• Kart Arka Plan → #1E1E1E
+• Metin (Primary Text) → #E0E0E0
+
+📌 Karakter: Modern, ferah, pastel tonlu, dark mode için optimize edilmiş.
+
+⸻
+
+✅ 1. Arka Plan ve Yapı
+	•	Ana Arka Plan → #121212 (uygulamanın genel arka planı)
+	•	Kart Arka Plan → #1E1E1E (kartlar, modallar, içerik blokları)
+	•	Kart Hover → #2C2C2C (kart üzerine gelince hafif parlama efekti)
+	•	Divider / Border → #2A2A2A (sekme ayırıcılar, tablo çizgileri)
+
+⸻
+
+✅ 2. Metin ve Yazı Renkleri
+	•	Ana Metin (Primary Text) → #E0E0E0
+	•	İkincil Metin (Secondary Text) → #B0BEC5 (örnek: açıklama, label)
+	•	Disabled Metin → #757575
+	•	Link Rengi → Ana Renk (#90CAF9), hover → daha açık ton (#B3E5FC)
+
+⸻
+
+✅ 3. Buton Stilleri
+
+Primary CTA (Ana Eylem – Ödeme, Onay)
+	•	Background → #FFB74D
+	•	Hover → #FFA726 (bir ton koyu pastel turuncu)
+	•	Text → #121212 (maksimum kontrast için)
+	•	Border → Yok (flat tasarım)
+	•	Shadow → Hafif (opsiyonel: rgba(0,0,0,0.2))
+
+Secondary Button (İkincil Eylemler)
+	•	Background → Transparent
+	•	Text → Ana Renk (#90CAF9)
+	•	Border → 1px solid #90CAF9
+	•	Hover → rgba(144,202,249,0.1) (hafif mavi arka plan)
+
+Danger / Uyarı Butonu (Opsiyonel)
+	•	Background → #EF5350 (kırmızımsı pastel ton)
+	•	Hover → #E53935
+	•	Text → #121212
+
+⸻
+
+✅ 4. Form Elemanları (Input, Dropdown, Checkbox)
+	•	Input Arka Plan → #1E1E1E
+	•	Border → #2A2A2A
+	•	Focus Border → Ana Renk (#90CAF9)
+	•	Placeholder → #9E9E9E
+	•	Text → #E0E0E0
+	•	Disabled Input → #333333 arka plan, metin #757575
+
+⸻
+
+✅ 5. Grafikler ve İstatistikler (Budget / Income / Expense)
+	•	Gelir (Income) → Mint Yeşil (#A5D6A7)
+	•	Gider (Expense) → Accent Turuncu (#FFB74D)
+	•	Tasarruf / Pozitif Bakiyeler → Pastel Mavi (#90CAF9)
+	•	Arka Plan → #1E1E1E
+	•	Grid Çizgileri → #2A2A2A
+
+⸻
+
+✅ 6. Hover & Aktif Efektler
+	•	Kart Hover → #2C2C2C
+	•	Tab Hover → rgba(144,202,249,0.1)
+	•	Tab Aktif Çizgi → Ana Renk (#90CAF9)
+
+⸻
+
+✅ 7. Ekstra Detaylar
+	•	Skeleton Loader → #2A2A2A + #1E1E1E gradient
+	•	Tooltip Arka Plan → #2C2C2C
+	•	Tooltip Yazı → #E0E0E0
+
+⸻
