@@ -93,7 +93,7 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <AuthContainer title="Hoş Geldiniz" subtitle="Hesabınıza giriş yapın">
+    <AuthContainer title="Hoş Geldiniz" subtitle="Kişisel finans yönetiminizi başlatın">
       <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               id="email"
