@@ -5,7 +5,9 @@ import {
   getPaginationRowModel,
   flexRender,
   createColumnHelper,
+  ColumnDef,
 } from '@tanstack/react-table'
+import { Button } from '@/components/ui/Button'
 
 type TableProps<T> = {
   data: T[]
@@ -92,20 +94,22 @@ export const Table = <T extends object>({
             </div>
             
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1.5 text-sm rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="px-3 py-1.5 text-sm"
               >
                 Önceki
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1.5 text-sm rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="px-3 py-1.5 text-sm"
               >
                 Sonraki
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -118,11 +118,11 @@ export const Select: React.FC<SelectProps> = ({
     }
   }
 
-  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-mm-card text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary'
+  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary'
   const borderClasses = error 
     ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
-    : 'border-slate-200 dark:border-mm-border hover:border-slate-300 dark:hover:border-mm-border/80'
-  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-mm-disabled' : 'cursor-pointer'
+    : 'border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500'
+  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-gray-700' : 'cursor-pointer'
 
   return (
     <div className={`w-full ${className}`}>
@@ -158,16 +158,16 @@ export const Select: React.FC<SelectProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-mm-card border-2 border-slate-200 dark:border-mm-border rounded-xl shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-60 overflow-hidden">
             {searchable && (
-              <div className="p-2 border-b border-slate-100 dark:border-mm-border">
+              <div className="p-2 border-b border-slate-100 dark:border-gray-600">
                 <input
                   ref={inputRef}
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Ara..."
-                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-mm-bg border border-slate-200 dark:border-mm-border rounded-lg text-slate-900 dark:text-mm-text placeholder-slate-400 dark:placeholder-mm-placeholder focus:outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary"
+                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-slate-900 dark:text-mm-text placeholder-slate-400 dark:placeholder-mm-placeholder focus:outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary"
                 />
               </div>
             )}
@@ -183,8 +183,8 @@ export const Select: React.FC<SelectProps> = ({
                     key={option.value}
                     className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
                       index === highlightedIndex
-                        ? 'bg-mm-primary/10 dark:bg-mm-primary/20 text-mm-primary dark:text-mm-primary'
-                        : 'hover:bg-slate-50 dark:hover:bg-mm-cardHover text-slate-900 dark:text-mm-text'
+                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                        : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
                     }`}
                     onClick={() => handleSelect(option.value)}
                     onMouseEnter={() => setHighlightedIndex(index)}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/Button'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
@@ -106,13 +107,14 @@ export const Toast: React.FC<ToastProps> = ({
         <div className="flex items-center gap-3 px-4 py-3">
           <span className="text-lg flex-shrink-0">{getIcon()}</span>
           <span className="flex-1 text-sm font-medium break-words">{message}</span>
-          <button
+          <Button
             onClick={handleClose}
-            className="text-white/80 hover:text-white text-lg font-bold transition-colors duration-200 hover:scale-110 flex-shrink-0"
+            variant="secondary"
+            className="text-white/80 hover:text-white text-lg font-bold transition-colors duration-200 hover:scale-110 flex-shrink-0 bg-transparent border-none hover:bg-transparent p-0 min-w-0 h-auto"
             aria-label="Toast'u kapat"
           >
             ×
-          </button>
+          </Button>
         </div>
         
         {/* Progress Bar */}

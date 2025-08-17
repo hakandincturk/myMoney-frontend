@@ -1,12 +1,15 @@
 import React from 'react'
 import { Table } from '@/components/ui/Table'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { TransactionStatus } from '@/services/transactionApi'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Mock taksit listesi - gerçek servisler gelene kadar
 const MOCK_INSTALLMENTS = [
-  { id: 1, debtId: 1, month: '2025-08', amount: 300, paid: false },
-  { id: 2, debtId: 1, month: '2025-09', amount: 300, paid: false },
-  { id: 3, debtId: 2, month: '2025-08', amount: 750, paid: true },
+  { id: 1, debtId: 1, month: '2025-08', amount: 300, status: TransactionStatus.PENDING },
+  { id: 2, debtId: 1, month: '2025-09', amount: 300, status: TransactionStatus.PENDING },
+  { id: 3, debtId: 2, month: '2025-08', amount: 750, status: TransactionStatus.PAID },
+  { id: 4, debtId: 2, month: '2025-09', amount: 750, status: TransactionStatus.PARTIAL },
 ]
 
 type Installment = {
@@ -14,7 +17,7 @@ type Installment = {
   debtId: number
   month: string
   amount: number
-  paid: boolean
+  status: TransactionStatus
 }
 
 const columnHelper = createColumnHelper<Installment>()
@@ -32,13 +35,9 @@ const columns = [
     header: 'Tutar',
     cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
   }),
-  columnHelper.accessor('paid', {
+  columnHelper.accessor('status', {
     header: 'Durum',
-    cell: (info) => (
-      <span className={info.getValue() ? 'text-emerald-600' : 'text-amber-600'}>
-        {info.getValue() ? 'Ödendi' : 'Bekliyor'}
-      </span>
-    ),
+    cell: (info) => <StatusBadge status={info.getValue()} />,
   }),
 ]
 

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation } from '@/services/contactApi'
 import { Modal } from '@/components/ui/Modal'
 import { Table } from '@/components/ui/Table'
+import { Button } from '@/components/ui/Button'
 import { createColumnHelper } from '@tanstack/react-table'
 import { Input } from '@/components/ui/Input'
 
@@ -29,18 +30,20 @@ const columns = [
     header: 'İşlemler',
     cell: (info) => (
       <div className="flex items-center gap-2 justify-end">
-        <button 
+        <Button 
           onClick={() => info.row.original.onEdit?.(info.row.original.id)} 
-          className="px-3 py-1.5 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover text-sm transition-colors"
+          variant="primary"
+          className="px-3 py-1.5 text-sm"
         >
           Düzenle
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={() => info.row.original.onDelete?.(info.row.original.id)} 
-          className="px-3 py-1.5 rounded-md bg-mm-danger text-white hover:bg-mm-dangerHover text-sm transition-colors"
+          variant="secondary"
+          className="px-3 py-1.5 text-sm text-red-600 border-red-600 hover:bg-red-50 hover:border-red-600 dark:bg-red-600 dark:text-white dark:border-red-600 dark:hover:bg-red-700 dark:hover:border-red-700"
         >
           Sil
-        </button>
+        </Button>
       </div>
     ),
   }),
@@ -95,12 +98,12 @@ export const ContactsPage: React.FC = () => {
       <div className="w-full">
         <div className="flex items-center justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Kişiler</h2>
-          <button 
+          <Button 
             onClick={() => { setForm({ fullName: '' }); setOpen(true) }} 
-            className="px-4 py-2 rounded-lg bg-mm-primary text-white hover:bg-mm-primaryHover transition-colors"
+            variant="primary"
           >
             Yeni Kişi
-          </button>
+          </Button>
         </div>
 
         <Table 
@@ -117,19 +120,18 @@ export const ContactsPage: React.FC = () => {
           title={form.id ? 'Kişiyi Düzenle' : 'Yeni Kişi'}
           footer={(
             <div className="flex justify-end gap-2">
-              <button 
+              <Button 
                 onClick={() => setOpen(false)} 
-                type="button" 
-                className="px-3 py-2 rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover"
+                variant="secondary"
               >
                 İptal
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleSubmit as unknown as () => void} 
-                className="px-3 py-2 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover"
+                variant="primary"
               >
                 Kaydet
-              </button>
+              </Button>
             </div>
           )}
         >

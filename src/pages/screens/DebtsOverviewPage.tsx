@@ -3,15 +3,18 @@ import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { useCreateTransactionMutation, TransactionType } from '@/services/transactionApi'
+import { Button } from '@/components/ui/Button'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { useCreateTransactionMutation, TransactionType, TransactionStatus } from '@/services/transactionApi'
+import { TransactionHelpers } from '../../types'
 import { useListMyActiveContactsQuery } from '@/services/contactApi'
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Mock veri - gerçek servisler hazır olana kadar
 const MOCK_DEBTS = [
-  { id: 1, contact: 'Ahmet Yılmaz', account: 'Nakit', amount: 1200, status: 'PENDING' },
-  { id: 2, contact: 'Market', account: 'Banka', amount: 4500, status: 'PARTIAL' },
+  { id: 1, contact: 'Ahmet Yılmaz', account: 'Nakit', amount: 1200, status: TransactionStatus.PENDING },
+  { id: 2, contact: 'Market', account: 'Banka', amount: 4500, status: TransactionStatus.PARTIAL },
 ]
 
 type Debt = {
@@ -19,7 +22,7 @@ type Debt = {
   contact: string
   account: string
   amount: number
-  status: string
+  status: TransactionStatus
 }
 
 const columnHelper = createColumnHelper<Debt>()
@@ -39,15 +42,7 @@ const columns = [
   }),
   columnHelper.accessor('status', {
     header: 'Durum',
-    cell: (info) => (
-      <span className={
-        info.getValue() === 'PENDING' ? 'text-amber-600' : 
-        info.getValue() === 'PARTIAL' ? 'text-blue-600' : 'text-emerald-600'
-      }>
-        {info.getValue() === 'PENDING' ? 'Bekliyor' : 
-         info.getValue() === 'PARTIAL' ? 'Kısmi' : 'Ödendi'}
-      </span>
-    ),
+    cell: (info) => <StatusBadge status={info.getValue()} />,
   }),
 ]
 
@@ -93,12 +88,12 @@ export const DebtsOverviewPage: React.FC = () => {
       <div className="w-full">
         <div className="flex items-center justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Borçlar</h2>
-          <button 
+          <Button 
             onClick={() => setModalOpen(true)} 
-            className="px-4 py-2 rounded-lg bg-mm-primary text-white hover:bg-mm-primaryHover transition-colors"
+            variant="primary"
           >
             Yeni Borç
-          </button>
+          </Button>
         </div>
 
         <Table 
@@ -116,20 +111,19 @@ export const DebtsOverviewPage: React.FC = () => {
           title="Yeni Borç Girişi"
           footer={(
             <div className="flex justify-end gap-2">
-              <button 
+              <Button 
                 onClick={() => setModalOpen(false)} 
-                type="button" 
-                className="px-3 py-2 rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover"
+                variant="secondary"
               >
                 İptal
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleSubmit as unknown as () => void} 
                 disabled={isLoading}
-                className="px-3 py-2 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover disabled:opacity-60"
+                variant="primary"
               >
                 {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
-              </button>
+              </Button>
             </div>
           )}
         >
@@ -175,6 +169,16 @@ export const DebtsOverviewPage: React.FC = () => {
                 step={1}
               />
             </div>
+            
+            <Select 
+              id="type"
+              label="İşlem Türü"
+              value={form.type}
+              onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
+              options={TransactionHelpers.getTypeOptions()}
+              placeholder="İşlem türü seçiniz"
+              required
+            />
             
             <Input 
               id="description"

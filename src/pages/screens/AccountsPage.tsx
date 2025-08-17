@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { AccountType, CurrencyType, useCreateAccountMutation, useListMyActiveAccountsQuery, useUpdateMyAccountMutation } from '@/services/accountApi'
+import { AccountHelpers } from '../../types'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Button } from '@/components/ui/Button'
 import { createColumnHelper } from '@tanstack/react-table'
 
 type Account = {
@@ -25,7 +27,7 @@ const columns = [
   }),
   columnHelper.accessor('type', {
     header: 'Tür',
-    cell: (info) => info.getValue(),
+    cell: (info) => AccountHelpers.getTypeText(info.getValue()),
   }),
   columnHelper.accessor('currency', {
     header: 'Para Birimi',
@@ -44,12 +46,13 @@ const columns = [
     header: 'Düzenle',
     cell: (info) => (
       <div className="flex items-center justify-end">
-        <button 
+        <Button 
           onClick={() => info.row.original.onEdit?.(info.row.original.id)} 
-          className="px-3 py-1.5 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover text-sm transition-colors"
+          variant="primary"
+          className="px-3 py-1.5 text-sm"
         >
           Düzenle
-        </button>
+        </Button>
       </div>
     ),
   }),
@@ -134,7 +137,9 @@ export const AccountsPage: React.FC = () => {
       <div className="w-full">
         <div className="flex items-center justify-between">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Hesaplar</h2>
-          <button onClick={() => setOpenCreate(true)} className="px-4 py-2 rounded-lg bg-mm-primary text-white hover:bg-mm-primaryHover transition-colors">Yeni Hesap</button>
+          <Button onClick={() => setOpenCreate(true)} variant="primary">
+            Yeni Hesap
+          </Button>
         </div>
 
         <Table 
@@ -148,8 +153,12 @@ export const AccountsPage: React.FC = () => {
         <Modal open={openCreate} onClose={() => setOpenCreate(false)} title="Yeni Hesap"
           footer={(
             <div className="flex justify-end gap-2">
-              <button onClick={() => setOpenCreate(false)} type="button" className="px-3 py-2 rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover">İptal</button>
-              <button onClick={submitCreate as unknown as () => void} className="px-3 py-2 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover">Kaydet</button>
+              <Button onClick={() => setOpenCreate(false)} variant="secondary">
+                İptal
+              </Button>
+              <Button onClick={submitCreate as unknown as () => void} variant="primary">
+                Kaydet
+              </Button>
             </div>
           )}
         >
@@ -168,7 +177,7 @@ export const AccountsPage: React.FC = () => {
                 label="Hesap Türü"
                 value={createForm.type}
                 onChange={(value) => setCreateForm((p) => ({ ...p, type: value as AccountType }))}
-                options={Object.values(AccountType).map(type => ({ value: type, label: type }))}
+                options={AccountHelpers.getTypeOptions()}
                 placeholder="Tür seçiniz"
                 required
               />
@@ -197,8 +206,12 @@ export const AccountsPage: React.FC = () => {
         <Modal open={openEdit} onClose={() => setOpenEdit(false)} title="Hesabı Düzenle"
           footer={(
             <div className="flex justify-end gap-2">
-              <button onClick={() => setOpenEdit(false)} type="button" className="px-3 py-2 rounded-md border border-slate-300 dark:border-mm-border text-slate-700 dark:text-mm-text hover:bg-slate-50 dark:hover:bg-mm-cardHover">İptal</button>
-              <button onClick={submitUpdate as unknown as () => void} className="px-3 py-2 rounded-md bg-mm-primary text-white hover:bg-mm-primaryHover">Güncelle</button>
+              <Button onClick={() => setOpenEdit(false)} variant="secondary">
+                İptal
+              </Button>
+              <Button onClick={submitUpdate as unknown as () => void} variant="primary">
+                Güncelle
+              </Button>
             </div>
           )}
         >

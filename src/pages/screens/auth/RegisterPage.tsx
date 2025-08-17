@@ -154,7 +154,7 @@ export const RegisterPage: React.FC = () => {
               type="text"
               placeholder="Adınız ve soyadınız"
               value={form.fullName}
-              onChange={v => update('fullName', v)}
+              onChange={v => update('fullName', v as string)}
               error={fieldErrors.fullName}
               required
             />
@@ -164,7 +164,7 @@ export const RegisterPage: React.FC = () => {
               type="text"
               placeholder="ornek@email.com"
               value={form.email}
-              onChange={v => update('email', v)}
+              onChange={v => update('email', v as string)}
               error={fieldErrors.email}
               required
             />
@@ -172,18 +172,17 @@ export const RegisterPage: React.FC = () => {
               id="password"
               label="Şifre"
               value={form.password}
-              onChange={v => update('password', v)}
+              onChange={v => update('password', v as string)}
               placeholder="En az 6 karakter"
               error={fieldErrors.password}
               required
             />
-            <Input
+            <PasswordInput
               id="confirmPassword"
               label="Şifre (Tekrar)"
-              type="password"
-              placeholder="Şifrenizi tekrar girin"
               value={form.confirmPassword}
-              onChange={v => update('confirmPassword', v)}
+              onChange={v => update('confirmPassword', v as string)}
+              placeholder="Şifrenizi tekrar girin"
               error={fieldErrors.confirmPassword}
               required
             />
@@ -193,7 +192,7 @@ export const RegisterPage: React.FC = () => {
               type="text"
               placeholder="+90 5XX XXX XX XX"
               value={form.phone}
-              onChange={v => update('phone', v)}
+              onChange={v => update('phone', v as string)}
               error={fieldErrors.phone}
               required
             />

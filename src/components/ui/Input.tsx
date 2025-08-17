@@ -36,11 +36,11 @@ export const Input: React.FC<InputProps> = ({
   currencySymbol = '₺',
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-mm-card text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary placeholder-slate-400 dark:placeholder-mm-placeholder'
+  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary placeholder-slate-400 dark:placeholder-mm-placeholder'
   const borderClasses = error 
     ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
-    : 'border-slate-200 dark:border-mm-border hover:border-slate-300 dark:hover:border-mm-border/80'
-  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-mm-disabled' : 'hover:bg-slate-50 dark:hover:bg-mm-cardHover'
+    : 'border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500'
+  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-gray-700' : 'hover:bg-slate-50 dark:hover:bg-gray-700'
 
   // Para formatı için yardımcı fonksiyonlar
   const formatCurrencyValue = (inputValue: string): string => {

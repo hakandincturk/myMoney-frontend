@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Button } from '@/components/ui/Button'
 import { useAppDispatch } from '@/store/hooks'
 import { authSlice } from '@/store/slices/authSlice'
 
@@ -53,7 +54,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   key={i.to}
                   to={i.to}
                   end={i.end as boolean | undefined}
-                  className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-colors duration-200 ease-in-out ${isActive ? 'bg-slate-100 dark:bg-mm-primary/10 text-mm-primary dark:text-mm-primary' : 'text-slate-700 dark:text-mm-text hover:bg-slate-100 dark:hover:bg-mm-cardHover'}`}
+                  className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-colors duration-200 ease-in-out ${isActive ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'}`}
                 >
                   {i.label}
                 </NavLink>
@@ -61,7 +62,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </nav>
             <div className="mt-auto p-4 border-t border-slate-200 dark:border-mm-border flex items-center justify-between bg-slate-50 dark:bg-mm-card">
               <ThemeToggle />
-              <button onClick={logout} className="px-4 py-2 rounded-md bg-mm-danger dark:bg-mm-danger text-white hover:bg-mm-dangerHover dark:hover:bg-mm-dangerHover text-base font-medium">Çıkış</button>
+              <Button onClick={logout} variant="secondary" className="bg-red-600 hover:bg-red-700 !text-white border-red-600 hover:border-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-white dark:border-red-600 dark:hover:border-red-700">
+                Çıkış
+              </Button>
             </div>
           </aside>
 
@@ -71,7 +74,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <button onClick={() => setSidebarOpen(true)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-mm-cardHover" aria-label="Menü">☰</button>
               <div className="flex items-center gap-2">
                 <ThemeToggle />
-                <button onClick={logout} className="px-4 py-2 rounded-md bg-mm-danger dark:bg-mm-danger text-white hover:bg-mm-dangerHover dark:hover:bg-mm-dangerHover text-base font-medium">Çıkış</button>
+                <Button onClick={logout} variant="secondary" className="bg-red-600 hover:bg-red-700 !text-white border-red-600 hover:border-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-white dark:border-red-600 dark:hover:border-red-700">
+                  Çıkış
+                </Button>
               </div>
             </div>
             <main className="w-full">{children}</main>

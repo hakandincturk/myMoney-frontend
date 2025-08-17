@@ -1,13 +1,15 @@
 import React from 'react'
+import { Button } from '@/components/ui/Button'
 import { useTheme } from './ThemeProvider'
 
 export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
   return (
-    <button
+    <Button
       type="button"
       onClick={toggleTheme}
+      variant="secondary"
       aria-label="Tema değiştir"
       className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
         isDark
@@ -26,7 +28,7 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
           <span>Açık</span>
         </>
       )}
-    </button>
+    </Button>
   )
 }
 

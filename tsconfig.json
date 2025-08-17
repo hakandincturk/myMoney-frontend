@@ -34,6 +34,9 @@
       ],
       "@/types/*": [
         "src/types/*"
+      ],
+      "@/enums/*": [
+        "src/enums/*"
       ]
     }
   },

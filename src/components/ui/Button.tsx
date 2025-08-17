@@ -23,9 +23,9 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variants: Record<'primary' | 'secondary', string> = {
     primary:
-      'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-mm-accent dark:via-mm-accentHover dark:to-mm-accent text-white dark:text-mm-bg hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 dark:hover:from-mm-accentHover dark:hover:via-mm-accent dark:hover:to-mm-accentHover focus:ring-slate-900/50 dark:focus:ring-mm-accent/50 disabled:from-slate-400 disabled:via-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed shadow-lg shadow-slate-900/25 dark:shadow-mm-accent/25 hover:shadow-xl hover:shadow-slate-900/30 dark:hover:shadow-mm-accent/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover:before:translate-x-full before:transition-transform before:duration-700',
+      'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 focus:ring-blue-600/50 dark:focus:ring-blue-700/50 disabled:bg-gray-400 disabled:cursor-not-allowed',
     secondary:
-      'border-2 border-slate-300 dark:border-mm-primary bg-white/80 dark:bg-mm-surface/80 backdrop-blur-sm text-slate-700 dark:text-mm-primary hover:border-slate-400 dark:hover:border-mm-primaryHover hover:bg-white dark:hover:bg-mm-surface focus:ring-slate-300 dark:focus:ring-mm-primary/50 disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all duration-300',
+      'border-2 border-blue-600 dark:border-blue-500 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 focus:ring-blue-600/50 dark:focus:ring-blue-500/50 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed',
   }
 
   const size = 'px-4 py-3 text-sm'
