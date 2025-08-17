@@ -1,16 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { RootState } from '@/store/store'
-
-const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`)
-    }
-    return headers
-  },
-})
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQueryWithReauth } from './baseApi'
 
 type LoginRequestDto = {
   email: string
@@ -33,7 +22,7 @@ type ApiResponseLoginResponseDto = {
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Auth'],
   endpoints: (build) => ({
     login: build.mutation<ApiResponseLoginResponseDto, LoginRequestDto>({

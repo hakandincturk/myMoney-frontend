@@ -1,16 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { RootState } from '@/store/store'
-
-const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`)
-    }
-    return headers
-  },
-})
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQueryWithReauth } from './baseApi'
 
 export enum TransactionType {
   DEBT = 'DEBT',
@@ -50,7 +39,7 @@ export type TransactionListItem = {
 
 export const transactionApi = createApi({
   reducerPath: 'transactionApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Transaction'],
   endpoints: (build) => ({
     createTransaction: build.mutation<{ type: boolean }, CreateTransactionRequestDto>({
