@@ -24,7 +24,23 @@ type Installment = {
 const columnHelper = createColumnHelper<Installment>()
 
 export const InstallmentsPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  
+  // Ay formatını değiştiren fonksiyon
+  const formatMonth = (monthString: string) => {
+    try {
+      const [year, month] = monthString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1)
+      
+      if (i18n.language === 'tr') {
+        return date.toLocaleDateString('tr-TR', { month: 'long' })
+      } else {
+        return date.toLocaleDateString('en-US', { month: 'long' })
+      }
+    } catch {
+      return monthString // Hata durumunda orijinal değeri döndür
+    }
+  }
   
   const columns = [
     columnHelper.accessor('debtId', {
@@ -33,7 +49,7 @@ export const InstallmentsPage: React.FC = () => {
     }),
     columnHelper.accessor('month', {
       header: t('table.columns.month'),
-      cell: (info) => info.getValue(),
+      cell: (info) => formatMonth(info.getValue()),
     }),
     columnHelper.accessor('amount', {
       header: t('table.columns.amount'),
