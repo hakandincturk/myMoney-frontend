@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { selectAuth } from '@/store/slices/authSelectors'
 import { authSlice } from '@/store/slices/authSlice'
@@ -84,11 +85,17 @@ const doughnutOptions = {
 }
 
 export const HomePage: React.FC = () => {
+  const { t } = useTranslation()
+
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full mb-6 bg-slate-50 dark:bg-mm-bg rounded-xl p-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text mb-2">Dashboard</h1>
-        <p className="text-sm text-slate-600 dark:text-mm-subtleText">Finansal durumunuzun genel görünümü</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text mb-2">
+          {t('navigation.home')}
+        </h1>
+        <p className="text-sm text-slate-600 dark:text-mm-subtleText">
+          {t('auth.startFinance')}
+        </p>
       </div>
 
       {/* Özet Kartları */}
@@ -99,7 +106,9 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-mm-secondary/20 flex items-center justify-center mb-2">
                 <span className="text-emerald-600 dark:text-mm-secondary text-xl">₺</span>
               </div>
-              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">Toplam Bakiye</h3>
+              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">
+                {t('account.totalBalance')}
+              </h3>
               <p className="text-2xl font-bold text-emerald-600 dark:text-mm-secondary">₺160,000</p>
             </div>
           </Card>
@@ -109,7 +118,9 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-mm-primary/20 flex items-center justify-center mb-2">
                 <span className="text-blue-600 dark:text-mm-primary text-xl">↑</span>
               </div>
-              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">Bu Ay Gelir</h3>
+              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">
+                {t('transaction.monthlyIncome')}
+              </h3>
               <p className="text-2xl font-bold text-blue-600 dark:text-mm-primary">₺18,000</p>
             </div>
           </Card>
@@ -119,7 +130,9 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-mm-accent/20 flex items-center justify-center mb-2">
                 <span className="text-rose-600 dark:text-mm-accent text-xl">↓</span>
               </div>
-              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">Bu Ay Gider</h3>
+              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">
+                {t('transaction.monthlyExpense')}
+              </h3>
               <p className="text-2xl font-bold text-rose-600 dark:text-mm-accent">₺15,000</p>
             </div>
           </Card>
@@ -129,7 +142,9 @@ export const HomePage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-mm-primary/20 flex items-center justify-center mb-2">
                 <span className="text-amber-600 dark:text-mm-primary text-xl">%</span>
               </div>
-              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">Tasarruf Oranı</h3>
+              <h3 className="text-sm font-medium text-slate-600 dark:text-mm-subtleText mb-1">
+                {t('transaction.savingsRate')}
+              </h3>
               <p className="text-2xl font-bold text-amber-600 dark:text-mm-primary">%16.7</p>
             </div>
           </Card>
@@ -140,21 +155,21 @@ export const HomePage: React.FC = () => {
       <div className="w-full space-y-6">
         {/* Gelir-Gider Trendi */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card title="Aylık Gelir-Gider Trendi" className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
+          <Card title={t('transaction.incomeExpenseTrend')} className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
             <div className="h-64">
               <Line
                 data={{
                   labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
                   datasets: [
                     {
-                      label: 'Gelir',
+                      label: t('transaction.income'),
                       data: MOCK_DATA.monthlyIncome,
                       borderColor: '#64B5F6',
                       backgroundColor: '#64B5F6',
                       tension: 0.4,
                     },
                     {
-                      label: 'Gider',
+                      label: t('transaction.expense'),
                       data: MOCK_DATA.monthlyExpense,
                       borderColor: '#FFB74D',
                       backgroundColor: '#FFB74D',
@@ -167,7 +182,7 @@ export const HomePage: React.FC = () => {
             </div>
           </Card>
 
-          <Card title="Hesap Dağılımı" className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
+          <Card title={t('account.distribution')} className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
             <div className="h-64">
               <Doughnut
                 data={{
@@ -189,7 +204,7 @@ export const HomePage: React.FC = () => {
 
         {/* Son İşlemler ve Hızlı Erişim */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card title="Son İşlemler" className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
+          <Card title={t('transaction.recentTransactions')} className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
             <div className="space-y-3">
               {MOCK_DATA.recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-mm-bg">
@@ -218,34 +233,34 @@ export const HomePage: React.FC = () => {
             </div>
           </Card>
 
-          <Card title="Hızlı Erişim" className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
+          <Card title={t('common.quickAccess')} className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors">
             <div className="grid grid-cols-2 gap-3">
               <Link to="/contacts" className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-mm-bg hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-mm-primary/20 flex items-center justify-center">
                   <span className="text-blue-600 dark:text-mm-primary text-lg">👥</span>
                 </div>
-                <span className="font-medium text-slate-900 dark:text-mm-text">Kişiler</span>
+                <span className="font-medium text-slate-900 dark:text-mm-text">{t('navigation.contacts')}</span>
               </Link>
               
               <Link to="/accounts" className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-mm-bg hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-mm-secondary/20 flex items-center justify-center">
                   <span className="text-emerald-600 dark:text-mm-secondary text-lg">🏦</span>
                 </div>
-                <span className="font-medium text-slate-900 dark:text-mm-text">Hesaplar</span>
+                <span className="font-medium text-slate-900 dark:text-mm-text">{t('navigation.accounts')}</span>
               </Link>
               
               <Link to="/debts/overview" className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-mm-bg hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-mm-accent/20 flex items-center justify-center">
                   <span className="text-amber-600 dark:text-mm-accent text-lg">➕</span>
                 </div>
-                <span className="text-slate-900 dark:text-mm-text font-medium">Borç Girişi</span>
+                <span className="text-slate-900 dark:text-mm-text font-medium">{t('transaction.newDebt')}</span>
               </Link>
               
               <Link to="/debts/overview" className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-mm-bg hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-colors">
                 <div className="w-10 h-12 rounded-lg bg-purple-100 dark:bg-mm-primary/20 flex items-center justify-center">
                   <span className="text-purple-600 dark:text-mm-primary text-lg">📊</span>
                 </div>
-                <span className="font-medium text-slate-900 dark:text-mm-text">Borçlar</span>
+                <span className="font-medium text-slate-900 dark:text-mm-text">{t('navigation.debts')}</span>
               </Link>
             </div>
           </Card>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { createColumnHelper } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 
 type Account = {
   id: number
@@ -20,49 +21,50 @@ type Account = {
 
 const columnHelper = createColumnHelper<Account>()
 
-const columns = [
-  columnHelper.accessor('name', {
-    header: 'Ad',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('type', {
-    header: 'Tür',
-    cell: (info) => AccountHelpers.getTypeText(info.getValue()),
-  }),
-  columnHelper.accessor('currency', {
-    header: 'Para Birimi',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('balance', {
-    header: 'Bakiye',
-    cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
-  }),
-  columnHelper.accessor('totalBalance', {
-    header: 'Toplam',
-    cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
-  }),
-  columnHelper.display({
-    id: 'actions',
-    header: 'Düzenle',
-    cell: (info) => (
-      <div className="flex items-center justify-end">
-        <Button 
-          onClick={() => info.row.original.onEdit?.(info.row.original.id)} 
-          variant="primary"
-          className="px-3 py-1.5 text-sm"
-        >
-          Düzenle
-        </Button>
-      </div>
-    ),
-  }),
-]
-
 export const AccountsPage: React.FC = () => {
+  const { t } = useTranslation()
   const { data } = useListMyActiveAccountsQuery()
   const [createAccount] = useCreateAccountMutation()
   const [updateMyAccount] = useUpdateMyAccountMutation()
   
+  const columns = [
+    columnHelper.accessor('name', {
+      header: t('table.columns.name'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('type', {
+      header: t('table.columns.type'),
+      cell: (info) => AccountHelpers.getTypeText(info.getValue()),
+    }),
+    columnHelper.accessor('currency', {
+      header: t('table.columns.currency'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('balance', {
+      header: t('table.columns.balance'),
+      cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
+    }),
+    columnHelper.accessor('totalBalance', {
+      header: t('table.columns.totalBalance'),
+      cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: t('table.columns.edit'),
+      cell: (info) => (
+        <div className="flex items-center justify-end">
+          <Button 
+            onClick={() => info.row.original.onEdit?.(info.row.original.id)} 
+            variant="primary"
+            className="px-3 py-1.5 text-sm"
+          >
+            {t('table.columns.edit')}
+          </Button>
+        </div>
+      ),
+    }),
+  ]
+
   const [createForm, setCreateForm] = useState({
     name: '',
     type: AccountType.CASH as AccountType,
@@ -136,16 +138,16 @@ export const AccountsPage: React.FC = () => {
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Hesaplar</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.accounts')}</h2>
           <Button onClick={() => setOpenCreate(true)} variant="primary">
-            Yeni Hesap
+            {t('buttons.newAccount')}
           </Button>
         </div>
 
         <Table 
           data={accounts} 
           columns={columns} 
-          title="Hesap Listesi"
+          title={t('table.titles.accountList')}
           showPagination={accounts.length > 10}
           pageSize={10}
         />

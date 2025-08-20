@@ -10,6 +10,7 @@ import { TransactionHelpers } from '../../types'
 import { useListMyActiveContactsQuery } from '@/services/contactApi'
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { createColumnHelper } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 
 // Mock veri - gerçek servisler hazır olana kadar
 const MOCK_DEBTS = [
@@ -27,32 +28,33 @@ type Debt = {
 
 const columnHelper = createColumnHelper<Debt>()
 
-const columns = [
-  columnHelper.accessor('contact', {
-    header: 'Kişi',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('account', {
-    header: 'Hesap',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('amount', {
-    header: 'Tutar',
-    cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
-  }),
-  columnHelper.accessor('status', {
-    header: 'Durum',
-    cell: (info) => <StatusBadge status={info.getValue()} />,
-  }),
-]
-
 export const DebtsOverviewPage: React.FC = () => {
+  const { t } = useTranslation()
   const { data: contactsData } = useListMyActiveContactsQuery()
   const { data: accountsData } = useListMyActiveAccountsQuery()
   const contacts = useMemo(() => contactsData?.data ?? [], [contactsData])
   const accounts = useMemo(() => accountsData?.data ?? [], [accountsData])
   const [createTransaction, { isLoading }] = useCreateTransactionMutation()
   
+  const columns = [
+    columnHelper.accessor('contact', {
+      header: t('table.columns.contact'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('account', {
+      header: t('table.columns.account'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('amount', {
+      header: t('table.columns.amount'),
+      cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
+    }),
+    columnHelper.accessor('status', {
+      header: t('table.columns.status'),
+      cell: (info) => <StatusBadge status={info.getValue()} />,
+    }),
+  ]
+
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState({
     contactId: undefined as number | undefined,
@@ -86,20 +88,20 @@ export const DebtsOverviewPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Borçlar</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
           <Button 
             onClick={() => setModalOpen(true)} 
             variant="primary"
           >
-            Yeni Borç
+            {t('buttons.newDebt')}
           </Button>
         </div>
 
         <Table 
           data={MOCK_DEBTS} 
           columns={columns} 
-          title="Borç Listesi"
+          title={t('table.titles.debtList')}
           showPagination={MOCK_DEBTS.length > 10}
           pageSize={10}
         />
@@ -108,21 +110,21 @@ export const DebtsOverviewPage: React.FC = () => {
         <Modal 
           open={modalOpen} 
           onClose={() => setModalOpen(false)} 
-          title="Yeni Borç Girişi"
+          title={t('modals.newDebt')}
           footer={(
             <div className="flex justify-end gap-2">
               <Button 
                 onClick={() => setModalOpen(false)} 
                 variant="secondary"
               >
-                İptal
+                {t('buttons.cancel')}
               </Button>
               <Button 
                 onClick={handleSubmit as unknown as () => void} 
                 disabled={isLoading}
                 variant="primary"
               >
-                {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
+                {isLoading ? t('common.loading') : t('buttons.save')}
               </Button>
             </div>
           )}

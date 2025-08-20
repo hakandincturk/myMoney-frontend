@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRegisterMutation } from '@/services/authApi'
 import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '@/components/ui/Input'
@@ -7,6 +8,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput'
 import { AuthContainer } from '@/components/ui/AuthContainer'
 
 export const RegisterPage: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [register, { isLoading, isSuccess }] = useRegisterMutation()
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', phone: '' })
@@ -27,39 +29,39 @@ export const RegisterPage: React.FC = () => {
       const timer = setTimeout(() => {
         navigate('/login', {
           state: {
-            message: 'Kayıt başarılı! Lütfen giriş yapın.',
+            message: t('messages.createSuccess'),
             email: form.email,
           },
         })
       }, 1500)
       return () => clearTimeout(timer)
     }
-  }, [isSuccess, navigate, form.email])
+  }, [isSuccess, navigate, form.email, t])
 
   // Validasyon fonksiyonları
   const validateFullName = (fullName: string) => {
-    if (!fullName.trim()) return 'Ad soyad gereklidir'
-    if (fullName.trim().length < 2) return 'Ad soyad en az 2 karakter olmalıdır'
+    if (!fullName.trim()) return t('validation.required')
+    if (fullName.trim().length < 2) return t('validation.minLength', { min: 2 })
     return ''
   }
   const validateEmail = (email: string) => {
-    if (!email.trim()) return 'E-posta adresi gereklidir'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Geçerli bir e-posta adresi giriniz'
+    if (!email.trim()) return t('validation.required')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return t('validation.email')
     return ''
   }
   const validatePassword = (password: string) => {
-    if (!password) return 'Şifre gereklidir'
-    if (password.length < 6) return 'Şifre en az 6 karakter olmalıdır'
+    if (!password) return t('validation.required')
+    if (password.length < 6) return t('validation.minLength', { min: 6 })
     return ''
   }
   const validateConfirmPassword = (confirmPassword: string, password: string) => {
-    if (!confirmPassword) return 'Şifre tekrarı gereklidir'
-    if (confirmPassword !== password) return 'Şifreler eşleşmiyor'
+    if (!confirmPassword) return t('validation.required')
+    if (confirmPassword !== password) return t('validation.passwordMismatch')
     return ''
   }
   const validatePhone = (phone: string) => {
-    if (!phone.trim()) return 'Telefon numarası gereklidir'
-    if (!(/[\+]?\d[\d\s\-\(\)]{9,}$/).test(phone)) return 'Geçerli bir telefon numarası giriniz'
+    if (!phone.trim()) return t('validation.required')
+    if (!(/[\+]?\d[\d\s\-\(\)]{9,}$/).test(phone)) return t('validation.invalidPhone')
     return ''
   }
 
@@ -123,7 +125,7 @@ export const RegisterPage: React.FC = () => {
         phone: form.phone.trim(),
       }).unwrap()
       if (result.type === false) {
-        setError(result.message || 'Kayıt işlemi başarısız. Lütfen tekrar deneyin.')
+        setError(result.message || t('messages.operationFailed'))
         return
       }
     } catch (err: any) {
@@ -140,19 +142,19 @@ export const RegisterPage: React.FC = () => {
         })
         setError('') // Genel hata mesajını temizle
       } else {
-        setError(err?.data?.message || 'Kayıt işlemi başarısız. Lütfen tekrar deneyin.')
+        setError(err?.data?.message || t('messages.operationFailed'))
       }
     }
   }
 
   return (
-    <AuthContainer title="Hesap Oluştur" subtitle="Kişisel finans yönetiminizi başlatın">
+    <AuthContainer title={t('auth.register')} subtitle={t('auth.startFinance')}>
       <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               id="fullName"
-              label="Ad Soyad"
+              label={t('auth.fullName')}
               type="text"
-              placeholder="Adınız ve soyadınız"
+              placeholder={t('auth.placeholders.fullName')}
               value={form.fullName}
               onChange={v => update('fullName', v as string)}
               error={fieldErrors.fullName}
@@ -160,9 +162,9 @@ export const RegisterPage: React.FC = () => {
             />
             <Input
               id="email"
-              label="E-posta Adresi"
+              label={t('auth.email')}
               type="text"
-              placeholder="ornek@email.com"
+              placeholder={t('auth.placeholders.email')}
               value={form.email}
               onChange={v => update('email', v as string)}
               error={fieldErrors.email}
@@ -170,27 +172,27 @@ export const RegisterPage: React.FC = () => {
             />
             <PasswordInput
               id="password"
-              label="Şifre"
+              label={t('auth.password')}
               value={form.password}
               onChange={v => update('password', v as string)}
-              placeholder="En az 6 karakter"
+              placeholder={t('validation.minLength', { min: 6 })}
               error={fieldErrors.password}
               required
             />
             <PasswordInput
               id="confirmPassword"
-              label="Şifre (Tekrar)"
+              label={t('auth.confirmPassword')}
               value={form.confirmPassword}
               onChange={v => update('confirmPassword', v as string)}
-              placeholder="Şifrenizi tekrar girin"
+              placeholder={t('auth.confirmPassword')}
               error={fieldErrors.confirmPassword}
               required
             />
             <Input
               id="phone"
-              label="Telefon Numarası"
+              label={t('auth.phone')}
               type="text"
-              placeholder="+90 5XX XXX XX XX"
+              placeholder={t('auth.placeholders.phone')}
               value={form.phone}
               onChange={v => update('phone', v as string)}
               error={fieldErrors.phone}
@@ -205,19 +207,19 @@ export const RegisterPage: React.FC = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Kayıt oluşturuluyor...</span>
+                  <span>{t('auth.registerInProgress')}</span>
                 </div>
-              ) : 'Hesap Oluştur'}
+              ) : t('auth.register')}
             </Button>
             {isSuccess && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 rounded-xl p-3 text-green-700 dark:text-green-400">
-                Kayıt başarılı! Giriş yapabilirsiniz.
+                {t('messages.createSuccess')}
               </div>
             )}
             <div className="text-center text-sm text-mm-subtleText">
-              Zaten hesabınız var mı?{' '}
+              {t('auth.hasAccount')}{' '}
               <Link to="/login" className="text-mm-primary hover:text-mm-primaryHover">
-                Giriş yapın
+                {t('auth.loginHere')}
               </Link>
             </div>
       </form>

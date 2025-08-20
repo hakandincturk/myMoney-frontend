@@ -3,6 +3,7 @@ import { Table } from '@/components/ui/Table'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { TransactionStatus } from '@/services/transactionApi'
 import { createColumnHelper } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 
 // Mock taksit listesi - gerçek servisler gelene kadar
 const MOCK_INSTALLMENTS = [
@@ -22,35 +23,37 @@ type Installment = {
 
 const columnHelper = createColumnHelper<Installment>()
 
-const columns = [
-  columnHelper.accessor('debtId', {
-    header: 'Borç ID',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('month', {
-    header: 'Ay',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('amount', {
-    header: 'Tutar',
-    cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
-  }),
-  columnHelper.accessor('status', {
-    header: 'Durum',
-    cell: (info) => <StatusBadge status={info.getValue()} />,
-  }),
-]
-
 export const InstallmentsPage: React.FC = () => {
+  const { t } = useTranslation()
+  
+  const columns = [
+    columnHelper.accessor('debtId', {
+      header: t('table.columns.debtId'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('month', {
+      header: t('table.columns.month'),
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor('amount', {
+      header: t('table.columns.amount'),
+      cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
+    }),
+    columnHelper.accessor('status', {
+      header: t('table.columns.status'),
+      cell: (info) => <StatusBadge status={info.getValue()} />,
+    }),
+  ]
+
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">Aylık Taksitler</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text mb-4">{t('pages.installments')}</h2>
 
         <Table 
           data={MOCK_INSTALLMENTS} 
           columns={columns} 
-          title="Taksit Listesi"
+          title={t('table.titles.installmentList')}
           showPagination={MOCK_INSTALLMENTS.length > 10}
           pageSize={10}
         />

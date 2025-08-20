@@ -1,0 +1,209 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "update": "Güncelle",
+    "create": "Oluştur",
+    "search": "Ara",
+    "close": "Kapat",
+    "back": "Geri",
+    "next": "Sonraki",
+    "previous": "Önceki",
+    "submit": "Gönder",
+    "reset": "Sıfırla",
+    "confirm": "Onayla",
+    "yes": "Evet",
+    "no": "Hayır",
+    "ok": "Tamam",
+    "error": "Hata",
+    "success": "Başarılı",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "view": "Görüntüle",
+    "quickAccess": "Hızlı Erişim"
+  },
+  "navigation": {
+    "home": "Ana Sayfa",
+    "contacts": "Kişiler",
+    "accounts": "Hesaplar",
+    "debts": "Borçlar",
+    "installments": "Taksitler",
+    "settings": "Ayarlar",
+    "profile": "Profil",
+    "logout": "Çıkış"
+  },
+  "sidebar": {
+    "home": "Ana Sayfa",
+    "contacts": "Kişiler",
+    "accounts": "Hesaplar",
+    "debts": "Borçlar",
+    "installments": "Taksitler"
+  },
+  "pages": {
+    "accounts": "Hesaplar",
+    "contacts": "Kişiler",
+    "debts": "Borçlar",
+    "installments": "Aylık Taksitler"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "email": "E-posta Adresi",
+    "password": "Şifre",
+    "confirmPassword": "Şifre (Tekrar)",
+    "fullName": "Ad Soyad",
+    "phone": "Telefon Numarası",
+    "welcome": "Hoş Geldiniz",
+    "startFinance": "Kişisel finans yönetiminizi başlatın",
+    "loginInProgress": "Giriş yapılıyor...",
+    "registerInProgress": "Kayıt oluşturuluyor...",
+    "noAccount": "Hesabınız yok mu?",
+    "hasAccount": "Zaten hesabınız var mı?",
+    "loginHere": "Giriş yapın",
+    "registerHere": "Kayıt olun",
+    "placeholders": {
+      "email": "ornek@email.com",
+      "password": "Şifrenizi girin",
+      "fullName": "Adınız ve soyadınız",
+      "phone": "+90 5XX XXX XX XX"
+    }
+  },
+  "status": {
+    "pending": "Bekliyor",
+    "partial": "Kısmi",
+    "paid": "Ödendi",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "blocked": "Engellenmiş"
+  },
+  "transaction": {
+    "types": {
+      "debt": "Borç oluşturma",
+      "credit": "Alacak oluşturma",
+      "payment": "Ödeme yapma",
+      "collection": "Tahsilat yapma"
+    },
+    "newDebt": "Yeni Borç",
+    "newTransaction": "Yeni İşlem",
+    "transactionType": "İşlem Türü",
+    "amount": "Tutar",
+    "description": "Açıklama",
+    "contact": "Kişi",
+    "account": "Hesap",
+    "installments": "Taksit Sayısı",
+    "totalAmount": "Toplam Tutar",
+    "paidAmount": "Ödenen Tutar",
+    "remainingAmount": "Kalan Tutar",
+    "monthlyIncome": "Bu Ay Gelir",
+    "monthlyExpense": "Bu Ay Gider",
+    "income": "Gelir",
+    "expense": "Gider",
+    "savingsRate": "Tasarruf Oranı",
+    "incomeExpenseTrend": "Aylık Gelir-Gider Trendi",
+    "recentTransactions": "Son İşlemler"
+  },
+  "account": {
+    "types": {
+      "creditCard": "Kredi Kartı",
+      "cash": "Nakit",
+      "bank": "Banka Hesabı"
+    },
+    "newAccount": "Yeni Hesap",
+    "editAccount": "Hesabı Düzenle",
+    "accountName": "Hesap Adı",
+    "accountType": "Hesap Türü",
+    "currency": "Para Birimi",
+    "balance": "Bakiye",
+    "totalBalance": "Toplam Bakiye",
+    "initialBalance": "Başlangıç Bakiyesi",
+    "distribution": "Hesap Dağılımı"
+  },
+  "contact": {
+    "types": {
+      "personal": "Kişisel",
+      "business": "İş",
+      "family": "Aile",
+      "friend": "Arkadaş"
+    },
+    "newContact": "Yeni Kişi",
+    "editContact": "Kişiyi Düzenle",
+    "contactName": "Ad Soyad",
+    "note": "Not",
+    "phoneNumber": "Telefon Numarası",
+    "emailAddress": "E-posta Adresi"
+  },
+  "table": {
+    "actions": "İşlemler",
+    "noData": "Veri bulunamadı",
+    "loading": "Yükleniyor...",
+    "pagination": {
+      "page": "Sayfa",
+      "of": "/",
+      "totalRecords": "Toplam kayıt",
+      "recordsPerPage": "Sayfa başına kayıt"
+    },
+    "columns": {
+      "name": "Ad",
+      "type": "Tür",
+      "currency": "Para Birimi",
+      "balance": "Bakiye",
+      "totalBalance": "Toplam",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "fullName": "Ad Soyad",
+      "note": "Not",
+      "contact": "Kişi",
+      "account": "Hesap",
+      "amount": "Tutar",
+      "status": "Durum",
+      "debtId": "Borç ID",
+      "month": "Ay"
+    },
+    "titles": {
+      "accountList": "Hesap Listesi",
+      "contactList": "Kişi Listesi",
+      "debtList": "Borç Listesi",
+      "installmentList": "Taksit Listesi"
+    }
+  },
+  "buttons": {
+    "newAccount": "Yeni Hesap",
+    "newContact": "Yeni Kişi",
+    "newDebt": "Yeni Borç",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "previous": "Önceki",
+    "next": "Sonraki"
+  },
+  "modals": {
+    "editContact": "Kişiyi Düzenle",
+    "newContact": "Yeni Kişi",
+    "newDebt": "Yeni Borç Girişi",
+    "editAccount": "Hesabı Düzenle"
+  },
+  "placeholders": {
+    "fullName": "Ad Soyad giriniz",
+    "note": "Not ekleyiniz (opsiyonel)"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "email": "Geçerli bir e-posta adresi giriniz",
+    "minLength": "En az {{min}} karakter olmalıdır",
+    "maxLength": "En fazla {{max}} karakter olmalıdır",
+    "passwordMismatch": "Şifreler eşleşmiyor",
+    "invalidPhone": "Geçerli bir telefon numarası giriniz"
+  },
+  "messages": {
+    "createSuccess": "Başarıyla oluşturuldu",
+    "updateSuccess": "Başarıyla güncellendi",
+    "deleteSuccess": "Başarıyla silindi",
+    "operationFailed": "İşlem başarısız",
+    "confirmDelete": "Bu öğeyi silmek istediğinizden emin misiniz?",
+    "changesNotSaved": "Kaydedilmemiş değişiklikler var"
+  }
+}

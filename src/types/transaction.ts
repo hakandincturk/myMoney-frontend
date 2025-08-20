@@ -1,4 +1,5 @@
 import { TransactionType, TransactionStatus } from '../enums'
+import { useTranslation } from 'react-i18next'
 
 // Transaction DTOs
 export namespace TransactionDTOs {
@@ -55,15 +56,17 @@ export namespace TransactionDTOs {
 
 // Transaction Helper Functions
 export namespace TransactionHelpers {
-  // Durum metnini Türkçe'ye çevir
+  // Durum metnini i18n ile al
   export const getStatusText = (status: TransactionStatus): string => {
+    const { t } = useTranslation()
+    
     switch (status) {
       case TransactionStatus.PENDING:
-        return 'Bekliyor'
+        return t('status.pending')
       case TransactionStatus.PARTIAL:
-        return 'Kısmi'
+        return t('status.partial')
       case TransactionStatus.PAID:
-        return 'Ödendi'
+        return t('status.paid')
       default:
         return status
     }
@@ -97,27 +100,33 @@ export namespace TransactionHelpers {
     }
   }
 
-  // İşlem türü metnini Türkçe'ye çevir
+  // İşlem türü metnini i18n ile al
   export const getTypeText = (type: TransactionType): string => {
+    const { t } = useTranslation()
+    
     switch (type) {
       case TransactionType.DEBT:
-        return 'Borç oluşturma'
+        return t('transaction.types.debt')
       case TransactionType.CREDIT:
-        return 'Alacak oluşturma'
+        return t('transaction.types.credit')
       case TransactionType.PAYMENT:
-        return 'Ödeme yapma'
+        return t('transaction.types.payment')
       case TransactionType.COLLECTION:
-        return 'Tahsilat yapma'
+        return t('transaction.types.collection')
       default:
         return type
     }
   }
 
-  // İşlem türü seçeneklerini döndür
-  export const getTypeOptions = () => [
-    { value: TransactionType.DEBT, label: 'Borç oluşturma' },
-    { value: TransactionType.CREDIT, label: 'Alacak oluşturma' },
-    { value: TransactionType.PAYMENT, label: 'Ödeme yapma' },
-    { value: TransactionType.COLLECTION, label: 'Tahsilat yapma' },
-  ]
+  // İşlem türü seçeneklerini i18n ile döndür
+  export const getTypeOptions = () => {
+    const { t } = useTranslation()
+    
+    return [
+      { value: TransactionType.DEBT, label: t('transaction.types.debt') },
+      { value: TransactionType.CREDIT, label: t('transaction.types.credit') },
+      { value: TransactionType.PAYMENT, label: t('transaction.types.payment') },
+      { value: TransactionType.COLLECTION, label: t('transaction.types.collection') },
+    ]
+  }
 }

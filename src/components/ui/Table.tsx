@@ -8,6 +8,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/Button'
+import { useTranslation } from 'react-i18next'
 
 type TableProps<T> = {
   data: T[]
@@ -26,6 +27,7 @@ export const Table = <T extends object>({
   showPagination = true,
   pageSize = 10
 }: TableProps<T>) => {
+  const { t } = useTranslation()
   
   const table = useReactTable({
     data,
@@ -85,11 +87,11 @@ export const Table = <T extends object>({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
               <span>
-                Sayfa {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                {t('table.pagination.page')} {table.getState().pagination.pageIndex + 1} {t('table.pagination.of')} {table.getPageCount()}
               </span>
               <span>•</span>
               <span>
-                Toplam {table.getFilteredRowModel().rows.length} kayıt
+                {t('table.pagination.totalRecords')} {table.getFilteredRowModel().rows.length}
               </span>
             </div>
             
@@ -100,7 +102,7 @@ export const Table = <T extends object>({
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >
-                Önceki
+                {t('buttons.previous')}
               </Button>
               <Button
                 onClick={() => table.nextPage()}
@@ -108,7 +110,7 @@ export const Table = <T extends object>({
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >
-                Sonraki
+                {t('buttons.next')}
               </Button>
             </div>
           </div>
