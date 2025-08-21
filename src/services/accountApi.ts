@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
 import { AccountType, CurrencyType } from '../enums'
 import { AccountDTOs, CommonTypes } from '../types'
+import { CACHE_CONFIG } from '../config/cache'
 
 export const accountApi = createApi({
   reducerPath: 'accountApi',
@@ -10,11 +11,19 @@ export const accountApi = createApi({
   endpoints: (build) => ({
     listMyActiveAccounts: build.query<CommonTypes.ApiResponse<AccountDTOs.ListItem[]>, void>({
       query: () => ({ url: '/api/account/my/active' }),
-      providesTags: ['Account'],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Account' as const, id })),
+              { type: 'Account', id: 'LIST' }
+            ]
+          : [{ type: 'Account', id: 'LIST' }],
+      // Cache'i environment variable'a göre tut
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.ACCOUNT : 0,
     }),
     createAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, AccountDTOs.CreateRequest>({
       query: (body) => ({ url: '/api/account/my', method: 'POST', body }),
-      invalidatesTags: ['Account'],
+      invalidatesTags: [{ type: 'Account', id: 'LIST' }],
     }),
     updateMyAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, { accountId: number; body: AccountDTOs.UpdateRequest }>({
       query: ({ accountId, body }) => ({
@@ -22,15 +31,23 @@ export const accountApi = createApi({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: ['Account'],
+      invalidatesTags: (result, error, { accountId }) => [
+        { type: 'Account', id: accountId },
+        { type: 'Account', id: 'LIST' }
+      ],
     }),
     getAccountDetail: build.query<CommonTypes.ApiResponse<AccountDTOs.Detail>, number>({
       query: (id) => ({ url: `/api/account/my/${id}` }),
-      providesTags: ['Account'],
+      providesTags: (result, error, id) => [{ type: 'Account', id }],
+      // Cache'i environment variable'a göre tut
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
     deleteAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, number>({
       query: (id) => ({ url: `/api/account/my/${id}`, method: 'DELETE' }),
-      invalidatesTags: ['Account'],
+      invalidatesTags: (result, error, id) => [
+        { type: 'Account', id },
+        { type: 'Account', id: 'LIST' }
+      ],
     }),
   }),
 })

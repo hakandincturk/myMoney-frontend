@@ -36,6 +36,10 @@
     {
       "name": "Transaction",
       "description": "Transaction işlemleri"
+    },
+    {
+      "name": "Installment",
+      "description": "Taksit işlemleri"
     }
   ],
   "paths": {
@@ -48,7 +52,7 @@
         "parameters": [
           {
             "name": "contactId",
-            "in": "query",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -87,7 +91,7 @@
         "parameters": [
           {
             "name": "contactId",
-            "in": "query",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -109,7 +113,7 @@
         }
       }
     },
-    "/api/account/my/{id}": {
+    "/api/account/my/{accountId}": {
       "put": {
         "tags": [
           "Account"
@@ -120,7 +124,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "in": "query",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -160,16 +164,16 @@
         "summary": "Create Transaction and installments",
         "description": "Yeni borç girişi oluşturulmasını sağlar",
         "operationId": "createTransaction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/CreateTransactionRequestDto"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequestDto"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -222,16 +226,16 @@
           "Auth"
         ],
         "operationId": "register",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/RegisterRequestDto"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -303,6 +307,70 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transaction/my": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "List my transactions",
+        "description": "Borçların listelenmesini sağlar",
+        "operationId": "listMyTransactions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListListMyTransactionsResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/installment/month/{month}/{year}": {
+      "get": {
+        "tags": [
+          "Installment"
+        ],
+        "summary": "Get monthly installments",
+        "description": "Aylık taksitleri listelemeyi sağlar",
+        "operationId": "listMySpecisifDateInstallments",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListListMySpecisifDateInstallmentsResponseDto"
                 }
               }
             }
@@ -432,10 +500,15 @@
           },
           "description": {
             "type": "string"
+          },
+          "debtDate": {
+            "type": "string",
+            "format": "date"
           }
         },
         "required": [
           "accountId",
+          "debtDate",
           "totalAmount",
           "type"
         ]
@@ -550,6 +623,116 @@
           "name",
           "type"
         ]
+      },
+      "ApiResponseListListMyTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMyTransactionsResponseDto"
+            }
+          }
+        }
+      },
+      "ListMyTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "contactName": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paidAmount": {
+            "type": "number"
+          },
+          "totalInstallment": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseListListMySpecisifDateInstallmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMySpecisifDateInstallmentsResponseDto"
+            }
+          }
+        }
+      },
+      "ListMySpecisifDateInstallmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "transactionDetail": {
+            "$ref": "#/components/schemas/TransactionDetailDto"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "installmentNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descripton": {
+            "type": "string"
+          },
+          "paidDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "paid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TransactionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
       },
       "ApiResponseListListMyContactsResponseDto": {
         "type": "object",

@@ -1,5 +1,4 @@
 import { TransactionType, TransactionStatus } from '../enums'
-import { useTranslation } from 'react-i18next'
 
 // Transaction DTOs
 export namespace TransactionDTOs {
@@ -11,6 +10,7 @@ export namespace TransactionDTOs {
     totalAmount: number
     totalInstallment?: number
     description?: string
+    debtDate?: string
   }
 
   // İşlem listesi öğesi
@@ -56,10 +56,8 @@ export namespace TransactionDTOs {
 
 // Transaction Helper Functions
 export namespace TransactionHelpers {
-  // Durum metnini i18n ile al
-  export const getStatusText = (status: TransactionStatus): string => {
-    const { t } = useTranslation()
-    
+  // Durum metnini i18n ile al (t fonksiyonu parametre olarak alınmalı)
+  export const getStatusText = (status: TransactionStatus, t: (key: string) => string): string => {
     switch (status) {
       case TransactionStatus.PENDING:
         return t('status.pending')
@@ -100,10 +98,8 @@ export namespace TransactionHelpers {
     }
   }
 
-  // İşlem türü metnini i18n ile al
-  export const getTypeText = (type: TransactionType): string => {
-    const { t } = useTranslation()
-    
+  // İşlem türü metnini i18n ile al (t fonksiyonu parametre olarak alınmalı)
+  export const getTypeText = (type: TransactionType, t: (key: string) => string): string => {
     switch (type) {
       case TransactionType.DEBT:
         return t('transaction.types.debt')
@@ -118,10 +114,8 @@ export namespace TransactionHelpers {
     }
   }
 
-  // İşlem türü seçeneklerini i18n ile döndür
-  export const getTypeOptions = () => {
-    const { t } = useTranslation()
-    
+  // İşlem türü seçeneklerini i18n ile döndür (t fonksiyonu parametre olarak alınmalı)
+  export const getTypeOptions = (t: (key: string) => string) => {
     return [
       { value: TransactionType.DEBT, label: t('transaction.types.debt') },
       { value: TransactionType.CREDIT, label: t('transaction.types.credit') },

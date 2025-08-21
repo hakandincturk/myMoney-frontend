@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
 import { TransactionType, TransactionStatus } from '../enums'
 import { TransactionDTOs, CommonTypes } from '../types'
+import { CACHE_CONFIG } from '../config/cache'
 
 export const transactionApi = createApi({
   reducerPath: 'transactionApi',
@@ -10,23 +11,39 @@ export const transactionApi = createApi({
   endpoints: (build) => ({
     createTransaction: build.mutation<CommonTypes.ApiResponse<{ id: number }>, TransactionDTOs.CreateRequest>({
       query: (body) => ({ url: '/api/transaction/', method: 'POST', body }),
-      invalidatesTags: ['Transaction'],
+      invalidatesTags: [{ type: 'Transaction', id: 'LIST' }],
     }),
     listMyTransactions: build.query<CommonTypes.ApiResponse<TransactionDTOs.ListItem[]>, void>({
       query: () => ({ url: '/api/transaction/my' }),
-      providesTags: ['Transaction'],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Transaction' as const, id })),
+              { type: 'Transaction', id: 'LIST' }
+            ]
+          : [{ type: 'Transaction', id: 'LIST' }],
+      // Cache'i environment variable'a göre tut
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.TRANSACTION : 0,
     }),
     getTransactionDetail: build.query<CommonTypes.ApiResponse<TransactionDTOs.Detail>, number>({
       query: (id) => ({ url: `/api/transaction/${id}` }),
-      providesTags: ['Transaction'],
+      providesTags: (result, error, id) => [{ type: 'Transaction', id }],
+      // Cache'i environment variable'a göre tut
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
     updateTransaction: build.mutation<CommonTypes.ApiResponse<{ id: number }>, TransactionDTOs.UpdateRequest>({
       query: ({ id, ...body }) => ({ url: `/api/transaction/${id}`, method: 'PUT', body }),
-      invalidatesTags: ['Transaction'],
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Transaction', id },
+        { type: 'Transaction', id: 'LIST' }
+      ],
     }),
     deleteTransaction: build.mutation<CommonTypes.ApiResponse<{ id: number }>, number>({
       query: (id) => ({ url: `/api/transaction/${id}`, method: 'DELETE' }),
-      invalidatesTags: ['Transaction'],
+      invalidatesTags: (result, error, id) => [
+        { type: 'Transaction', id },
+        { type: 'Transaction', id: 'LIST' }
+      ],
     }),
   }),
 })

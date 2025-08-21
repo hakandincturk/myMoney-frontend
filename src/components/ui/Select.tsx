@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, forwardRef } from 'react'
 
 type Option = {
   value: string | number
@@ -17,9 +17,10 @@ type SelectProps = {
   required?: boolean
   disabled?: boolean
   searchable?: boolean
+  dropdownDirection?: 'down' | 'up'
 }
 
-export const Select: React.FC<SelectProps> = ({
+export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   id,
   label,
   value,
@@ -31,12 +32,15 @@ export const Select: React.FC<SelectProps> = ({
   required = false,
   disabled = false,
   searchable = true,
-}) => {
+  dropdownDirection = 'down',
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const selectRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const optionRefs = useRef<HTMLDivElement[]>([])
+  const listRef = useRef<HTMLDivElement>(null)
 
   const selectedOption = options.find(option => option.value === value)
   const filteredOptions = searchable 
@@ -63,6 +67,27 @@ export const Select: React.FC<SelectProps> = ({
       inputRef.current.focus()
     }
   }, [isOpen, searchable])
+
+  // Menü açıldığında seçili değeri vurgula ve görünür alana/merkeze getir
+  useEffect(() => {
+    if (isOpen) {
+      const index = options.findIndex((o) => o.value === value)
+      setHighlightedIndex(index)
+      // Bir sonraki frame'de scrollIntoView çağır
+      requestAnimationFrame(() => {
+        const container = listRef.current
+        const el = optionRefs.current[index]
+        if (container && el && index >= 0) {
+          const containerHeight = container.clientHeight
+          const optionTop = el.offsetTop // container içinde konum
+          const optionHeight = el.offsetHeight
+          // Seçili öğeyi konteynerin ortasına hizala
+          const targetScrollTop = Math.max(0, optionTop - (containerHeight / 2 - optionHeight / 2))
+          container.scrollTop = targetScrollTop
+        }
+      })
+    }
+  }, [isOpen, options, value])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -113,12 +138,12 @@ export const Select: React.FC<SelectProps> = ({
       setIsOpen(!isOpen)
       if (!isOpen) {
         setSearchTerm('')
-        setHighlightedIndex(-1)
+        // Açıldığında highlight açılış effect'inde ayarlanacak
       }
     }
   }
 
-  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary'
+  const baseClasses = 'w-full px-4 py-2 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary h-12'
   const borderClasses = error 
     ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
     : 'border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500'
@@ -133,7 +158,7 @@ export const Select: React.FC<SelectProps> = ({
         </label>
       )}
       
-      <div className="relative" ref={selectRef}>
+      <div className="relative" ref={ref || selectRef}>
         <div
           className={`${baseClasses} ${borderClasses} ${disabledClasses} flex items-center justify-between`}
           onClick={handleToggle}
@@ -158,7 +183,11 @@ export const Select: React.FC<SelectProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-60 overflow-hidden">
+          <div className={`absolute z-50 w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
+            dropdownDirection === 'up' 
+              ? 'bottom-full mb-1' 
+              : 'top-full mt-1'
+          }`}>
             {searchable && (
               <div className="p-2 border-b border-slate-100 dark:border-gray-600">
                 <input
@@ -172,7 +201,7 @@ export const Select: React.FC<SelectProps> = ({
               </div>
             )}
             
-            <div className="max-h-48 overflow-y-auto">
+            <div className="max-h-64 overflow-y-auto" ref={listRef}>
               {filteredOptions.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center">
                   Sonuç bulunamadı
@@ -181,6 +210,9 @@ export const Select: React.FC<SelectProps> = ({
                 filteredOptions.map((option, index) => (
                   <div
                     key={option.value}
+                    ref={(el) => {
+                      if (el) optionRefs.current[index] = el
+                    }}
                     className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
                       index === highlightedIndex
                         ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
@@ -203,6 +235,6 @@ export const Select: React.FC<SelectProps> = ({
       )}
     </div>
   )
-}
+})
 
 export default Select

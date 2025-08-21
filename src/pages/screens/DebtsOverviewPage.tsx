@@ -1,69 +1,191 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { useCreateTransactionMutation, TransactionType, TransactionStatus } from '@/services/transactionApi'
+import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { useCreateTransactionMutation, useListMyTransactionsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
 import { TransactionHelpers } from '../../types'
-import { useListMyActiveContactsQuery } from '@/services/contactApi'
+
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
+import { useListMyActiveContactsQuery } from '@/services/contactApi'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '../../hooks/useToast'
 
-// Mock veri - gerçek servisler hazır olana kadar
-const MOCK_DEBTS = [
-  { id: 1, contact: 'Ahmet Yılmaz', account: 'Nakit', amount: 1200, status: TransactionStatus.PENDING },
-  { id: 2, contact: 'Market', account: 'Banka', amount: 4500, status: TransactionStatus.PARTIAL },
-]
+// Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
-type Debt = {
-  id: number
-  contact: string
-  account: string
-  amount: number
-  status: TransactionStatus
+// API'den gelen veri yapısına göre tip tanımı (endpoints.json'dan)
+type TransactionListItem = {
+  contactName: string
+  accountName: string
+  type: string
+  status: string
+  totalAmount: number
+  paidAmount: number
+  totalInstallment: number
 }
 
-const columnHelper = createColumnHelper<Debt>()
+const columnHelper = createColumnHelper<TransactionListItem>()
 
 export const DebtsOverviewPage: React.FC = () => {
   const { t } = useTranslation()
-  const { data: contactsData } = useListMyActiveContactsQuery()
-  const { data: accountsData } = useListMyActiveAccountsQuery()
-  const contacts = useMemo(() => contactsData?.data ?? [], [contactsData])
+  const { data: accountsData, isLoading: accountsLoading } = useListMyActiveAccountsQuery(undefined, {
+    // Sadece gerekli olduğunda refetch yap
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  })
+  const { data: contactsData, isLoading: contactsLoading } = useListMyActiveContactsQuery(undefined, {
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  })
+  const { data: transactionsData, isLoading: transactionsLoading } = useListMyTransactionsQuery(undefined, {
+    // Sadece gerekli olduğunda refetch yap
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  })
   const accounts = useMemo(() => accountsData?.data ?? [], [accountsData])
-  const [createTransaction, { isLoading }] = useCreateTransactionMutation()
+  const contacts = useMemo(() => contactsData?.data ?? [], [contactsData])
+  const [createTransaction, { isLoading: createLoading }] = useCreateTransactionMutation()
+  const { showToast } = useToast()
   
-  const columns = [
-    columnHelper.accessor('contact', {
-      header: t('table.columns.contact'),
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('account', {
-      header: t('table.columns.account'),
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor('amount', {
-      header: t('table.columns.amount'),
-      cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
-    }),
-    columnHelper.accessor('status', {
-      header: t('table.columns.status'),
-      cell: (info) => <StatusBadge status={info.getValue()} />,
-    }),
-  ]
+  // Genel loading durumu
+  const isLoading = accountsLoading || contactsLoading || transactionsLoading
+
+  // Modal açıldığında ilk input'a focus olmak için ref
+  const accountSelectRef = useRef<HTMLDivElement>(null)
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionListItem | null>(null)
   const [form, setForm] = useState({
-    contactId: undefined as number | undefined,
     accountId: undefined as number | undefined,
+    contactId: undefined as number | undefined,
     type: TransactionType.DEBT as TransactionType,
     totalAmount: '0',
     totalInstallment: 1,
     description: '',
+    debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
   })
+
+  // Modal açıldığında ilk input'a focus ol
+  useEffect(() => {
+    if (modalOpen && accountSelectRef.current) {
+      setTimeout(() => {
+        accountSelectRef.current?.focus()
+      }, 100)
+    }
+  }, [modalOpen])
+
+  // İşlem detayını göster
+  const showTransactionDetail = (transaction: TransactionListItem) => {
+    setSelectedTransaction(transaction)
+    setDetailModalOpen(true)
+  }
+
+  // İşlem türü metnini al (component içinde tanımlandı)
+  const getTransactionTypeText = (type: string): string => {
+    return TransactionHelpers.getTypeText(type as TransactionType, t)
+  }
+
+  // API'den gelen işlemleri sadece borçlar olarak filtrele
+  const debts: TransactionListItem[] = useMemo(() => {
+    // API'den gelen tüm işlemleri göster
+    const txs = (transactionsData?.data ?? []) as unknown as TransactionListItem[]
+    return txs
+  }, [transactionsData])
+
+  const columns = [
+    columnHelper.accessor('contactName', {
+      header: t('table.columns.contact'),
+      cell: (info) => info.getValue(),
+      meta: {
+        className: 'min-w-[150px]'
+      }
+    }),
+    columnHelper.accessor('accountName', {
+      header: t('table.columns.account'),
+      cell: (info) => info.getValue(),
+      meta: {
+        className: 'min-w-[120px]'
+      }
+    }),
+    columnHelper.accessor('type', {
+      header: t('table.columns.type'),
+      cell: (info) => getTransactionTypeText(info.getValue()),
+      meta: {
+        className: 'min-w-[100px]'
+      }
+    }),
+    columnHelper.accessor('totalAmount', {
+      header: t('table.columns.totalAmount'),
+      cell: (info) => (
+        <span className="font-semibold">
+          ₺{info.getValue().toLocaleString('tr-TR')}
+        </span>
+      ),
+      meta: {
+        className: 'min-w-[120px] text-right'
+      }
+    }),
+    columnHelper.accessor('paidAmount', {
+      header: t('table.columns.paidAmount'),
+      cell: (info) => {
+        const paidAmount = info.getValue() || 0
+        const colorClass = paidAmount > 0 ? 'text-green-600 font-semibold' : 'text-gray-600'
+        return (
+          <span className={colorClass}>
+            ₺{paidAmount.toLocaleString('tr-TR')}
+          </span>
+        )
+      },
+      meta: {
+        className: 'min-w-[120px] text-right'
+      }
+    }),
+    columnHelper.display({
+      id: 'remainingAmount',
+      header: t('table.columns.remainingAmount'),
+      cell: (info) => {
+        const totalAmount = info.row.original.totalAmount || 0
+        const paidAmount = info.row.original.paidAmount || 0
+        const remaining = totalAmount - paidAmount
+        const colorClass = remaining > 0 ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'
+        return (
+          <span className={colorClass}>
+            ₺{remaining.toLocaleString('tr-TR')}
+          </span>
+        )
+      },
+      meta: {
+        className: 'min-w-[120px] text-right'
+      }
+    }),
+    columnHelper.accessor('status', {
+      header: t('table.columns.status'),
+      cell: (info) => <StatusBadge status={info.getValue() as TransactionStatus} />,
+      meta: {
+        className: 'min-w-[100px]'
+      }
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: t('table.columns.actions'),
+      cell: (info) => (
+        <Button
+          onClick={() => showTransactionDetail(info.row.original)}
+          variant="secondary"
+        >
+          {t('buttons.viewDetails')}
+        </Button>
+      ),
+      meta: {
+        className: 'min-w-[120px]'
+      }
+    }),
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,17 +194,29 @@ export const DebtsOverviewPage: React.FC = () => {
     // Para formatından sayıya çevir
     const totalAmountNumber = parseFloat(form.totalAmount.replace(/\./g, '').replace(',', '.')) || 0
     
-    await createTransaction({
-      accountId: form.accountId,
-      contactId: form.contactId,
-      description: form.description || undefined,
-      totalAmount: totalAmountNumber,
-      type: form.type,
-      totalInstallment: form.totalInstallment || undefined,
-    })
-    
-    setForm({ contactId: undefined, accountId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '' })
-    setModalOpen(false)
+    try {
+      const result = await createTransaction({
+        accountId: form.accountId,
+        contactId: form.contactId || undefined,
+        description: form.description || undefined,
+        totalAmount: totalAmountNumber,
+        type: form.type,
+        totalInstallment: form.totalInstallment || undefined,
+        debtDate: form.debtDate,
+      }).unwrap()
+      
+      // Sadece başarılı sonuçta modal'ı kapat
+      if (result && result.type === true) {
+        setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0] })
+        setModalOpen(false)
+        showToast(t('messages.transactionCreated'), 'success')
+      }
+    } catch (error) {
+      // Hata durumunda modal açık kalır, kullanıcı düzeltebilir
+      console.error('Transaction creation failed:', error)
+      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      showToast(errorMessage, 'error')
+    }
   }
 
   return (
@@ -91,20 +225,27 @@ export const DebtsOverviewPage: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
           <Button 
-            onClick={() => setModalOpen(true)} 
+            onClick={() => { 
+              setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0] })
+              setModalOpen(true) 
+            }} 
             variant="primary"
           >
             {t('buttons.newDebt')}
           </Button>
         </div>
 
-        <Table 
-          data={MOCK_DEBTS} 
-          columns={columns} 
-          title={t('table.titles.debtList')}
-          showPagination={MOCK_DEBTS.length > 10}
-          pageSize={10}
-        />
+        {isLoading ? (
+          <TableSkeleton columns={8} rows={5} />
+        ) : (
+          <Table 
+            data={debts} 
+            columns={columns} 
+            title={t('table.titles.debtList')}
+            showPagination={true}
+            pageSize={10}
+          />
+        )}
 
         {/* Borç Girişi Modal */}
         <Modal 
@@ -121,75 +262,179 @@ export const DebtsOverviewPage: React.FC = () => {
               </Button>
               <Button 
                 onClick={handleSubmit as unknown as () => void} 
-                disabled={isLoading}
+                disabled={createLoading}
                 variant="primary"
               >
-                {isLoading ? t('common.loading') : t('buttons.save')}
+                {createLoading ? t('common.loading') : t('buttons.save')}
               </Button>
             </div>
           )}
         >
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-            <Select 
-              id="accountId"
-              label="Hesap *"
-              value={form.accountId ?? ''}
-              onChange={(value) => setForm((p) => ({ ...p, accountId: value as number }))}
-              options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-              placeholder="Hesap seçiniz"
-              required
-            />
-            
-            <Select 
-              id="contactId"
-              label="Kişi"
-              value={form.contactId ?? ''}
-              onChange={(value) => setForm((p) => ({ ...p, contactId: value as number }))}
-              options={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-              placeholder="Kişi seçiniz (opsiyonel)"
-            />
-            
-            <div className="grid grid-cols-2 gap-4">
-              <Input 
-                id="totalAmount"
-                label="Tutar *"
-                value={form.totalAmount}
-                onChange={(value) => setForm((p) => ({ ...p, totalAmount: value as string }))}
-                placeholder="0,00"
-                formatCurrency
-                currencySymbol="₺"
-                required
-              />
-              <Input 
-                id="totalInstallment"
-                label="Taksit Sayısı"
-                type="number"
-                value={form.totalInstallment}
-                onChange={(value) => setForm((p) => ({ ...p, totalInstallment: value as number }))}
-                placeholder="1"
-                min={1}
-                step={1}
-              />
-            </div>
-            
-            <Select 
-              id="type"
-              label="İşlem Türü"
-              value={form.type}
-              onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
-              options={TransactionHelpers.getTypeOptions()}
-              placeholder="İşlem türü seçiniz"
-              required
-            />
-            
-            <Input 
-              id="description"
-              label="Açıklama"
-              value={form.description}
-              onChange={(value) => setForm((p) => ({ ...p, description: value as string }))}
-              placeholder="Açıklama ekleyiniz (opsiyonel)"
-            />
+            {accountsLoading || contactsLoading ? (
+              <>
+                <FormFieldSkeleton />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormFieldSkeleton />
+                  <FormFieldSkeleton />
+                </div>
+                <FormFieldSkeleton />
+                <FormFieldSkeleton />
+                <FormFieldSkeleton />
+              </>
+            ) : (
+              <>
+                <Select 
+                  id="contactId"
+                  label={t('table.columns.contact')}
+                  value={form.contactId ?? ''}
+                  onChange={(value) => setForm((p) => ({ ...p, contactId: value as number }))}
+                  options={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
+                  placeholder="Kişi seçiniz (opsiyonel)"
+                />
+                <Select 
+                  id="accountId"
+                  label="Hesap *"
+                  value={form.accountId ?? ''}
+                  onChange={(value) => setForm((p) => ({ ...p, accountId: value as number }))}
+                  options={accounts.map((a) => ({ value: a.id, label: a.name }))}
+                  placeholder="Hesap seçiniz"
+                  required
+                  ref={accountSelectRef}
+                />
+                
+
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <Input 
+                    id="totalAmount"
+                    label="Tutar *"
+                    value={form.totalAmount}
+                    onChange={(value) => setForm((p) => ({ ...p, totalAmount: value as string }))}
+                    placeholder="0,00"
+                    formatCurrency
+                    currencySymbol="₺"
+                    required
+                  />
+                  <Input 
+                    id="totalInstallment"
+                    label="Taksit Sayısı"
+                    value={form.totalInstallment}
+                    onChange={(value) => setForm((p) => ({ ...p, totalInstallment: value as number }))}
+                    placeholder="1"
+                    min={1}
+                    step={1}
+                  />
+                </div>
+                
+                <Select 
+                  id="type"
+                  label="İşlem Türü"
+                  value={form.type}
+                  onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
+                  options={TransactionHelpers.getTypeOptions(t)}
+                  placeholder="İşlem türü seçiniz"
+                  required
+                />
+                
+                <Input 
+                  id="debtDate"
+                  label={t('transaction.debtDate')}
+                  type="date"
+                  value={form.debtDate}
+                  onChange={(value) => setForm((p) => ({ ...p, debtDate: value as string }))}
+                  required
+                />
+                
+                <Input 
+                  id="description"
+                  label="Açıklama"
+                  value={form.description}
+                  onChange={(value) => setForm((p) => ({ ...p, description: value as string }))}
+                  placeholder="Açıklama ekleyiniz (opsiyonel)"
+                />
+              </>
+            )}
           </form>
+        </Modal>
+        
+        {/* İşlem Detay Modal */}
+        <Modal 
+          open={detailModalOpen} 
+          onClose={() => setDetailModalOpen(false)} 
+          title={t('modals.transactionDetail')}
+          footer={(
+            <div className="flex justify-end">
+              <Button 
+                onClick={() => setDetailModalOpen(false)} 
+                variant="secondary"
+              >
+                {t('buttons.close')}
+              </Button>
+            </div>
+          )}
+        >
+          {selectedTransaction && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.contact')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text">{selectedTransaction.contactName}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.account')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text">{selectedTransaction.accountName}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.type')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text">{getTransactionTypeText(selectedTransaction.type as string)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.status')}
+                  </label>
+                  <StatusBadge status={selectedTransaction.status as TransactionStatus} />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.amount')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text font-semibold">
+                    ₺{selectedTransaction.totalAmount.toLocaleString('tr-TR')}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.paidAmount')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text">
+                    ₺{selectedTransaction.paidAmount.toLocaleString('tr-TR')}
+                  </p>
+                </div>
+              </div>
+              
+              {selectedTransaction.totalInstallment > 1 && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
+                    {t('table.columns.totalInstallment')}
+                  </label>
+                  <p className="text-slate-900 dark:text-mm-text">{selectedTransaction.totalInstallment} taksit</p>
+                </div>
+              )}
+            </div>
+          )}
         </Modal>
       </div>
     </div>

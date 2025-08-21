@@ -8,6 +8,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 import { useTranslation } from 'react-i18next'
 
 type TableProps<T> = {
@@ -28,16 +29,29 @@ export const Table = <T extends object>({
   pageSize = 10
 }: TableProps<T>) => {
   const { t } = useTranslation()
+  const [currentPageSize, setCurrentPageSize] = React.useState(pageSize)
+  const [currentPageIndex, setCurrentPageIndex] = React.useState(0)
   
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
+    state: {
       pagination: {
-        pageSize,
+        pageIndex: currentPageIndex,
+        pageSize: currentPageSize,
       },
+    },
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newState = updater({ pageIndex: currentPageIndex, pageSize: currentPageSize })
+        setCurrentPageSize(newState.pageSize)
+        setCurrentPageIndex(newState.pageIndex)
+      } else if (typeof updater === 'object') {
+        setCurrentPageSize(updater.pageSize || currentPageSize)
+        setCurrentPageIndex(updater.pageIndex || currentPageIndex)
+      }
     },
   })
 
@@ -85,28 +99,57 @@ export const Table = <T extends object>({
       {showPagination && (
         <div className="px-6 py-4 border-t border-slate-100 dark:border-mm-border bg-slate-50 dark:bg-mm-bg">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
-              <span>
-                {t('table.pagination.page')} {table.getState().pagination.pageIndex + 1} {t('table.pagination.of')} {table.getPageCount()}
-              </span>
-              <span>•</span>
-              <span>
-                {t('table.pagination.totalRecords')} {table.getFilteredRowModel().rows.length}
-              </span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
+                <span>
+                  {t('table.pagination.page')} {table.getState().pagination.pageIndex + 1} {t('table.pagination.of')} {table.getPageCount()}
+                </span>
+                <span>•</span>
+                <span>
+                  {t('table.pagination.totalRecords')} {table.getFilteredRowModel().rows.length}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-500 dark:text-mm-subtleText whitespace-nowrap">
+                  {t('table.pagination.recordsPerPage')}:
+                </span>
+                <Select
+                  id="pageSize"
+                  value={currentPageSize}
+                  onChange={(value) => {
+                    const newPageSize = Number(value)
+                    setCurrentPageSize(newPageSize)
+                    setCurrentPageIndex(0)
+                  }}
+                  options={[
+                    { value: 10, label: '10' },
+                    { value: 25, label: '25' },
+                    { value: 50, label: '50' },
+                    { value: 100, label: '100' }
+                  ]}
+                  className="w-24"
+                  dropdownDirection="up"
+                />
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => {
+                  setCurrentPageIndex(Math.max(0, currentPageIndex - 1))
+                }}
+                disabled={currentPageIndex === 0}
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >
                 {t('buttons.previous')}
               </Button>
               <Button
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => {
+                  setCurrentPageIndex(Math.min(table.getPageCount() - 1, currentPageIndex + 1))
+                }}
+                disabled={currentPageIndex >= table.getPageCount() - 1}
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >

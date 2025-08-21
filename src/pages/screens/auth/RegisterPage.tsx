@@ -23,6 +23,60 @@ export const RegisterPage: React.FC = () => {
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  // Telefon numarası formatlama fonksiyonu
+  const formatPhoneNumber = (value: string) => {
+    // Eğer değer zaten +90 ile başlıyorsa, sadece rakamları al
+    let numbers = value
+    if (value.startsWith('+90')) {
+      numbers = value.substring(4) // +90'ı kaldır
+    }
+    
+    // Sadece rakamları al
+    numbers = numbers.replace(/\D/g, '')
+    
+    // Maksimum 10 rakam al
+    const limitedNumbers = numbers.slice(0, 10)
+    
+    // Format: 5XX XXX XX XX
+    let formatted = ''
+    
+    if (limitedNumbers.length >= 1) {
+      formatted = limitedNumbers.slice(0, 3)
+    }
+    if (limitedNumbers.length >= 4) {
+      formatted += ' ' + limitedNumbers.slice(3, 6)
+    }
+    if (limitedNumbers.length >= 7) {
+      formatted += ' ' + limitedNumbers.slice(6, 8)
+    }
+    if (limitedNumbers.length >= 9) {
+      formatted += ' ' + limitedNumbers.slice(8, 10)
+    }
+    
+    return formatted
+  }
+
+  // Telefon numarası değişikliği için özel handler
+  const handlePhoneChange = (value: string) => {
+    // Eğer değer +90 ile başlıyorsa, sadece formatla
+    if (value.startsWith('+90')) {
+      const formatted = formatPhoneNumber(value)
+      const finalValue = formatted ? `+90 ${formatted}` : '+90 '
+      setForm(prev => ({ ...prev, phone: finalValue }))
+    } else {
+      // Eğer +90 yoksa, ekle ve formatla
+      const formatted = formatPhoneNumber(value)
+      const finalValue = formatted ? `+90 ${formatted}` : '+90 '
+      setForm(prev => ({ ...prev, phone: finalValue }))
+    }
+    
+    if (isSubmitted) {
+      const currentPhone = form.phone
+      const validationError = validatePhone(currentPhone)
+      setFieldErrors(prev => ({ ...prev, phone: validationError }))
+    }
+  }
+
   // Başarılı kayıt sonrası login sayfasına yönlendir
   useEffect(() => {
     if (isSuccess) {
@@ -192,9 +246,9 @@ export const RegisterPage: React.FC = () => {
               id="phone"
               label={t('auth.phone')}
               type="text"
-              placeholder={t('auth.placeholders.phone')}
+              placeholder="+90 5XX XXX XX XX"
               value={form.phone}
-              onChange={v => update('phone', v as string)}
+              onChange={v => handlePhoneChange(v as string)}
               error={fieldErrors.phone}
               required
             />

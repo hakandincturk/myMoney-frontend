@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
+import { CACHE_CONFIG } from '../config/cache'
 
 export type CreateContactRequestDto = {
   fullName: string
@@ -24,19 +25,33 @@ export const contactApi = createApi({
   endpoints: (build) => ({
     listMyActiveContacts: build.query<{ type: boolean; data: ListMyContactsResponseDto[] }, void>({
       query: () => ({ url: '/api/contact/my/active' }),
-      providesTags: ['Contact'],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Contact' as const, id })),
+              { type: 'Contact', id: 'LIST' }
+            ]
+          : [{ type: 'Contact', id: 'LIST' }],
+      // Cache'i environment variable'a göre tut
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.CONTACT : 0,
     }),
     createContact: build.mutation<{ type: boolean }, CreateContactRequestDto>({
       query: (body) => ({ url: '/api/contact/my', method: 'POST', body }),
-      invalidatesTags: ['Contact'],
+      invalidatesTags: [{ type: 'Contact', id: 'LIST' }],
     }),
     updateMyContact: build.mutation<{ type: boolean }, { contactId: number; body: UpdateMyContactRequestDto }>({
       query: ({ contactId, body }) => ({ url: `/api/contact/my/${contactId}`, method: 'PUT', body }),
-      invalidatesTags: ['Contact'],
+      invalidatesTags: (result, error, { contactId }) => [
+        { type: 'Contact', id: contactId },
+        { type: 'Contact', id: 'LIST' }
+      ],
     }),
     deleteContact: build.mutation<{ type: boolean }, { contactId: number }>({
       query: ({ contactId }) => ({ url: `/api/contact/my/${contactId}`, method: 'DELETE' }),
-      invalidatesTags: ['Contact'],
+      invalidatesTags: (result, error, { contactId }) => [
+        { type: 'Contact', id: contactId },
+        { type: 'Contact', id: 'LIST' }
+      ],
     }),
   }),
 })

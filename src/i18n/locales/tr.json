@@ -46,7 +46,8 @@
     "accounts": "Hesaplar",
     "contacts": "Kişiler",
     "debts": "Borçlar",
-    "installments": "Aylık Taksitler"
+    "installments": "Aylık Taksitler",
+    "installments.thisMonth": "Bu Ay"
   },
   "auth": {
     "login": "Giriş Yap",
@@ -81,10 +82,10 @@
   },
   "transaction": {
     "types": {
-      "debt": "Borç oluşturma",
-      "credit": "Alacak oluşturma",
-      "payment": "Ödeme yapma",
-      "collection": "Tahsilat yapma"
+      "debt": "Borç",
+      "credit": "Alacak",
+      "payment": "Ödeme",
+      "collection": "Tahsilat"
     },
     "newDebt": "Yeni Borç",
     "newTransaction": "Yeni İşlem",
@@ -94,6 +95,7 @@
     "contact": "Kişi",
     "account": "Hesap",
     "installments": "Taksit Sayısı",
+    "debtDate": "Borç Tarihi",
     "totalAmount": "Toplam Tutar",
     "paidAmount": "Ödenen Tutar",
     "remainingAmount": "Kalan Tutar",
@@ -158,9 +160,18 @@
       "contact": "Kişi",
       "account": "Hesap",
       "amount": "Tutar",
+      "totalAmount": "Toplam Tutar",
+      "paidAmount": "Ödenen Tutar",
+      "remainingAmount": "Kalan Tutar",
       "status": "Durum",
       "debtId": "Borç ID",
-      "month": "Ay"
+      "month": "Ay",
+      "date": "Tarih",
+      "installmentNumber": "Taksit No",
+      "paid": "Ödeme Durumu",
+      "paidDate": "Ödeme Tarihi",
+      "totalInstallment": "Toplam Taksit",
+      "actions": "İşlemler"
     },
     "titles": {
       "accountList": "Hesap Listesi",
@@ -178,13 +189,16 @@
     "save": "Kaydet",
     "cancel": "İptal",
     "previous": "Önceki",
-    "next": "Sonraki"
+    "next": "Sonraki",
+    "viewDetails": "Detayları Gör",
+    "close": "Kapat"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
     "newContact": "Yeni Kişi",
     "newDebt": "Yeni Borç Girişi",
-    "editAccount": "Hesabı Düzenle"
+    "editAccount": "Hesabı Düzenle",
+    "transactionDetail": "İşlem Detayı"
   },
   "placeholders": {
     "fullName": "Ad Soyad giriniz",
@@ -204,6 +218,13 @@
     "deleteSuccess": "Başarıyla silindi",
     "operationFailed": "İşlem başarısız",
     "confirmDelete": "Bu öğeyi silmek istediğinizden emin misiniz?",
-    "changesNotSaved": "Kaydedilmemiş değişiklikler var"
+    "changesNotSaved": "Kaydedilmemiş değişiklikler var",
+    "transactionCreated": "İşlem başarıyla oluşturuldu",
+    "contactCreated": "Kişi başarıyla oluşturuldu",
+    "contactUpdated": "Kişi başarıyla güncellendi",
+    "contactDeleted": "Kişi başarıyla silindi",
+    "accountCreated": "Hesap başarıyla oluşturuldu",
+    "accountUpdated": "Hesap başarıyla güncellendi",
+    "unknownTransaction": "Bilinmeyen İşlem"
   }
 }

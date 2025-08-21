@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, forwardRef } from 'react'
 
 type InputProps = {
   id: string
@@ -18,7 +18,7 @@ type InputProps = {
   currencySymbol?: string
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = forwardRef<HTMLInputElement, InputProps>(({
   id,
   label,
   type = 'text',
@@ -34,8 +34,7 @@ export const Input: React.FC<InputProps> = ({
   step,
   formatCurrency = false,
   currencySymbol = '₺',
-}) => {
-  const inputRef = useRef<HTMLInputElement>(null)
+}, ref) => {
   const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary placeholder-slate-400 dark:placeholder-mm-placeholder'
   const borderClasses = error 
     ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
@@ -128,7 +127,7 @@ export const Input: React.FC<InputProps> = ({
           </span>
         )}
         <input
-          ref={inputRef}
+          ref={ref}
           id={id}
           type={formatCurrency ? 'text' : type}
           className={`${baseClasses} ${borderClasses} ${disabledClasses} ${formatCurrency ? 'pl-8' : ''}`}
@@ -148,6 +147,6 @@ export const Input: React.FC<InputProps> = ({
       )}
     </div>
   )
-}
+})
 
 export default Input

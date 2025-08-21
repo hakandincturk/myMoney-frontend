@@ -23,9 +23,9 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variants: Record<'primary' | 'secondary', string> = {
     primary:
-      'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 focus:ring-blue-600/50 dark:focus:ring-blue-700/50 disabled:bg-gray-400 disabled:cursor-not-allowed',
+      'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 focus:ring-blue-600/50 dark:focus:ring-blue-700/50 disabled:bg-gray-400 disabled:text-gray-200 disabled:cursor-not-allowed dark:disabled:bg-gray-600 dark:disabled:text-gray-300',
     secondary:
-      'border-2 border-blue-600 dark:border-blue-500 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 focus:ring-blue-600/50 dark:focus:ring-blue-500/50 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed',
+      'border-2 border-blue-600 dark:border-blue-500 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 focus:ring-blue-600/50 dark:focus:ring-blue-500/50 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:border-gray-600 dark:disabled:text-gray-500 dark:disabled:bg-gray-700',
   }
 
   const size = 'px-4 py-3 text-sm'

@@ -1,13 +1,15 @@
-import React, { useMemo, useState } from 'react'
-import { AccountType, CurrencyType, useCreateAccountMutation, useListMyActiveAccountsQuery, useUpdateMyAccountMutation } from '@/services/accountApi'
-import { AccountHelpers } from '../../types'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
+import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { AccountType, CurrencyType, useCreateAccountMutation, useListMyActiveAccountsQuery, useUpdateMyAccountMutation } from '@/services/accountApi'
+import { AccountHelpers } from '../../types'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '../../hooks/useToast'
 
 type Account = {
   id: number
@@ -23,10 +25,19 @@ const columnHelper = createColumnHelper<Account>()
 
 export const AccountsPage: React.FC = () => {
   const { t } = useTranslation()
-  const { data } = useListMyActiveAccountsQuery()
+  const { data, isLoading } = useListMyActiveAccountsQuery(undefined, {
+    // Sadece gerekli olduğunda refetch yap
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  })
   const [createAccount] = useCreateAccountMutation()
   const [updateMyAccount] = useUpdateMyAccountMutation()
+  const { showToast } = useToast()
   
+  // Modal açıldığında ilk input'a focus olmak için ref'ler
+  const createNameInputRef = useRef<HTMLInputElement>(null)
+  const editNameInputRef = useRef<HTMLInputElement>(null)
+
   const columns = [
     columnHelper.accessor('name', {
       header: t('table.columns.name'),
@@ -75,6 +86,23 @@ export const AccountsPage: React.FC = () => {
   const [openCreate, setOpenCreate] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
 
+  // Modal açıldığında ilk input'a focus ol
+  useEffect(() => {
+    if (openCreate && createNameInputRef.current) {
+      setTimeout(() => {
+        createNameInputRef.current?.focus()
+      }, 100)
+    }
+  }, [openCreate])
+
+  useEffect(() => {
+    if (openEdit && editNameInputRef.current) {
+      setTimeout(() => {
+        editNameInputRef.current?.focus()
+      }, 100)
+    }
+  }, [openEdit])
+
   const handleEdit = (id: number) => {
     const account = accounts.find((a) => a.id === id)
     if (account) {
@@ -108,12 +136,24 @@ export const AccountsPage: React.FC = () => {
     // Para formatından sayıya çevir
     const balanceNumber = parseFloat(createForm.balance.replace(/\./g, '').replace(',', '.')) || 0
     
-    await createAccount({
-      ...createForm,
-      balance: balanceNumber
-    })
-    setCreateForm({ name: '', type: AccountType.CASH, currency: CurrencyType.TL, balance: '0' })
-    setOpenCreate(false)
+    try {
+      const result = await createAccount({
+        ...createForm,
+        balance: balanceNumber
+      }).unwrap()
+      
+      // Sadece başarılı sonuçta modal'ı kapat
+      if (result && result.type === true) {
+        setCreateForm({ name: '', type: AccountType.CASH, currency: CurrencyType.TL, balance: '0' })
+        setOpenCreate(false)
+        showToast(t('messages.accountCreated'), 'success')
+      }
+    } catch (error) {
+      // Hata durumunda modal açık kalır, kullanıcı düzeltebilir
+      console.error('Account creation failed:', error)
+      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      showToast(errorMessage, 'error')
+    }
   }
 
   const submitUpdate = async (e: React.FormEvent) => {
@@ -123,34 +163,50 @@ export const AccountsPage: React.FC = () => {
     // Para formatından sayıya çevir
     const totalBalanceNumber = parseFloat(updateForm.totalBalance.replace(/\./g, '').replace(',', '.')) || 0
     
-    await updateMyAccount({ 
-      accountId: updateForm.id, 
-      body: { 
-        name: updateForm.name, 
-        totalBalance: totalBalanceNumber 
-      } 
-    })
-    setUpdateForm({ name: '', totalBalance: '0' })
-    setOpenEdit(false)
+    try {
+      const result = await updateMyAccount({ 
+        accountId: updateForm.id, 
+        body: { 
+          name: updateForm.name, 
+          totalBalance: totalBalanceNumber 
+        } 
+      }).unwrap()
+      
+      // Sadece başarılı sonuçta modal'ı kapat
+      if (result && result.type === true) {
+        setUpdateForm({ name: '', totalBalance: '0' })
+        setOpenEdit(false)
+        showToast(t('messages.accountUpdated'), 'success')
+      }
+    } catch (error) {
+      // Hata durumunda modal açık kalır, kullanıcı düzeltebilir
+      console.error('Account update failed:', error)
+      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      showToast(errorMessage, 'error')
+    }
   }
 
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.accounts')}</h2>
           <Button onClick={() => setOpenCreate(true)} variant="primary">
             {t('buttons.newAccount')}
           </Button>
         </div>
 
-        <Table 
-          data={accounts} 
-          columns={columns} 
-          title={t('table.titles.accountList')}
-          showPagination={accounts.length > 10}
-          pageSize={10}
-        />
+        {isLoading ? (
+          <TableSkeleton columns={5} rows={5} />
+        ) : (
+          <Table 
+            data={accounts} 
+            columns={columns} 
+            title={t('table.titles.accountList')}
+            showPagination={true}
+            pageSize={10}
+          />
+        )}
 
         <Modal open={openCreate} onClose={() => setOpenCreate(false)} title="Yeni Hesap"
           footer={(
@@ -172,6 +228,7 @@ export const AccountsPage: React.FC = () => {
               onChange={(value) => setCreateForm((p) => ({ ...p, name: value as string }))}
               placeholder="Hesap adını giriniz"
               required
+              ref={createNameInputRef}
             />
             <div className="grid grid-cols-2 gap-4">
               <Select
@@ -225,6 +282,7 @@ export const AccountsPage: React.FC = () => {
               onChange={(value) => setUpdateForm((p) => ({ ...p, name: value as string }))}
               placeholder="Hesap adını giriniz"
               required
+              ref={editNameInputRef}
             />
             <Input
               id="totalBalance"

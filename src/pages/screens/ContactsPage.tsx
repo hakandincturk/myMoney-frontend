@@ -1,11 +1,13 @@
-import React, { useMemo, useState } from 'react'
-import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation } from '@/services/contactApi'
-import { Modal } from '@/components/ui/Modal'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { Table } from '@/components/ui/Table'
-import { Button } from '@/components/ui/Button'
-import { createColumnHelper } from '@tanstack/react-table'
+import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
+import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation } from '@/services/contactApi'
+import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '../../hooks/useToast'
 
 type Contact = {
   id: number
@@ -19,12 +21,30 @@ const columnHelper = createColumnHelper<Contact>()
 
 export const ContactsPage: React.FC = () => {
   const { t } = useTranslation()
-  const { data } = useListMyActiveContactsQuery()
+  const { data, isLoading } = useListMyActiveContactsQuery(undefined, {
+    // Sadece gerekli olduğunda refetch yap
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  })
   const [createContact] = useCreateContactMutation()
   const [updateMyContact] = useUpdateMyContactMutation()
   const [deleteContact] = useDeleteContactMutation()
+  const { showToast } = useToast()
   const [form, setForm] = useState<{ id?: number; fullName: string; note?: string }>({ fullName: '' })
   const [open, setOpen] = useState(false)
+  
+  // Modal açıldığında ilk input'a focus olmak için ref
+  const fullNameInputRef = useRef<HTMLInputElement>(null)
+
+  // Modal açıldığında ilk input'a focus ol
+  useEffect(() => {
+    if (open && fullNameInputRef.current) {
+      // Kısa bir gecikme ile focus ol (modal animasyonu tamamlandıktan sonra)
+      setTimeout(() => {
+        fullNameInputRef.current?.focus()
+      }, 100)
+    }
+  }, [open])
 
   const handleEdit = (id: number) => {
     const c = contacts.find((x) => x.id === id)
@@ -35,8 +55,18 @@ export const ContactsPage: React.FC = () => {
   }
 
   const handleDelete = async (id: number) => {
-    await deleteContact({ contactId: id })
-    if (form.id === id) setForm({ fullName: '' })
+    try {
+      const result = await deleteContact({ contactId: id }).unwrap()
+      if (result && result.type === true) {
+        if (form.id === id) setForm({ fullName: '' })
+        showToast(t('messages.contactDeleted'), 'success')
+      }
+    } catch (error) {
+      // Hata durumunda işlem yapılmaz
+      console.error('Contact deletion failed:', error)
+      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      showToast(errorMessage, 'error')
+    }
   }
 
   const contacts = useMemo(() => {
@@ -53,13 +83,28 @@ export const ContactsPage: React.FC = () => {
     e.preventDefault()
     if (!form.fullName?.trim()) return
     
-    if (form.id) {
-      await updateMyContact({ contactId: form.id, body: { fullName: form.fullName, note: form.note } })
-    } else {
-      await createContact({ fullName: form.fullName, note: form.note })
+    try {
+      if (form.id) {
+        const updateResult = await updateMyContact({ contactId: form.id, body: { fullName: form.fullName, note: form.note } }).unwrap()
+        if (updateResult && updateResult.type === true) {
+          setForm({ fullName: '' })
+          setOpen(false)
+          showToast(t('messages.contactUpdated'), 'success')
+        }
+      } else {
+        const createResult = await createContact({ fullName: form.fullName, note: form.note }).unwrap()
+        if (createResult && createResult.type === true) {
+          setForm({ fullName: '' })
+          setOpen(false)
+          showToast(t('messages.contactCreated'), 'success')
+        }
+      }
+    } catch (error) {
+      // Hata durumunda modal açık kalır, kullanıcı düzeltebilir
+      console.error('Contact operation failed:', error)
+      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      showToast(errorMessage, 'error')
     }
-    setForm({ fullName: '' })
-    setOpen(false)
   }
 
   const columns = [
@@ -108,13 +153,17 @@ export const ContactsPage: React.FC = () => {
           </Button>
         </div>
 
-        <Table 
-          data={contacts} 
-          columns={columns} 
-          title={t('table.titles.contactList')}
-          showPagination={contacts.length > 10}
-          pageSize={10}
-        />
+        {isLoading ? (
+          <TableSkeleton columns={3} rows={5} />
+        ) : (
+          <Table 
+            data={contacts} 
+            columns={columns} 
+            title={t('table.titles.contactList')}
+            showPagination={true}
+            pageSize={10}
+          />
+        )}
 
         <Modal 
           open={open} 
@@ -145,6 +194,7 @@ export const ContactsPage: React.FC = () => {
               onChange={(value) => setForm((p) => ({ ...p, fullName: value as string }))}
               placeholder={t('placeholders.fullName')}
               required
+              ref={fullNameInputRef}
             />
             <Input
               id="note"

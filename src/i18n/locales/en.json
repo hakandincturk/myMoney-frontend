@@ -46,7 +46,8 @@
     "accounts": "Accounts",
     "contacts": "Contacts",
     "debts": "Debts",
-    "installments": "Monthly Installments"
+    "installments": "Monthly Installments",
+    "installments.thisMonth": "This Month"
   },
   "table": {
     "actions": "Actions",
@@ -71,9 +72,18 @@
       "contact": "Contact",
       "account": "Account",
       "amount": "Amount",
+      "totalAmount": "Total Amount",
+      "paidAmount": "Paid Amount",
+      "remainingAmount": "Remaining Amount",
       "status": "Status",
       "debtId": "Debt ID",
-      "month": "Month"
+      "month": "Month",
+      "date": "Date",
+      "installmentNumber": "Installment #",
+      "paid": "Paid Status",
+      "paidDate": "Payment Date",
+      "totalInstallment": "Total Installments",
+      "actions": "Actions"
     },
     "titles": {
       "accountList": "Account List",
@@ -91,13 +101,16 @@
     "save": "Save",
     "cancel": "Cancel",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "viewDetails": "View Details",
+    "close": "Close"
   },
   "modals": {
     "editContact": "Edit Contact",
     "newContact": "New Contact",
     "newDebt": "New Debt Entry",
-    "editAccount": "Edit Account"
+    "editAccount": "Edit Account",
+    "transactionDetail": "Transaction Detail"
   },
   "placeholders": {
     "fullName": "Enter full name",
@@ -136,10 +149,10 @@
   },
   "transaction": {
     "types": {
-      "debt": "Create Debt",
-      "credit": "Create Credit",
-      "payment": "Make Payment",
-      "collection": "Collect Payment"
+      "debt": "Debt",
+      "credit": "Credit",
+      "payment": "Payment",
+      "collection": "Collection"
     },
     "newDebt": "New Debt",
     "newTransaction": "New Transaction",
@@ -149,6 +162,7 @@
     "contact": "Contact",
     "account": "Account",
     "installments": "Number of Installments",
+    "debtDate": "Debt Date",
     "totalAmount": "Total Amount",
     "paidAmount": "Paid Amount",
     "remainingAmount": "Remaining Amount",
@@ -204,6 +218,13 @@
     "deleteSuccess": "Successfully deleted",
     "operationFailed": "Operation failed",
     "confirmDelete": "Are you sure you want to delete this item?",
-    "changesNotSaved": "You have unsaved changes"
+    "changesNotSaved": "You have unsaved changes",
+    "transactionCreated": "Transaction created successfully",
+    "contactCreated": "Contact created successfully",
+    "contactUpdated": "Contact updated successfully",
+    "contactDeleted": "Contact deleted successfully",
+    "accountCreated": "Account created successfully",
+    "accountUpdated": "Account updated successfully",
+    "unknownTransaction": "Unknown Transaction"
   }
 }
