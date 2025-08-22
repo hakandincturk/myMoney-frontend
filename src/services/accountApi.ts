@@ -3,6 +3,7 @@ import { baseQueryWithReauth } from './baseApi'
 import { AccountType, CurrencyType } from '../enums'
 import { AccountDTOs, CommonTypes } from '../types'
 import { CACHE_CONFIG } from '../config/cache'
+import { ApiUrl } from '../config/ApiUrl'
 
 export const accountApi = createApi({
   reducerPath: 'accountApi',
@@ -10,7 +11,7 @@ export const accountApi = createApi({
   tagTypes: ['Account'],
   endpoints: (build) => ({
     listMyActiveAccounts: build.query<CommonTypes.ApiResponse<AccountDTOs.ListItem[]>, void>({
-      query: () => ({ url: '/api/account/my/active' }),
+      query: () => ({ url: ApiUrl.ACCOUNT_MY_ACTIVE.toString() }),
       providesTags: (result) =>
         result
           ? [
@@ -22,12 +23,12 @@ export const accountApi = createApi({
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.ACCOUNT : 0,
     }),
     createAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, AccountDTOs.CreateRequest>({
-      query: (body) => ({ url: '/api/account/my', method: 'POST', body }),
+      query: (body) => ({ url: ApiUrl.ACCOUNT_MY.toString(), method: 'POST', body }),
       invalidatesTags: [{ type: 'Account', id: 'LIST' }],
     }),
     updateMyAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, { accountId: number; body: AccountDTOs.UpdateRequest }>({
       query: ({ accountId, body }) => ({
-        url: `/api/account/my/${accountId}`,
+        url: ApiUrl.ACCOUNT_MY_BY_ID.toString().replace('{id}', accountId.toString()),
         method: 'PUT',
         body,
       }),
@@ -37,13 +38,13 @@ export const accountApi = createApi({
       ],
     }),
     getAccountDetail: build.query<CommonTypes.ApiResponse<AccountDTOs.Detail>, number>({
-      query: (id) => ({ url: `/api/account/my/${id}` }),
+      query: (id) => ({ url: ApiUrl.ACCOUNT_MY_BY_ID.toString().replace('{id}', id.toString()) }),
       providesTags: (result, error, id) => [{ type: 'Account', id }],
       // Cache'i environment variable'a göre tut
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
     deleteAccount: build.mutation<CommonTypes.ApiResponse<{ id: number }>, number>({
-      query: (id) => ({ url: `/api/account/my/${id}`, method: 'DELETE' }),
+      query: (id) => ({ url: ApiUrl.ACCOUNT_MY_BY_ID.toString().replace('{id}', id.toString()), method: 'DELETE' }),
       invalidatesTags: (result, error, id) => [
         { type: 'Account', id },
         { type: 'Account', id: 'LIST' }

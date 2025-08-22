@@ -99,6 +99,8 @@ export const InstallmentsPage: React.FC = () => {
     setDescriptionModalOpen(true)
   }
 
+
+
   // Modal kapatma fonksiyonları
   const closePaymentModal = () => {
     setPaymentModalOpen(false)
@@ -111,6 +113,8 @@ export const InstallmentsPage: React.FC = () => {
     setSelectedInstallment(null)
     setDescription('')
   }
+
+
 
   // Ödeme işlemi
   const handlePayment = async () => {
@@ -137,6 +141,8 @@ export const InstallmentsPage: React.FC = () => {
     showToast(t('installment.descriptionUpdateSuccess'), 'success')
     closeDescriptionModal()
   }
+
+
 
   const monthOptions = Array.from({ length: 12 }).map((_, idx) => {
     const d = new Date(2000, idx, 1)
@@ -231,6 +237,7 @@ export const InstallmentsPage: React.FC = () => {
             >
               {t('buttons.editDescription')}
             </Button>
+
           </div>
         )
       },
@@ -384,6 +391,8 @@ export const InstallmentsPage: React.FC = () => {
           />
         </div>
       </Modal>
+
+
     </div>
   )
 }

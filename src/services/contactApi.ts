@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
 import { CACHE_CONFIG } from '../config/cache'
+import { ApiUrl } from '../config/ApiUrl'
 
 export type CreateContactRequestDto = {
   fullName: string
@@ -24,7 +25,7 @@ export const contactApi = createApi({
   tagTypes: ['Contact'],
   endpoints: (build) => ({
     listMyActiveContacts: build.query<{ type: boolean; data: ListMyContactsResponseDto[] }, void>({
-      query: () => ({ url: '/api/contact/my/active' }),
+      query: () => ({ url: ApiUrl.CONTACT_MY_ACTIVE.toString() }),
       providesTags: (result) =>
         result
           ? [
@@ -36,18 +37,18 @@ export const contactApi = createApi({
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.CONTACT : 0,
     }),
     createContact: build.mutation<{ type: boolean }, CreateContactRequestDto>({
-      query: (body) => ({ url: '/api/contact/my', method: 'POST', body }),
+      query: (body) => ({ url: ApiUrl.CONTACT_MY.toString(), method: 'POST', body }),
       invalidatesTags: [{ type: 'Contact', id: 'LIST' }],
     }),
     updateMyContact: build.mutation<{ type: boolean }, { contactId: number; body: UpdateMyContactRequestDto }>({
-      query: ({ contactId, body }) => ({ url: `/api/contact/my/${contactId}`, method: 'PUT', body }),
+      query: ({ contactId, body }) => ({ url: ApiUrl.CONTACT_MY_BY_ID.toString().replace('{id}', contactId.toString()), method: 'PUT', body }),
       invalidatesTags: (result, error, { contactId }) => [
         { type: 'Contact', id: contactId },
         { type: 'Contact', id: 'LIST' }
       ],
     }),
     deleteContact: build.mutation<{ type: boolean }, { contactId: number }>({
-      query: ({ contactId }) => ({ url: `/api/contact/my/${contactId}`, method: 'DELETE' }),
+      query: ({ contactId }) => ({ url: ApiUrl.CONTACT_MY_BY_ID.toString().replace('{id}', contactId.toString()), method: 'DELETE' }),
       invalidatesTags: (result, error, { contactId }) => [
         { type: 'Contact', id: contactId },
         { type: 'Contact', id: 'LIST' }

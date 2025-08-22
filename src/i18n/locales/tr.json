@@ -195,7 +195,8 @@
     "viewDetails": "Detayları Gör",
     "close": "Kapat",
     "pay": "Öde",
-    "editDescription": "Açıklama Düzenle"
+    "editDescription": "Açıklama Düzenle",
+    "deleteDebt": "Borcu Sil"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
@@ -204,7 +205,8 @@
     "editAccount": "Hesabı Düzenle",
     "transactionDetail": "İşlem Detayı",
     "payInstallment": "Taksit Ödemesi",
-    "editInstallmentDescription": "Taksit Açıklaması"
+    "editInstallmentDescription": "Taksit Açıklaması",
+    "deleteDebt": "Borcu Sil"
   },
   "placeholders": {
     "fullName": "Ad Soyad giriniz",
@@ -240,5 +242,10 @@
     "descriptionUpdateSuccess": "Taksit açıklaması başarıyla güncellendi",
     "enterDescription": "Açıklama giriniz",
     "selectPaymentDate": "Ödeme tarihini seçiniz"
+  },
+  "debt": {
+    "deleteConfirmation": "Bu borcu silmek istediğinizden emin misiniz?",
+    "deleteSuccess": "Borç başarıyla silindi",
+    "deleteWarning": "Bu işlem geri alınamaz ve tüm taksit bilgileri kaybolacaktır."
   }
 }

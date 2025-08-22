@@ -460,6 +460,39 @@
           }
         }
       }
+    },
+    "/api/transaction/my/{transactionId}": {
+      "delete": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Delete my transactions",
+        "description": "Borcun silinmesini sağlar",
+        "operationId": "deleteMyTransaction",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

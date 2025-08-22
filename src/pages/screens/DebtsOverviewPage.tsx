@@ -4,9 +4,10 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
+import { DatePicker } from '@/components/ui/DatePicker'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
-import { useCreateTransactionMutation, useListMyTransactionsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
+import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, TransactionType, TransactionStatus } from '@/services/transactionApi'
 import { TransactionHelpers } from '../../types'
 
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
@@ -19,6 +20,7 @@ import { useToast } from '../../hooks/useToast'
 
 // API'den gelen veri yapısına göre tip tanımı (endpoints.json'dan)
 type TransactionListItem = {
+  id: number
   contactName: string
   accountName: string
   type: string
@@ -49,6 +51,7 @@ export const DebtsOverviewPage: React.FC = () => {
   const accounts = useMemo(() => accountsData?.data ?? [], [accountsData])
   const contacts = useMemo(() => contactsData?.data ?? [], [contactsData])
   const [createTransaction, { isLoading: createLoading }] = useCreateTransactionMutation()
+  const [deleteTransaction] = useDeleteTransactionMutation()
   const { showToast } = useToast()
   
   // Genel loading durumu
@@ -59,6 +62,7 @@ export const DebtsOverviewPage: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionListItem | null>(null)
   const [form, setForm] = useState({
     accountId: undefined as number | undefined,
@@ -85,15 +89,67 @@ export const DebtsOverviewPage: React.FC = () => {
     setDetailModalOpen(true)
   }
 
+  // Borç silme modal'ını aç
+  const showDeleteModal = (transaction: TransactionListItem) => {
+    setSelectedTransaction(transaction)
+    setDeleteModalOpen(true)
+  }
+
+  // Borç silme işlemi
+  const handleDeleteTransaction = async () => {
+    if (!selectedTransaction?.id) return
+
+    try {
+      await deleteTransaction(selectedTransaction.id).unwrap()
+      showToast(t('debt.deleteSuccess'), 'success')
+      setDeleteModalOpen(false)
+      setSelectedTransaction(null)
+    } catch (error) {
+      showToast(t('messages.operationFailed'), 'error')
+    }
+  }
+
   // İşlem türü metnini al (component içinde tanımlandı)
   const getTransactionTypeText = (type: string): string => {
     return TransactionHelpers.getTypeText(type as TransactionType, t)
   }
 
+  // İşlem durumu metnini al
+  const getTransactionStatusText = (status: string): string => {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return t('status.pending')
+      case 'PAID':
+        return t('status.paid')
+      case 'PARTIAL':
+        return t('status.partial')
+      case 'ACTIVE':
+        return t('status.active')
+      case 'INACTIVE':
+        return t('status.inactive')
+      case 'BLOCKED':
+        return t('status.blocked')
+      default:
+        return status
+    }
+  }
+
   // API'den gelen işlemleri sadece borçlar olarak filtrele
   const debts: TransactionListItem[] = useMemo(() => {
-    // API'den gelen tüm işlemleri göster
-    const txs = (transactionsData?.data ?? []) as unknown as TransactionListItem[]
+    if (!transactionsData?.data) return []
+    
+    // API'den gelen veriyi doğru şekilde map et
+    const txs = transactionsData.data.map((item: any) => ({
+      id: item.id,
+      contactName: item.contactName || item.contact?.fullName || '-',
+      accountName: item.accountName || item.account?.name || 'Bilinmeyen',
+      type: item.type,
+      status: item.status,
+      totalAmount: item.totalAmount || 0,
+      paidAmount: item.paidAmount || 0,
+      totalInstallment: item.totalInstallment || 1
+    }))
+    
     return txs
   }, [transactionsData])
 
@@ -174,15 +230,25 @@ export const DebtsOverviewPage: React.FC = () => {
       id: 'actions',
       header: t('table.columns.actions'),
       cell: (info) => (
-        <Button
-          onClick={() => showTransactionDetail(info.row.original)}
-          variant="secondary"
-        >
-          {t('buttons.viewDetails')}
-        </Button>
+        <div className="flex gap-2 justify-end">
+          <Button
+            onClick={() => showTransactionDetail(info.row.original)}
+            variant="secondary"
+            className="px-3 py-1 text-xs"
+          >
+            {t('buttons.viewDetails')}
+          </Button>
+          <Button
+            onClick={() => showDeleteModal(info.row.original)}
+            variant="secondary"
+            className="px-3 py-1 text-xs bg-red-50 hover:!bg-red-100 text-red-600 border-red-200 hover:!border-red-300 dark:bg-red-500 dark:hover:!bg-red-600 dark:text-white dark:border-red-500 dark:hover:!border-red-600"
+          >
+            {t('buttons.deleteDebt')}
+          </Button>
+        </div>
       ),
       meta: {
-        className: 'min-w-[120px]'
+        className: 'min-w-[200px]'
       }
     }),
   ]
@@ -337,10 +403,9 @@ export const DebtsOverviewPage: React.FC = () => {
                   required
                 />
                 
-                <Input 
+                <DatePicker
                   id="debtDate"
                   label={t('transaction.debtDate')}
-                  type="date"
                   value={form.debtDate}
                   onChange={(value) => setForm((p) => ({ ...p, debtDate: value as string }))}
                   required
@@ -435,6 +500,62 @@ export const DebtsOverviewPage: React.FC = () => {
               )}
             </div>
           )}
+        </Modal>
+
+        {/* Borç Silme Modal */}
+        <Modal 
+          open={deleteModalOpen} 
+          onClose={() => setDeleteModalOpen(false)} 
+          title={t('modals.deleteDebt')}
+          footer={(
+            <div className="flex justify-end gap-2">
+              <Button 
+                onClick={() => setDeleteModalOpen(false)} 
+                variant="secondary"
+              >
+                {t('buttons.cancel')}
+              </Button>
+              <Button 
+                onClick={handleDeleteTransaction}
+                variant="secondary"
+                className="bg-red-50 hover:!bg-red-100 text-red-600 border-red-200 hover:!border-red-300 dark:bg-red-500 dark:hover:!bg-red-600 dark:text-white dark:border-red-500 dark:hover:!border-red-600"
+              >
+                {t('buttons.delete')}
+              </Button>
+            </div>
+          )}
+        >
+          <div className="space-y-4">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <span className="text-red-400 text-lg">⚠️</span>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                    {t('debt.deleteConfirmation')}
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                    <p>{t('debt.deleteWarning')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {selectedTransaction && (
+              <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="font-medium text-slate-900 dark:text-mm-text mb-2">
+                  Borç Detayları:
+                </h4>
+                <div className="space-y-1 text-sm text-slate-600 dark:text-mm-subtleText">
+                  <p><strong>Kişi:</strong> {selectedTransaction.contactName}</p>
+                  <p><strong>Hesap:</strong> {selectedTransaction.accountName}</p>
+                  <p><strong>Tutar:</strong> ₺{selectedTransaction.totalAmount.toLocaleString('tr-TR')}</p>
+                  <p><strong>Durum:</strong> {getTransactionStatusText(selectedTransaction.status)}</p>
+                </div>
+              </div>
+            )}
+          </div>
         </Modal>
       </div>
     </div>

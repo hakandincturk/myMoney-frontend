@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
+import { ApiUrl } from '../config/ApiUrl'
 
 type LoginRequestDto = {
   email: string
@@ -27,14 +28,14 @@ export const authApi = createApi({
   endpoints: (build) => ({
     login: build.mutation<ApiResponseLoginResponseDto, LoginRequestDto>({
       query: (body) => ({
-        url: '/api/auth/login',
+        url: ApiUrl.AUTH_LOGIN.toString(),
         method: 'POST',
         body,
       }),
     }),
     register: build.mutation<{ type: boolean; message: string; timestamp: string; data?: unknown }, RegisterRequestDto>({
       query: (body) => ({
-        url: '/api/auth/register',
+        url: ApiUrl.AUTH_REGISTER.toString(),
         method: 'POST',
         body,
       }),
