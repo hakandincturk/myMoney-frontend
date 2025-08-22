@@ -23,7 +23,9 @@
     "warning": "Warning",
     "info": "Info",
     "view": "View",
-    "quickAccess": "Quick Access"
+    "quickAccess": "Quick Access",
+    "clear": "Clear",
+    "today": "Today"
   },
   "navigation": {
     "home": "Home",
@@ -103,14 +105,18 @@
     "previous": "Previous",
     "next": "Next",
     "viewDetails": "View Details",
-    "close": "Close"
+    "close": "Close",
+    "pay": "Pay",
+    "editDescription": "Edit Description"
   },
   "modals": {
     "editContact": "Edit Contact",
     "newContact": "New Contact",
     "newDebt": "New Debt Entry",
     "editAccount": "Edit Account",
-    "transactionDetail": "Transaction Detail"
+    "transactionDetail": "Transaction Detail",
+    "payInstallment": "Installment Payment",
+    "editInstallmentDescription": "Installment Description"
   },
   "placeholders": {
     "fullName": "Enter full name",
@@ -226,5 +232,13 @@
     "accountCreated": "Account created successfully",
     "accountUpdated": "Account updated successfully",
     "unknownTransaction": "Unknown Transaction"
+  },
+  "installment": {
+    "paymentDate": "Payment Date",
+    "description": "Description",
+    "paymentSuccess": "Installment payment saved successfully",
+    "descriptionUpdateSuccess": "Installment description updated successfully",
+    "enterDescription": "Enter description",
+    "selectPaymentDate": "Select payment date"
   }
 }

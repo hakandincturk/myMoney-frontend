@@ -314,6 +314,47 @@
         }
       }
     },
+    "/api/installment/pay/{installmentId}": {
+      "patch": {
+        "tags": [
+          "Installment"
+        ],
+        "operationId": "payInstallment",
+        "parameters": [
+          {
+            "name": "installmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayInstallmentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/transaction/my": {
       "get": {
         "tags": [
@@ -624,6 +665,15 @@
           "type"
         ]
       },
+      "PayInstallmentRequestDto": {
+        "type": "object",
+        "properties": {
+          "paidDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
       "ApiResponseListListMyTransactionsResponseDto": {
         "type": "object",
         "properties": {
@@ -696,6 +746,10 @@
       "ListMySpecisifDateInstallmentsResponseDto": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
           "transactionDetail": {
             "$ref": "#/components/schemas/TransactionDetailDto"
           },

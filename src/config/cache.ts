@@ -1,14 +1,14 @@
 // Cache Configuration
 export const CACHE_CONFIG = {
   // Cache aktif mi?
-  ENABLED: __ENABLE_CACHE__,
+  ENABLED: import.meta.env.VITE_ENABLE_CACHE === 'true' || import.meta.env.MODE === 'production',
   
   // Cache süreleri (saniye)
   DURATIONS: {
-    CONTACT: __CONTACT_CACHE_DURATION__,
-    ACCOUNT: __ACCOUNT_CACHE_DURATION__,
-    TRANSACTION: __TRANSACTION_CACHE_DURATION__,
-    DETAIL: __DETAIL_CACHE_DURATION__,
+    CONTACT: parseInt(import.meta.env.VITE_CONTACT_CACHE_DURATION) || 1800,
+    ACCOUNT: parseInt(import.meta.env.VITE_ACCOUNT_CACHE_DURATION) || 1800,
+    TRANSACTION: parseInt(import.meta.env.VITE_TRANSACTION_CACHE_DURATION) || 1800,
+    DETAIL: parseInt(import.meta.env.VITE_DETAIL_CACHE_DURATION) || 3600,
   },
   
   // Cache sürelerini milisaniyeye çevir

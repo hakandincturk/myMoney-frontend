@@ -23,7 +23,9 @@
     "warning": "Uyarı",
     "info": "Bilgi",
     "view": "Görüntüle",
-    "quickAccess": "Hızlı Erişim"
+    "quickAccess": "Hızlı Erişim",
+    "clear": "Temizle",
+    "today": "Bugün"
   },
   "navigation": {
     "home": "Ana Sayfa",
@@ -191,14 +193,18 @@
     "previous": "Önceki",
     "next": "Sonraki",
     "viewDetails": "Detayları Gör",
-    "close": "Kapat"
+    "close": "Kapat",
+    "pay": "Öde",
+    "editDescription": "Açıklama Düzenle"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
     "newContact": "Yeni Kişi",
     "newDebt": "Yeni Borç Girişi",
     "editAccount": "Hesabı Düzenle",
-    "transactionDetail": "İşlem Detayı"
+    "transactionDetail": "İşlem Detayı",
+    "payInstallment": "Taksit Ödemesi",
+    "editInstallmentDescription": "Taksit Açıklaması"
   },
   "placeholders": {
     "fullName": "Ad Soyad giriniz",
@@ -226,5 +232,13 @@
     "accountCreated": "Hesap başarıyla oluşturuldu",
     "accountUpdated": "Hesap başarıyla güncellendi",
     "unknownTransaction": "Bilinmeyen İşlem"
+  },
+  "installment": {
+    "paymentDate": "Ödeme Tarihi",
+    "description": "Açıklama",
+    "paymentSuccess": "Taksit ödemesi başarıyla kaydedildi",
+    "descriptionUpdateSuccess": "Taksit açıklaması başarıyla güncellendi",
+    "enterDescription": "Açıklama giriniz",
+    "selectPaymentDate": "Ödeme tarihini seçiniz"
   }
 }

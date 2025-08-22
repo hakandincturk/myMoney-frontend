@@ -2,18 +2,24 @@ import React from 'react'
 import { Table } from '@/components/ui/Table'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { useListMonthlyInstallmentsQuery } from '@/services/installmentApi'
+import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation } from '@/services/installmentApi'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { useSearchParams } from 'react-router-dom'
+import { Modal } from '@/components/ui/Modal'
+import { Input } from '@/components/ui/Input'
+import { DatePicker } from '@/components/ui/DatePicker'
+import { useToast } from '../../hooks/useToast'
 
 type InstallmentRow = {
+  id: number
   transactionName: string
   amount: number
   date: string
   installmentNumber: number
   paid: boolean
   paidDate?: string
+  description?: string
 }
 
 const columnHelper = createColumnHelper<InstallmentRow>()
@@ -21,6 +27,14 @@ const columnHelper = createColumnHelper<InstallmentRow>()
 export const InstallmentsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { showToast } = useToast()
+
+  // Modal state'leri
+  const [paymentModalOpen, setPaymentModalOpen] = React.useState(false)
+  const [descriptionModalOpen, setDescriptionModalOpen] = React.useState(false)
+  const [selectedInstallment, setSelectedInstallment] = React.useState<InstallmentRow | null>(null)
+  const [paymentDate, setPaymentDate] = React.useState('')
+  const [description, setDescription] = React.useState('')
 
   const now = new Date()
   const [month, setMonth] = React.useState<number>(() => {
@@ -42,6 +56,10 @@ export const InstallmentsPage: React.FC = () => {
     return now.getFullYear()
   })
 
+  // API hooks
+  const { data, isLoading } = useListMonthlyInstallmentsQuery({ month, year })
+  const [payInstallment] = usePayInstallmentMutation()
+
   // Seçimler değiştikçe kaydet
   React.useEffect(() => {
     if (typeof window === 'undefined') return
@@ -51,7 +69,7 @@ export const InstallmentsPage: React.FC = () => {
     setSearchParams({ month: String(month), year: String(year) }, { replace: true })
   }, [month, year])
 
-  // History geri/ileri durumunda URL’den state’i güncelle
+  // History geri/ileri durumunda URL'den state'i güncelle
   React.useEffect(() => {
     const m = Number(searchParams.get('month'))
     const y = Number(searchParams.get('year'))
@@ -60,7 +78,65 @@ export const InstallmentsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
-  const { data, isLoading } = useListMonthlyInstallmentsQuery({ month, year })
+  // Bugünün tarihini formatla (YYYY-MM-DD)
+  const today = (() => {
+    const now = new Date()
+    return now.getFullYear() + '-' + 
+      String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(now.getDate()).padStart(2, '0')
+  })()
+
+  // Modal açma fonksiyonları
+  const openPaymentModal = (installment: InstallmentRow) => {
+    setSelectedInstallment(installment)
+    setPaymentDate(today)
+    setPaymentModalOpen(true)
+  }
+
+  const openDescriptionModal = (installment: InstallmentRow) => {
+    setSelectedInstallment(installment)
+    setDescription(installment.description || '')
+    setDescriptionModalOpen(true)
+  }
+
+  // Modal kapatma fonksiyonları
+  const closePaymentModal = () => {
+    setPaymentModalOpen(false)
+    setSelectedInstallment(null)
+    setPaymentDate('')
+  }
+
+  const closeDescriptionModal = () => {
+    setDescriptionModalOpen(false)
+    setSelectedInstallment(null)
+    setDescription('')
+  }
+
+  // Ödeme işlemi
+  const handlePayment = async () => {
+    if (!selectedInstallment || !paymentDate) return
+
+    try {
+      await payInstallment({
+        installmentId: selectedInstallment.id,
+        data: { paidDate: paymentDate }
+      }).unwrap()
+      
+      showToast(t('installment.paymentSuccess'), 'success')
+      closePaymentModal()
+    } catch (error) {
+      showToast(t('messages.operationFailed'), 'error')
+    }
+  }
+
+  // Açıklama güncelleme (şimdilik sadece local state'te güncelleniyor)
+  const handleDescriptionUpdate = () => {
+    if (!selectedInstallment) return
+    
+    // Burada gerçek API çağrısı yapılacak (şimdilik sadece local state)
+    showToast(t('installment.descriptionUpdateSuccess'), 'success')
+    closeDescriptionModal()
+  }
 
   const monthOptions = Array.from({ length: 12 }).map((_, idx) => {
     const d = new Date(2000, idx, 1)
@@ -133,15 +209,43 @@ export const InstallmentsPage: React.FC = () => {
         }
       },
     }),
+    columnHelper.accessor('id', {
+      header: t('table.columns.actions'),
+      cell: (info) => {
+        const installment = info.row.original
+        return (
+          <div className="flex gap-2 justify-end">
+            {!installment.paid && (
+              <Button
+                onClick={() => openPaymentModal(installment)}
+                variant="secondary"
+                className="px-3 py-1 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50"
+              >
+                {t('buttons.pay')}
+              </Button>
+            )}
+            <Button
+              onClick={() => openDescriptionModal(installment)}
+              variant="secondary"
+              className="px-3 py-1 text-xs"
+            >
+              {t('buttons.editDescription')}
+            </Button>
+          </div>
+        )
+      },
+    }),
   ]
 
   const rows: InstallmentRow[] = (data?.data || []).map((x) => ({
+    id: x.id,
     transactionName: x.transactionDetail?.name || "-",
     amount: x.amount,
     date: x.date,
     installmentNumber: x.installmentNumber,
     paid: x.paid,
     paidDate: x.paidDate,
+    description: x.descripton,
   }))
 
   return (
@@ -219,6 +323,67 @@ export const InstallmentsPage: React.FC = () => {
           <div className="mt-3 text-sm text-slate-500 dark:text-mm-subtleText">{t('common.loading')}</div>
         )}
       </div>
+
+      {/* Ödeme Modal */}
+      <Modal
+        open={paymentModalOpen}
+        onClose={closePaymentModal}
+        title={t('modals.payInstallment')}
+        footer={
+          <div className="flex gap-3 justify-end">
+            <Button variant="secondary" onClick={closePaymentModal}>
+              {t('buttons.cancel')}
+            </Button>
+            <Button variant="primary" onClick={handlePayment}>
+              {t('buttons.save')}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-mm-subtleText">
+            {t('installment.selectPaymentDate')}
+          </p>
+          <DatePicker
+            id="paymentDate"
+            value={paymentDate}
+            onChange={setPaymentDate}
+            label={t('installment.paymentDate')}
+            required
+          />
+        </div>
+      </Modal>
+
+      {/* Açıklama Düzenleme Modal */}
+      <Modal
+        open={descriptionModalOpen}
+        onClose={closeDescriptionModal}
+        title={t('modals.editInstallmentDescription')}
+        footer={
+          <div className="flex gap-3 justify-end">
+            <Button variant="secondary" onClick={closeDescriptionModal}>
+              {t('buttons.cancel')}
+            </Button>
+            <Button variant="primary" onClick={handleDescriptionUpdate}>
+              {t('buttons.save')}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-mm-subtleText">
+            {t('installment.enterDescription')}
+          </p>
+          <Input
+            id="description"
+            type="text"
+            value={description}
+            onChange={(value) => setDescription(String(value))}
+            label={t('installment.description')}
+            placeholder={t('placeholders.note')}
+          />
+        </div>
+      </Modal>
     </div>
   )
 }
