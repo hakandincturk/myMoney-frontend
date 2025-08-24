@@ -13,19 +13,35 @@ export namespace TransactionDTOs {
     debtDate?: string
   }
 
-  // İşlem listesi öğesi
+  // İşlem listesi öğesi (yeni API response yapısına uygun)
   export type ListItem = {
     id: number
-    description?: string
-    paidAmount?: number
-    status: TransactionStatus
+    contactName: string
+    accountName: string
+    type: string
+    status: string
     totalAmount: number
-    totalInstallment?: number
-    type: TransactionType
-    accountId: number
-    contactId?: number
-    currency?: string
-    accountType?: string
+    paidAmount: number
+    totalInstallment: number
+  }
+
+  // Sayfalama parametreleri
+  export type SortablePageRequest = {
+    pageNumber?: number
+    pageSize?: number
+    columnName?: string
+    asc?: boolean
+  }
+
+  // Sayfalama response yapısı
+  export type PagedResponse<T> = {
+    content: T[]
+    pageNumber: number
+    pageSize: number
+    totalElements: number
+    totalPages: number
+    first: boolean
+    last: boolean
   }
 
   // İşlem güncelleme isteği

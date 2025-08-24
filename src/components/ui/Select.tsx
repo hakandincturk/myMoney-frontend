@@ -18,6 +18,9 @@ type SelectProps = {
   disabled?: boolean
   searchable?: boolean
   dropdownDirection?: 'down' | 'up'
+  onLoadMore?: () => void
+  hasMore?: boolean
+  isLoadingMore?: boolean
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(({
@@ -33,6 +36,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   disabled = false,
   searchable = true,
   dropdownDirection = 'down',
+  onLoadMore,
+  hasMore = false,
+  isLoadingMore = false,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -43,6 +49,14 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   const listRef = useRef<HTMLDivElement>(null)
 
   const selectedOption = options.find(option => option.value === value)
+  
+  // Scroll event handler for infinity scroll
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    if (scrollTop + clientHeight >= scrollHeight - 10 && hasMore && !isLoadingMore && onLoadMore) {
+      onLoadMore()
+    }
+  }
   const filteredOptions = searchable 
     ? options.filter(option => 
         option.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -201,29 +215,45 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
               </div>
             )}
             
-            <div className="max-h-64 overflow-y-auto" ref={listRef}>
+            <div className="max-h-64 overflow-y-auto" ref={listRef} onScroll={handleScroll}>
               {filteredOptions.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center">
                   Sonuç bulunamadı
                 </div>
               ) : (
-                filteredOptions.map((option, index) => (
-                  <div
-                    key={option.value}
-                    ref={(el) => {
-                      if (el) optionRefs.current[index] = el
-                    }}
-                    className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
-                      index === highlightedIndex
-                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                        : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
-                    }`}
-                    onClick={() => handleSelect(option.value)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                  >
-                    {option.label}
-                  </div>
-                ))
+                <>
+                  {filteredOptions.map((option, index) => (
+                    <div
+                      key={option.value}
+                      ref={(el) => {
+                        if (el) optionRefs.current[index] = el
+                      }}
+                      className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                        index === highlightedIndex
+                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                          : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
+                      }`}
+                      onClick={() => handleSelect(option.value)}
+                      onMouseEnter={() => setHighlightedIndex(index)}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                  
+                  {/* Loading indicator for infinity scroll */}
+                  {hasMore && (
+                    <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center border-t border-slate-100 dark:border-gray-600">
+                      {isLoadingMore ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                          <span>Yükleniyor...</span>
+                        </div>
+                      ) : (
+                        <span>Daha fazla yüklemek için aşağı kaydırın</span>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

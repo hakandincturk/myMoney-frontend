@@ -18,6 +18,16 @@ type TableProps<T> = {
   title?: string
   showPagination?: boolean
   pageSize?: number
+  currentPage?: number
+  totalPages?: number
+  totalRecords?: number
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (pageSize: number) => void
+  onSort?: (columnName: string, asc: boolean) => void
+  sortColumn?: string
+  sortDirection?: 'asc' | 'desc'
+  isFirstPage?: boolean
+  isLastPage?: boolean
 }
 
 export const Table = <T extends object>({ 
@@ -26,11 +36,19 @@ export const Table = <T extends object>({
   className = '', 
   title,
   showPagination = true,
-  pageSize = 10
+  pageSize = 10,
+  currentPage = 0,
+  totalPages = 0,
+  totalRecords = 0,
+  onPageChange,
+  onPageSizeChange,
+  onSort,
+  sortColumn,
+  sortDirection = 'desc',
+  isFirstPage,
+  isLastPage
 }: TableProps<T>) => {
   const { t } = useTranslation()
-  const [currentPageSize, setCurrentPageSize] = React.useState(pageSize)
-  const [currentPageIndex, setCurrentPageIndex] = React.useState(0)
   
   const table = useReactTable({
     data,
@@ -39,21 +57,51 @@ export const Table = <T extends object>({
     getPaginationRowModel: getPaginationRowModel(),
     state: {
       pagination: {
-        pageIndex: currentPageIndex,
-        pageSize: currentPageSize,
+        pageIndex: currentPage,
+        pageSize: pageSize,
       },
     },
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: currentPageIndex, pageSize: currentPageSize })
-        setCurrentPageSize(newState.pageSize)
-        setCurrentPageIndex(newState.pageIndex)
+        const newState = updater({ pageIndex: currentPage, pageSize: pageSize })
+        if (onPageSizeChange && newState.pageSize !== pageSize) {
+          onPageSizeChange(newState.pageSize)
+        }
+        if (onPageChange && newState.pageIndex !== currentPage) {
+          onPageChange(newState.pageIndex)
+        }
       } else if (typeof updater === 'object') {
-        setCurrentPageSize(updater.pageSize || currentPageSize)
-        setCurrentPageIndex(updater.pageIndex || currentPageIndex)
+        if (onPageSizeChange && updater.pageSize && updater.pageSize !== pageSize) {
+          onPageSizeChange(updater.pageSize)
+        }
+        if (onPageChange && updater.pageIndex !== undefined && updater.pageIndex !== currentPage) {
+          onPageChange(updater.pageIndex)
+        }
       }
     },
   })
+
+  // Sayfa değişikliği
+  const handlePageChange = (newPage: number) => {
+    if (onPageChange) {
+      onPageChange(newPage)
+    }
+  }
+
+  // Sayfa boyutu değişikliği
+  const handlePageSizeChange = (newPageSize: number) => {
+    if (onPageSizeChange) {
+      onPageSizeChange(newPageSize)
+    }
+  }
+
+  // Sütun sıralama
+  const handleSort = (columnName: string) => {
+    if (onSort) {
+      const newAsc = sortColumn === columnName ? !sortDirection || sortDirection === 'desc' : true
+      onSort(columnName, newAsc)
+    }
+  }
 
   return (
     <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-hidden ${className}`}>
@@ -102,11 +150,11 @@ export const Table = <T extends object>({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
                 <span>
-                  {t('table.pagination.page')} {table.getState().pagination.pageIndex + 1} {t('table.pagination.of')} {table.getPageCount()}
+                  {t('table.pagination.page')} {currentPage + 1} {t('table.pagination.of')} {totalPages || table.getPageCount()}
                 </span>
                 <span>•</span>
                 <span>
-                  {t('table.pagination.totalRecords')} {table.getFilteredRowModel().rows.length}
+                  {t('table.pagination.totalRecords')} {totalRecords || table.getFilteredRowModel().rows.length}
                 </span>
               </div>
               
@@ -116,12 +164,8 @@ export const Table = <T extends object>({
                 </span>
                 <Select
                   id="pageSize"
-                  value={currentPageSize}
-                  onChange={(value) => {
-                    const newPageSize = Number(value)
-                    setCurrentPageSize(newPageSize)
-                    setCurrentPageIndex(0)
-                  }}
+                  value={pageSize}
+                  onChange={(value) => handlePageSizeChange(Number(value))}
                   options={[
                     { value: 10, label: '10' },
                     { value: 25, label: '25' },
@@ -136,20 +180,16 @@ export const Table = <T extends object>({
             
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => {
-                  setCurrentPageIndex(Math.max(0, currentPageIndex - 1))
-                }}
-                disabled={currentPageIndex === 0}
+                onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
+                disabled={isFirstPage !== undefined ? isFirstPage : currentPage === 0}
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >
                 {t('buttons.previous')}
               </Button>
               <Button
-                onClick={() => {
-                  setCurrentPageIndex(Math.min(table.getPageCount() - 1, currentPageIndex + 1))
-                }}
-                disabled={currentPageIndex >= table.getPageCount() - 1}
+                onClick={() => handlePageChange(Math.min((totalPages || table.getPageCount()) - 1, currentPage + 1))}
+                disabled={isLastPage !== undefined ? isLastPage : currentPage >= (totalPages || table.getPageCount()) - 1}
                 variant="secondary"
                 className="px-3 py-1.5 text-sm"
               >

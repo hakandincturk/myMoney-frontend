@@ -1,6 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from './baseApi'
 import { ApiUrl } from '../config/ApiUrl'
+import { CommonTypes } from '../types'
+
+// Kısa alias'lar oluştur
+type ApiResponse<T> = CommonTypes.ApiResponse<T>
 
 type LoginRequestDto = {
   email: string
@@ -14,11 +18,8 @@ type RegisterRequestDto = {
   phone: string
 }
 
-type ApiResponseLoginResponseDto = {
-  type: boolean
-  message: string
-  timestamp: string
-  data: { token: string }
+type LoginResponseDto = {
+  token: string
 }
 
 export const authApi = createApi({
@@ -26,14 +27,14 @@ export const authApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Auth'],
   endpoints: (build) => ({
-    login: build.mutation<ApiResponseLoginResponseDto, LoginRequestDto>({
+    login: build.mutation<ApiResponse<LoginResponseDto>, LoginRequestDto>({
       query: (body) => ({
         url: ApiUrl.AUTH_LOGIN.toString(),
         method: 'POST',
         body,
       }),
     }),
-    register: build.mutation<{ type: boolean; message: string; timestamp: string; data?: unknown }, RegisterRequestDto>({
+    register: build.mutation<ApiResponse<any>, RegisterRequestDto>({
       query: (body) => ({
         url: ApiUrl.AUTH_REGISTER.toString(),
         method: 'POST',

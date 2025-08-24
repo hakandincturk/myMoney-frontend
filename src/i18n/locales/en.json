@@ -48,8 +48,10 @@
     "accounts": "Accounts",
     "contacts": "Contacts",
     "debts": "Debts",
-    "installments": "Monthly Installments",
-    "installments.thisMonth": "This Month"
+		"installments": {
+      "monthly": "Monthly Installments",
+      "thisMonth": "This Month"
+    }
   },
   "table": {
     "actions": "Actions",
@@ -85,7 +87,8 @@
       "paid": "Paid Status",
       "paidDate": "Payment Date",
       "totalInstallment": "Total Installments",
-      "actions": "Actions"
+      "actions": "Actions",
+      "debtDate": "Debt date"
     },
     "titles": {
       "accountList": "Account List",

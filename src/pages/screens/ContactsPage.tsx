@@ -4,7 +4,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
-import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation } from '@/services/contactApi'
+import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation, SortablePageRequest } from '@/services/contactApi'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
@@ -21,7 +21,16 @@ const columnHelper = createColumnHelper<Contact>()
 
 export const ContactsPage: React.FC = () => {
   const { t } = useTranslation()
-  const { data, isLoading } = useListMyActiveContactsQuery(undefined, {
+  
+  // Sayfalama parametreleri
+  const [pageParams, setPageParams] = useState<SortablePageRequest>({
+    pageNumber: 0,
+    pageSize: 10,
+    columnName: 'id',
+    asc: false
+  })
+  
+  const { data, isLoading } = useListMyActiveContactsQuery(pageParams, {
     // Sadece gerekli olduğunda refetch yap
     refetchOnMountOrArgChange: false,
     refetchOnFocus: false,
@@ -46,38 +55,69 @@ export const ContactsPage: React.FC = () => {
     }
   }, [open])
 
-  const handleEdit = (id: number) => {
-    const c = contacts.find((x) => x.id === id)
-    if (c) {
-      setForm({ id: c.id, fullName: c.fullName, note: c.note })
-      setOpen(true)
-    }
+  // Sayfalama işlemleri
+  const handlePageChange = (newPage: number) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, pageNumber: newPage }))
   }
 
-  const handleDelete = async (id: number) => {
-    try {
-      const result = await deleteContact({ contactId: id }).unwrap()
-      if (result && result.type === true) {
-        if (form.id === id) setForm({ fullName: '' })
-        showToast(t('messages.contactDeleted'), 'success')
-      }
-    } catch (error) {
-      // Hata durumunda işlem yapılmaz
-      console.error('Contact deletion failed:', error)
-      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
-      showToast(errorMessage, 'error')
-    }
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
   }
+
+  // Table bileşeninden gelen sıralama işlevi (sayfalama için)
+  const handleSort = (columnName: string, asc: boolean) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, columnName, asc, pageNumber: 0 }))
+  }
+
+  // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
+  const handleSortClick = (columnName: string) => {
+    setPageParams((prev: SortablePageRequest) => {
+      // Eğer aynı sütuna tıklanıyorsa
+      if (prev.columnName === columnName) {
+        if (prev.asc === true) {
+          // ASC -> DESC
+          return { ...prev, asc: false }
+        } else if (prev.asc === false) {
+          // DESC -> Default (id, DESC)
+          return { ...prev, columnName: 'id', asc: false, pageNumber: 0 }
+        }
+      }
+      
+      // Farklı sütuna tıklanıyorsa -> ASC
+      return { ...prev, columnName, asc: true, pageNumber: 0 }
+    })
+  }
+
+
 
   const contacts = useMemo(() => {
-    if (!data?.data) return []
+    if (!data?.data?.content) return []
     
-    return data.data.map(contact => ({
+    return data.data.content.map(contact => ({
       ...contact,
-      onEdit: handleEdit,
-      onDelete: handleDelete,
+      onEdit: (id: number) => {
+        const c = data.data.content.find((x: any) => x.id === id)
+        if (c) {
+          setForm({ id: c.id, fullName: c.fullName, note: c.note })
+          setOpen(true)
+        }
+      },
+      onDelete: async (id: number) => {
+        try {
+          const result = await deleteContact({ contactId: id }).unwrap()
+          if (result && result.type === true) {
+            if (form.id === id) setForm({ fullName: '' })
+            showToast(t('messages.contactDeleted'), 'success')
+          }
+        } catch (error) {
+          // Hata durumunda işlem yapılmaz
+          console.error('Contact deletion failed:', error)
+          const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+          showToast(errorMessage, 'error')
+        }
+      },
     }))
-  }, [data, handleEdit, handleDelete])
+  }, [data, deleteContact, form.id, showToast, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -109,11 +149,35 @@ export const ContactsPage: React.FC = () => {
 
   const columns = [
     columnHelper.accessor('fullName', {
-      header: t('table.columns.fullName'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('fullName')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.fullName')}
+          {pageParams.columnName === 'fullName' && (
+            <span className={`text-xs font-bold ${pageParams.asc ? 'text-blue-600' : 'text-red-600'}`}>
+              {pageParams.asc ? '↑' : '↓'}
+            </span>
+          )}
+        </button>
+      ),
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('note', {
-      header: t('table.columns.note'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('note')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.note')}
+          {pageParams.columnName === 'note' && (
+            <span className={`text-xs font-bold ${pageParams.asc ? 'text-blue-600' : 'text-red-600'}`}>
+              {pageParams.asc ? '↑' : '↓'}
+            </span>
+          )}
+        </button>
+      ),
       cell: (info) => info.getValue() || '-',
     }),
     columnHelper.display({
@@ -161,7 +225,17 @@ export const ContactsPage: React.FC = () => {
             columns={columns} 
             title={t('table.titles.contactList')}
             showPagination={true}
-            pageSize={10}
+            pageSize={pageParams.pageSize}
+            currentPage={pageParams.pageNumber}
+            totalPages={data?.data?.totalPages || 0}
+            totalRecords={data?.data?.totalElements || 0}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            onSort={handleSort}
+            sortColumn={pageParams.columnName}
+            sortDirection={pageParams.asc ? 'asc' : 'desc'}
+            isFirstPage={data?.data?.first}
+            isLastPage={data?.data?.last}
           />
         )}
 

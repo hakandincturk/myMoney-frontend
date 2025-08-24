@@ -48,8 +48,10 @@
     "accounts": "Hesaplar",
     "contacts": "Kişiler",
     "debts": "Borçlar",
-    "installments": "Aylık Taksitler",
-    "installments.thisMonth": "Bu Ay"
+    "installments": {
+      "monthly": "Aylık Taksitler",
+      "thisMonth": "Bu Ay"
+    }
   },
   "auth": {
     "login": "Giriş Yap",
@@ -173,7 +175,8 @@
       "paid": "Ödeme Durumu",
       "paidDate": "Ödeme Tarihi",
       "totalInstallment": "Toplam Taksit",
-      "actions": "İşlemler"
+      "actions": "İşlemler",
+      "debtDate": "Borç Tarihi"
     },
     "titles": {
       "accountList": "Hesap Listesi",

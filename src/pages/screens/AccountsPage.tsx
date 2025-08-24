@@ -6,10 +6,15 @@ import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
 import { AccountType, CurrencyType, useCreateAccountMutation, useListMyActiveAccountsQuery, useUpdateMyAccountMutation } from '@/services/accountApi'
+import { AccountDTOs } from '../../types'
 import { AccountHelpers } from '../../types'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
+
+// Kısa alias'lar oluştur
+type SortablePageRequest = AccountDTOs.SortablePageRequest
+type ListItem = AccountDTOs.ListItem
 
 type Account = {
   id: number
@@ -25,11 +30,21 @@ const columnHelper = createColumnHelper<Account>()
 
 export const AccountsPage: React.FC = () => {
   const { t } = useTranslation()
-  const { data, isLoading } = useListMyActiveAccountsQuery(undefined, {
+  
+  // Sayfalama parametreleri
+  const [pageParams, setPageParams] = useState<SortablePageRequest>({
+    pageNumber: 0,
+    pageSize: 10,
+    columnName: 'id',
+    asc: false
+  })
+  
+  const { data, isLoading } = useListMyActiveAccountsQuery(pageParams, {
     // Sadece gerekli olduğunda refetch yap
     refetchOnMountOrArgChange: false,
     refetchOnFocus: false,
   })
+  
   const [createAccount] = useCreateAccountMutation()
   const [updateMyAccount] = useUpdateMyAccountMutation()
   const { showToast } = useToast()
@@ -38,25 +53,109 @@ export const AccountsPage: React.FC = () => {
   const createNameInputRef = useRef<HTMLInputElement>(null)
   const editNameInputRef = useRef<HTMLInputElement>(null)
 
+  // Sayfalama işlemleri
+  const handlePageChange = (newPage: number) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, pageNumber: newPage }))
+  }
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
+  }
+
+  // Table bileşeninden gelen sıralama işlevi (sayfalama için)
+  const handleSort = (columnName: string, asc: boolean) => {
+    setPageParams((prev: SortablePageRequest) => ({ ...prev, columnName, asc, pageNumber: 0 }))
+  }
+
+  // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
+  const handleSortClick = (columnName: string) => {
+    setPageParams((prev: SortablePageRequest) => {
+      // Eğer aynı sütuna tıklanıyorsa
+      if (prev.columnName === columnName) {
+        if (prev.asc === true) {
+          // ASC -> DESC
+          return { ...prev, asc: false }
+        } else if (prev.asc === false) {
+          // DESC -> Default (id, DESC)
+          return { ...prev, columnName: 'id', asc: false, pageNumber: 0 }
+        }
+      }
+      
+      // Farklı sütuna tıklanıyorsa -> ASC
+      return { ...prev, columnName, asc: true, pageNumber: 0 }
+    })
+  }
+
+  // Sıralama durumunu göster
+  const getSortIndicator = (columnName: string) => {
+    if (pageParams.columnName !== columnName) return null
+    
+    if (pageParams.asc) {
+      return <span className="text-xs font-bold text-blue-600">↑</span>
+    } else {
+      return <span className="text-xs font-bold text-red-600">↓</span>
+    }
+  }
+
   const columns = [
     columnHelper.accessor('name', {
-      header: t('table.columns.name'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('name')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.name')}
+          {getSortIndicator('name')}
+        </button>
+      ),
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('type', {
-      header: t('table.columns.type'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('type')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.type')}
+          {getSortIndicator('type')}
+        </button>
+      ),
       cell: (info) => AccountHelpers.getTypeText(info.getValue()),
     }),
     columnHelper.accessor('currency', {
-      header: t('table.columns.currency'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('currency')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.currency')}
+          {getSortIndicator('currency')}
+        </button>
+      ),
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('balance', {
-      header: t('table.columns.balance'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('balance')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.balance')}
+          {getSortIndicator('balance')}
+        </button>
+      ),
       cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
     }),
     columnHelper.accessor('totalBalance', {
-      header: t('table.columns.totalBalance'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('totalBalance')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.totalBalance')}
+          {getSortIndicator('totalBalance')}
+        </button>
+      ),
       cell: (info) => `₺${info.getValue().toLocaleString('tr-TR')}`,
     }),
     columnHelper.display({
@@ -104,7 +203,7 @@ export const AccountsPage: React.FC = () => {
   }, [openEdit])
 
   const handleEdit = (id: number) => {
-    const account = accounts.find((a) => a.id === id)
+    const account = accounts.find((a: Account) => a.id === id)
     if (account) {
       // Sayıyı Türkçe para formatına çevir
       const formattedBalance = account.totalBalance.toLocaleString('tr-TR', {
@@ -121,9 +220,9 @@ export const AccountsPage: React.FC = () => {
   }
 
   const accounts = useMemo(() => {
-    if (!data?.data) return []
+    if (!data?.data?.content) return []
     
-    return data.data.map(account => ({
+    return data.data.content.map((account: ListItem) => ({
       ...account,
       onEdit: handleEdit,
     }))
@@ -196,6 +295,21 @@ export const AccountsPage: React.FC = () => {
           </Button>
         </div>
 
+        {/* Sıralama Durumu Bilgisi */}
+        {pageParams.columnName !== 'id' && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
+              <span className="font-medium">Sıralama:</span>
+              <span className="capitalize">{pageParams.columnName}</span>
+              <span className="font-bold">
+                {pageParams.asc ? '↑ Artan' : '↓ Azalan'}
+              </span>
+              <span className="text-blue-600 dark:text-blue-400">•</span>
+              <span>Bir kez daha tıklayarak varsayılan sıralamaya dön</span>
+            </div>
+          </div>
+        )}
+
         {isLoading ? (
           <TableSkeleton columns={5} rows={5} />
         ) : (
@@ -204,7 +318,17 @@ export const AccountsPage: React.FC = () => {
             columns={columns} 
             title={t('table.titles.accountList')}
             showPagination={true}
-            pageSize={10}
+            pageSize={pageParams.pageSize}
+            currentPage={pageParams.pageNumber}
+            totalPages={data?.data?.totalPages || 0}
+            totalRecords={data?.data?.totalElements || 0}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            onSort={handleSort}
+            sortColumn={pageParams.columnName}
+            sortDirection={pageParams.asc ? 'asc' : 'desc'}
+            isFirstPage={data?.data?.first}
+            isLastPage={data?.data?.last}
           />
         )}
 

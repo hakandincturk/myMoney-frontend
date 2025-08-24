@@ -3,6 +3,7 @@ import { Table } from '@/components/ui/Table'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation } from '@/services/installmentApi'
+import { InstallmentDTOs } from '../../types/installment'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { useSearchParams } from 'react-router-dom'
@@ -11,16 +12,11 @@ import { Input } from '@/components/ui/Input'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useToast } from '../../hooks/useToast'
 
-type InstallmentRow = {
-  id: number
-  transactionName: string
-  amount: number
-  date: string
-  installmentNumber: number
-  paid: boolean
-  paidDate?: string
-  description?: string
-}
+// Kısa alias'lar oluştur
+type SortablePageRequest = InstallmentDTOs.SortablePageRequest
+type ListItem = InstallmentDTOs.ListItem
+
+type InstallmentRow = ListItem
 
 const columnHelper = createColumnHelper<InstallmentRow>()
 
@@ -35,6 +31,14 @@ export const InstallmentsPage: React.FC = () => {
   const [selectedInstallment, setSelectedInstallment] = React.useState<InstallmentRow | null>(null)
   const [paymentDate, setPaymentDate] = React.useState('')
   const [description, setDescription] = React.useState('')
+
+  // Sayfalama parametreleri
+  const [pageParams, setPageParams] = React.useState<SortablePageRequest>({
+    pageNumber: 0,
+    pageSize: 10,
+    columnName: 'id',
+    asc: false
+  })
 
   const now = new Date()
   const [month, setMonth] = React.useState<number>(() => {
@@ -57,7 +61,7 @@ export const InstallmentsPage: React.FC = () => {
   })
 
   // API hooks
-  const { data, isLoading } = useListMonthlyInstallmentsQuery({ month, year })
+  const { data, isLoading } = useListMonthlyInstallmentsQuery({ month, year, pageData: pageParams })
   const [payInstallment] = usePayInstallmentMutation()
 
   // Seçimler değiştikçe kaydet
@@ -95,11 +99,9 @@ export const InstallmentsPage: React.FC = () => {
 
   const openDescriptionModal = (installment: InstallmentRow) => {
     setSelectedInstallment(installment)
-    setDescription(installment.description || '')
+    setDescription(installment.descripton || '')
     setDescriptionModalOpen(true)
   }
-
-
 
   // Modal kapatma fonksiyonları
   const closePaymentModal = () => {
@@ -113,8 +115,6 @@ export const InstallmentsPage: React.FC = () => {
     setSelectedInstallment(null)
     setDescription('')
   }
-
-
 
   // Ödeme işlemi
   const handlePayment = async () => {
@@ -142,7 +142,49 @@ export const InstallmentsPage: React.FC = () => {
     closeDescriptionModal()
   }
 
+  // Sayfalama işlemleri
+  const handlePageChange = (newPage: number) => {
+    setPageParams(prev => ({ ...prev, pageNumber: newPage }))
+  }
 
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageParams(prev => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
+  }
+
+  // Table bileşeninden gelen sıralama işlevi (sayfalama için)
+  const handleSort = (columnName: string, asc: boolean) => {
+    setPageParams(prev => ({ ...prev, columnName, asc, pageNumber: 0 }))
+  }
+
+  // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
+  const handleSortClick = (columnName: string) => {
+    setPageParams(prev => {
+      // Eğer aynı sütuna tıklanıyorsa
+      if (prev.columnName === columnName) {
+        if (prev.asc === true) {
+          // ASC -> DESC
+          return { ...prev, asc: false }
+        } else if (prev.asc === false) {
+          // DESC -> Default (id, DESC)
+          return { ...prev, columnName: 'id', asc: false, pageNumber: 0 }
+        }
+      }
+      
+      // Farklı sütuna tıklanıyorsa -> ASC
+      return { ...prev, columnName, asc: true, pageNumber: 0 }
+    })
+  }
+
+  // Sıralama durumunu göster
+  const getSortIndicator = (columnName: string) => {
+    if (pageParams.columnName !== columnName) return null
+    
+    if (pageParams.asc) {
+      return <span className="text-xs font-bold text-blue-600">↑</span>
+    } else {
+      return <span className="text-xs font-bold text-red-600">↓</span>
+    }
+  }
 
   const monthOptions = Array.from({ length: 12 }).map((_, idx) => {
     const d = new Date(2000, idx, 1)
@@ -159,20 +201,52 @@ export const InstallmentsPage: React.FC = () => {
   })
 
   const columns = [
-    columnHelper.accessor('transactionName', {
-      header: t('table.columns.name'),
-      cell: (info) => info.getValue(),
+    columnHelper.accessor('transactionDetail.name', {
+      header: () => (
+        <button
+          onClick={() => handleSortClick('transactionDetail.name')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.name')}
+          {getSortIndicator('transactionDetail.name')}
+        </button>
+      ),
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor('date', {
-      header: t('table.columns.date'),
+    columnHelper.accessor('debtDate', {
+      header: () => (
+        <button
+          onClick={() => handleSortClick('debtDate')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.debtDate')}
+          {getSortIndicator('debtDate')}
+        </button>
+      ),
       cell: (info) => new Date(info.getValue()).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US'),
     }),
     columnHelper.accessor('installmentNumber', {
-      header: t('table.columns.installmentNumber'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('installmentNumber')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.installmentNumber')}
+          {getSortIndicator('installmentNumber')}
+        </button>
+      ),
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor('amount', {
-      header: t('table.columns.amount'),
+      header: () => (
+        <button
+          onClick={() => handleSortClick('amount')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.amount')}
+          {getSortIndicator('amount')}
+        </button>
+      ),
       cell: (info) => info.getValue().toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: 'TRY' }),
     }),
     columnHelper.accessor('paid', {
@@ -190,7 +264,7 @@ export const InstallmentsPage: React.FC = () => {
         } else {
           return (
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200 dark:border-amber-700">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:bg-amber-400 border border-amber-200 dark:border-amber-700">
                 Bekliyor
               </span>
             </div>
@@ -215,7 +289,8 @@ export const InstallmentsPage: React.FC = () => {
         }
       },
     }),
-    columnHelper.accessor('id', {
+    columnHelper.display({
+      id: 'actions',
       header: t('table.columns.actions'),
       cell: (info) => {
         const installment = info.row.original
@@ -237,29 +312,20 @@ export const InstallmentsPage: React.FC = () => {
             >
               {t('buttons.editDescription')}
             </Button>
-
           </div>
         )
       },
     }),
   ]
 
-  const rows: InstallmentRow[] = (data?.data || []).map((x) => ({
-    id: x.id,
-    transactionName: x.transactionDetail?.name || "-",
-    amount: x.amount,
-    date: x.date,
-    installmentNumber: x.installmentNumber,
-    paid: x.paid,
-    paidDate: x.paidDate,
-    description: x.descripton,
-  }))
+  // Yeni API response yapısına göre veriyi al
+  const rows: InstallmentRow[] = data?.data?.content || []
 
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
       <div className="w-full">
         <div className="mb-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.installments')}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.installments.monthly')}</h2>
           <div className="flex gap-3 mt-3 w-full items-center">
             <Button 
               onClick={() => {
@@ -319,12 +385,37 @@ export const InstallmentsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Sıralama Durumu Bilgisi */}
+        {/* {pageParams.columnName !== 'id' && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
+              <span className="font-medium">Sıralama:</span>
+              <span className="capitalize">{pageParams.columnName}</span>
+              <span className="font-bold">
+                {pageParams.asc ? '↑ Artan' : '↓ Azalan'}
+              </span>
+              <span className="text-blue-600 dark:text-blue-400">•</span>
+              <span>Bir kez daha tıklayarak varsayılan sıralamaya dön</span>
+            </div>
+          </div>
+        )} */}
+
         <Table 
           data={rows} 
           columns={columns} 
           title={t('table.titles.installmentList')}
           showPagination={true}
-          pageSize={10}
+          pageSize={pageParams.pageSize}
+          currentPage={pageParams.pageNumber}
+          totalPages={data?.data?.totalPages || 0}
+          totalRecords={data?.data?.totalElements || 0}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSort={handleSort}
+          sortColumn={pageParams.columnName}
+          sortDirection={pageParams.asc ? 'asc' : 'desc'}
+          isFirstPage={data?.data?.first}
+          isLastPage={data?.data?.last}
         />
         {isLoading && (
           <div className="mt-3 text-sm text-slate-500 dark:text-mm-subtleText">{t('common.loading')}</div>
@@ -391,8 +482,6 @@ export const InstallmentsPage: React.FC = () => {
           />
         </div>
       </Modal>
-
-
     </div>
   )
 }

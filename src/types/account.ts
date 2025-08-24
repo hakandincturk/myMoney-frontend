@@ -2,6 +2,25 @@ import { AccountType, CurrencyType } from '../enums'
 
 // Account DTOs
 export namespace AccountDTOs {
+  // Sayfalama ve sıralama isteği
+  export type SortablePageRequest = {
+    pageNumber: number
+    pageSize: number
+    columnName: string
+    asc: boolean
+  }
+
+  // Sayfalama response'u
+  export type PagedResponse<T> = {
+    content: T[]
+    pageNumber: number
+    pageSize: number
+    totalElements: number
+    totalPages: number
+    first: boolean
+    last: boolean
+  }
+
   // Yeni hesap oluşturma isteği
   export type CreateRequest = {
     name: string

@@ -363,13 +363,23 @@
         "summary": "List my transactions",
         "description": "Borçların listelenmesini sağlar",
         "operationId": "listMyTransactions",
+        "parameters": [
+          {
+            "name": "pageData",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SortablePageRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseListListMyTransactionsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMyTransactionsResponseDto"
                 }
               }
             }
@@ -403,6 +413,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "pageData",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SortablePageRequest"
+            }
           }
         ],
         "responses": {
@@ -411,7 +429,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseListListMySpecisifDateInstallmentsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMySpecisifDateInstallmentsResponseDto"
                 }
               }
             }
@@ -425,13 +443,23 @@
           "Contact"
         ],
         "operationId": "listMyActiveContacts",
+        "parameters": [
+          {
+            "name": "pageData",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SortablePageRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseListListMyContactsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMyContactsResponseDto"
                 }
               }
             }
@@ -447,13 +475,23 @@
         "summary": "List my active accounts",
         "description": "Kullanıcının aktif olan hesaplarını listeler",
         "operationId": "listMyActiveAccounts",
+        "parameters": [
+          {
+            "name": "pageData",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SortablePageRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseListListMyAccountsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMyAccountsResponseDto"
                 }
               }
             }
@@ -707,7 +745,26 @@
           }
         }
       },
-      "ApiResponseListListMyTransactionsResponseDto": {
+      "SortablePageRequest": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListMyTransactionsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -721,16 +778,17 @@
             "format": "date-time"
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListMyTransactionsResponseDto"
-            }
+            "$ref": "#/components/schemas/PagedResponseListMyTransactionsResponseDto"
           }
         }
       },
       "ListMyTransactionsResponseDto": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
           "contactName": {
             "type": "string"
           },
@@ -755,7 +813,40 @@
           }
         }
       },
-      "ApiResponseListListMySpecisifDateInstallmentsResponseDto": {
+      "PagedResponseListMyTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMyTransactionsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListMySpecisifDateInstallmentsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -769,10 +860,7 @@
             "format": "date-time"
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListMySpecisifDateInstallmentsResponseDto"
-            }
+            "$ref": "#/components/schemas/PagedResponseListMySpecisifDateInstallmentsResponseDto"
           }
         }
       },
@@ -789,7 +877,7 @@
           "amount": {
             "type": "number"
           },
-          "date": {
+          "debtDate": {
             "type": "string",
             "format": "date"
           },
@@ -809,6 +897,39 @@
           }
         }
       },
+      "PagedResponseListMySpecisifDateInstallmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMySpecisifDateInstallmentsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
       "TransactionDetailDto": {
         "type": "object",
         "properties": {
@@ -821,7 +942,7 @@
           }
         }
       },
-      "ApiResponseListListMyContactsResponseDto": {
+      "ApiResponsePagedResponseListMyContactsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -835,10 +956,7 @@
             "format": "date-time"
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListMyContactsResponseDto"
-            }
+            "$ref": "#/components/schemas/PagedResponseListMyContactsResponseDto"
           }
         }
       },
@@ -857,7 +975,40 @@
           }
         }
       },
-      "ApiResponseListListMyAccountsResponseDto": {
+      "PagedResponseListMyContactsResponseDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMyContactsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListMyAccountsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -871,10 +1022,7 @@
             "format": "date-time"
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListMyAccountsResponseDto"
-            }
+            "$ref": "#/components/schemas/PagedResponseListMyAccountsResponseDto"
           }
         }
       },
@@ -909,6 +1057,39 @@
               "CASH",
               "BANK"
             ]
+          }
+        }
+      },
+      "PagedResponseListMyAccountsResponseDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListMyAccountsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
           }
         }
       }
