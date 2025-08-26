@@ -110,6 +110,12 @@
     "savingsRate": "Tasarruf Oranı",
     "incomeExpenseTrend": "Aylık Gelir-Gider Trendi",
     "recentTransactions": "Son İşlemler"
+    ,
+    "equalSharingBetweenInstallments": {
+      "label": "Taksitlere eşit bölünsün",
+      "title": "Eşit Taksit Dağıtımı",
+      "help": "Bu seçenek işaretliyken toplam tutar seçtiğiniz taksit sayısına, her ay eşit tutar olacak şekilde bölünür. Örneğin 3.000₺ toplam tutar ve 3 taksit seçerseniz, her ay 1.000₺ olarak oluşturulur. İşaretli değilken taksit tutarlarını sistem, her ay için 3.000₺ tutarında işlem yapar."
+    }
   },
   "account": {
     "types": {

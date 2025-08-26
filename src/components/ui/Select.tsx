@@ -23,7 +23,7 @@ type SelectProps = {
   isLoadingMore?: boolean
 }
 
-export const Select = forwardRef<HTMLDivElement, SelectProps>(({
+export const Select = forwardRef<HTMLDivElement, SelectProps>(({ 
   id,
   label,
   value,
@@ -48,6 +48,18 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   const optionRefs = useRef<HTMLDivElement[]>([])
   const listRef = useRef<HTMLDivElement>(null)
 
+  // Forwarded ref ile iç ref'i birleştir
+  const setCombinedRef = (node: HTMLDivElement | null) => {
+    // İç ref
+    ;(selectRef as any).current = node
+    // Dış ref (forwarded)
+    if (typeof ref === 'function') {
+      ref(node)
+    } else if (ref && 'current' in (ref as any)) {
+      ;(ref as any).current = node
+    }
+  }
+
   const selectedOption = options.find(option => option.value === value)
   
   // Scroll event handler for infinity scroll
@@ -65,7 +77,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      const root = selectRef.current
+      if (root && !root.contains(event.target as Node)) {
         setIsOpen(false)
         setSearchTerm('')
         setHighlightedIndex(-1)
@@ -172,7 +185,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         </label>
       )}
       
-      <div className="relative" ref={ref || selectRef}>
+      <div className="relative" ref={setCombinedRef}>
         <div
           className={`${baseClasses} ${borderClasses} ${disabledClasses} flex items-center justify-between`}
           onClick={handleToggle}

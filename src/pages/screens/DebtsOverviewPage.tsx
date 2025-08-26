@@ -144,7 +144,9 @@ export const DebtsOverviewPage: React.FC = () => {
     totalInstallment: 1,
     description: '',
     debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
+    equalSharingBetweenInstallments: true,
   })
+  const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
 
   // Modal açıldığında ilk input'a focus ol
   useEffect(() => {
@@ -408,7 +410,13 @@ export const DebtsOverviewPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.accountId || !form.totalAmount) return
+    const newErrors: { [k: string]: string | undefined } = {}
+    if (!form.accountId) newErrors.accountId = t('validation.required')
+    if (!form.totalAmount || form.totalAmount === '0') newErrors.totalAmount = t('validation.required')
+    if (!form.debtDate) newErrors.debtDate = t('validation.required')
+    if (form.totalInstallment !== undefined && Number(form.totalInstallment) < 1) newErrors.totalInstallment = t('validation.required')
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
     
     // Para formatından sayıya çevir
     const totalAmountNumber = parseFloat(form.totalAmount.replace(/\./g, '').replace(',', '.')) || 0
@@ -422,11 +430,12 @@ export const DebtsOverviewPage: React.FC = () => {
         type: form.type,
         totalInstallment: form.totalInstallment || undefined,
         debtDate: form.debtDate,
+        equalSharingBetweenInstallments: form.equalSharingBetweenInstallments,
       }).unwrap()
       
       // Sadece başarılı sonuçta modal'ı kapat
       if (result && result.type === true) {
-        setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0] })
+        setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
         setModalOpen(false)
         showToast(t('messages.transactionCreated'), 'success')
       }
@@ -445,7 +454,7 @@ export const DebtsOverviewPage: React.FC = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
           <Button 
             onClick={() => { 
-              setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0] })
+              setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
               setModalOpen(true) 
             }} 
             variant="primary"
@@ -547,6 +556,7 @@ export const DebtsOverviewPage: React.FC = () => {
                   options={accounts.map((a) => ({ value: a.id, label: a.name }))}
                   placeholder="Hesap seçiniz"
                   required
+                  error={errors.accountId}
                   ref={accountSelectRef}
                   onLoadMore={loadMoreAccounts}
                   hasMore={hasMoreAccounts}
@@ -565,6 +575,7 @@ export const DebtsOverviewPage: React.FC = () => {
                     formatCurrency
                     currencySymbol="₺"
                     required
+                    error={errors.totalAmount}
                   />
                   <Input 
                     id="totalInstallment"
@@ -572,9 +583,46 @@ export const DebtsOverviewPage: React.FC = () => {
                     value={form.totalInstallment}
                     onChange={(value) => setForm((p) => ({ ...p, totalInstallment: value as number }))}
                     placeholder="1"
+                    type="number"
                     min={1}
                     step={1}
+                    error={errors.totalInstallment}
                   />
+                </div>
+
+                {/* Eşit bölüşüm seçeneği ve bilgi butonu */}
+                <div className="flex items-start gap-3">
+                  <label className="inline-flex items-center gap-2 select-none cursor-pointer">
+                    <input
+                      id="equalSharingBetweenInstallments"
+                      type="checkbox"
+                      checked={!!form.equalSharingBetweenInstallments}
+                      onChange={(e) => setForm((p) => ({ ...p, equalSharingBetweenInstallments: e.target.checked }))}
+                      className="h-4 w-4 rounded border-slate-300 text-mm-primary focus:ring-mm-primary"
+                    />
+                    <span className="text-base font-medium text-slate-900 dark:text-mm-text">
+                      {t('transaction.equalSharingBetweenInstallments.label')}
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      aria-label="Info"
+                      className="h-5 w-5 rounded-full border border-slate-300 text-slate-600 hover:text-slate-900 hover:border-slate-400 flex items-center justify-center text-xs"
+                      onClick={(e) => {
+                        const target = e.currentTarget.nextElementSibling as HTMLDivElement | null
+                        if (target) {
+                          target.classList.toggle('hidden')
+                        }
+                      }}
+                    >
+                      ?
+                    </button>
+                    <div className="hidden absolute z-50 mt-2 w-80 p-3 rounded-lg border border-slate-200 dark:border-mm-border bg-white dark:bg-mm-card shadow-xl text-sm text-slate-700 dark:text-mm-text">
+                      <div className="font-medium mb-1">{t('transaction.equalSharingBetweenInstallments.title')}</div>
+                      <p className="leading-relaxed">{t('transaction.equalSharingBetweenInstallments.help')}</p>
+                    </div>
+                  </div>
                 </div>
                 
                 <Select 
@@ -593,6 +641,7 @@ export const DebtsOverviewPage: React.FC = () => {
                   value={form.debtDate}
                   onChange={(value) => setForm((p) => ({ ...p, debtDate: value as string }))}
                   required
+                  error={errors.debtDate}
                 />
                 
                 <Input 

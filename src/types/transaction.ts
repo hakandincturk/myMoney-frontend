@@ -11,6 +11,7 @@ export namespace TransactionDTOs {
     totalInstallment?: number
     description?: string
     debtDate?: string
+    equalSharingBetweenInstallments?: boolean
   }
 
   // İşlem listesi öğesi (yeni API response yapısına uygun)

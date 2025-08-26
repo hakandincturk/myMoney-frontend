@@ -616,6 +616,9 @@
           "debtDate": {
             "type": "string",
             "format": "date"
+          },
+          "equalSharingBetweenInstallments": {
+            "type": "boolean"
           }
         },
         "required": [

@@ -186,6 +186,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 sm:bg-transparent sm:dark:bg-transparent sm:p-3">
             <button
+              type="button"
               onClick={goToPreviousMonth}
               className="p-3 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-xl transition-colors text-lg sm:p-2 sm:text-base"
             >
@@ -196,6 +197,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               {/* Ay seçici */}
               <div className="relative">
                 <button
+                  type="button"
                   className="text-lg font-bold text-slate-900 dark:text-mm-text hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 sm:text-base sm:font-semibold flex items-center"
                   onClick={() => {
                     setIsMonthDropdownOpen(!isMonthDropdownOpen)
@@ -227,6 +229,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       const isActive = i === currentDate.getMonth()
                       return (
                         <button
+                          type="button"
                           key={i}
                           onClick={() => {
                             setCurrentDate(new Date(currentDate.getFullYear(), i, 1))
@@ -247,6 +250,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               {/* Yıl seçici */}
               <div className="relative">
                 <button
+                  type="button"
                   className="text-lg font-bold text-slate-900 dark:text-mm-text hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 sm:text-base sm:font-semibold flex items-center"
                   onClick={() => {
                     setIsYearDropdownOpen(!isYearDropdownOpen)
@@ -265,6 +269,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       const isActive = year === currentDate.getFullYear()
                       return (
                         <button
+                          type="button"
                           key={year}
                           onClick={() => {
                             setCurrentDate(new Date(year, currentDate.getMonth(), 1))
@@ -284,6 +289,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             </div>
             
             <button
+              type="button"
               onClick={goToNextMonth}
               className="p-3 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-xl transition-colors text-lg sm:p-2 sm:text-base"
             >
@@ -292,6 +298,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             
             {/* Mobilde kapatma butonu */}
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
               className="p-3 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-xl transition-colors text-lg sm:hidden ml-2"
             >
@@ -314,6 +321,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <div className="grid grid-cols-7 gap-1 sm:gap-0.5">
               {getCalendarDays().map((date, index) => (
                 <button
+                  type="button"
                   key={index}
                   onClick={() => selectDate(date)}
                   className={`
@@ -333,6 +341,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           {/* Footer */}
           <div className="flex justify-center gap-4 p-6 border-t border-slate-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 sm:justify-between sm:gap-0 sm:p-3 sm:bg-transparent sm:dark:bg-transparent">
             <button
+              type="button"
               onClick={() => {
                 setSelectedDate(null)
                 onChange('')
@@ -344,6 +353,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             </button>
             
             <button
+              type="button"
               onClick={goToToday}
               className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors rounded-xl font-medium shadow-lg sm:px-2 sm:py-1 sm:bg-transparent sm:shadow-none sm:text-xs sm:text-blue-600 sm:dark:text-blue-400"
             >

@@ -137,6 +137,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           onBlur={handleBlur}
           onFocus={handleFocus}
           disabled={disabled}
+          required={required}
           min={min}
           max={max}
           step={step}
