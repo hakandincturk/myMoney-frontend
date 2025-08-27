@@ -142,6 +142,7 @@ export const DebtsOverviewPage: React.FC = () => {
     type: TransactionType.DEBT as TransactionType,
     totalAmount: '0',
     totalInstallment: 1,
+    name: '',
     description: '',
     debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
     equalSharingBetweenInstallments: true,
@@ -261,6 +262,21 @@ export const DebtsOverviewPage: React.FC = () => {
   }
 
   const columns = [
+    columnHelper.accessor('name', {
+      header: () => (
+        <button
+          onClick={() => handleSortClick('name')}
+          className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+        >
+          {t('table.columns.name')}
+          {getSortIndicator('name')}
+        </button>
+      ),
+      cell: (info) => info.getValue() || '',
+      meta: {
+        className: 'min-w-[160px]'
+      }
+    }),
     columnHelper.accessor('contactName', {
       header: () => (
         <button
@@ -271,7 +287,7 @@ export const DebtsOverviewPage: React.FC = () => {
           {getSortIndicator('contactName')}
         </button>
       ),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '-',
       meta: {
         className: 'min-w-[150px]'
       }
@@ -412,6 +428,7 @@ export const DebtsOverviewPage: React.FC = () => {
     e.preventDefault()
     const newErrors: { [k: string]: string | undefined } = {}
     if (!form.accountId) newErrors.accountId = t('validation.required')
+    if (!form.name || !form.name.trim()) newErrors.name = t('validation.required')
     if (!form.totalAmount || form.totalAmount === '0') newErrors.totalAmount = t('validation.required')
     if (!form.debtDate) newErrors.debtDate = t('validation.required')
     if (form.totalInstallment !== undefined && Number(form.totalInstallment) < 1) newErrors.totalInstallment = t('validation.required')
@@ -423,8 +440,9 @@ export const DebtsOverviewPage: React.FC = () => {
     
     try {
       const result = await createTransaction({
-        accountId: form.accountId,
+        accountId: form.accountId as number,
         contactId: form.contactId || undefined,
+        name: form.name || undefined,
         description: form.description || undefined,
         totalAmount: totalAmountNumber,
         type: form.type,
@@ -435,14 +453,34 @@ export const DebtsOverviewPage: React.FC = () => {
       
       // Sadece başarılı sonuçta modal'ı kapat
       if (result && result.type === true) {
-        setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
+        setErrors({})
+        setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
         setModalOpen(false)
         showToast(t('messages.transactionCreated'), 'success')
       }
     } catch (error) {
       // Hata durumunda modal açık kalır, kullanıcı düzeltebilir
       console.error('Transaction creation failed:', error)
-      const errorMessage = (error as any)?.data?.message || t('messages.operationFailed')
+      const errData = (error as any)?.data
+      const errorMessage = errData?.message || t('messages.operationFailed')
+      // Backend alan hatalarını forma yansıt
+      const fieldErrors = errData?.data
+      if (fieldErrors && typeof fieldErrors === 'object') {
+        const mapped: { [k: string]: string } = {}
+        Object.entries(fieldErrors).forEach(([key, messages]) => {
+          const firstMessage = Array.isArray(messages) ? String(messages[0]) : String(messages)
+          // Backend alan adlarını frontend form alanlarına eşle
+          let formKey = key
+          if (key === 'totalInstallment') formKey = 'totalInstallment'
+          if (key === 'debtDate') formKey = 'debtDate'
+          if (key === 'accountId') formKey = 'accountId'
+          if (key === 'name') formKey = 'name'
+          if (key === 'totalAmount') formKey = 'totalAmount'
+          if (key === 'type') formKey = 'type'
+          mapped[formKey] = firstMessage
+        })
+        setErrors(mapped)
+      }
       showToast(errorMessage, 'error')
     }
   }
@@ -454,7 +492,7 @@ export const DebtsOverviewPage: React.FC = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
           <Button 
             onClick={() => { 
-              setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
+              setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
               setModalOpen(true) 
             }} 
             variant="primary"
@@ -565,6 +603,15 @@ export const DebtsOverviewPage: React.FC = () => {
                 
 
                 
+                <Input 
+                  id="name"
+                  label="İşlem Adı *"
+                  value={form.name}
+                  onChange={(value) => setForm((p) => ({ ...p, name: value as string }))}
+                  placeholder="Örn: Elektrik Faturası"
+                  required
+                  error={errors.name}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <Input 
                     id="totalAmount"
@@ -633,6 +680,7 @@ export const DebtsOverviewPage: React.FC = () => {
                   options={TransactionHelpers.getTypeOptions(t)}
                   placeholder="İşlem türü seçiniz"
                   required
+                  error={errors.type}
                 />
                 
                 <DatePicker

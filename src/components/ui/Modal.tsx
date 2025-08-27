@@ -31,7 +31,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
       
       {/* Modal Content - Backdrop'un üzerinde görünür */}
       <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
-        <div className="relative w-full max-w-lg bg-white dark:bg-mm-card shadow-2xl pointer-events-auto rounded-xl border border-slate-200 dark:border-mm-border">
+        <div className="relative w-full max-w-lg bg-white dark:bg-mm-card shadow-2xl pointer-events-auto rounded-xl border border-slate-200 dark:border-mm-border max-h-[90vh] flex flex-col">
           {/* Header */}
           {title && (
             <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">
@@ -41,8 +41,8 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
             </div>
           )}
           
-          {/* Body - Overflow kaldırıldı, dropdown'lar için yeterli alan */}
-          <div className="p-6">
+          {/* Body - İçerik taşarsa modal içinde scroll */}
+          <div className="p-6 overflow-y-auto flex-1 min-h-0">
             {children}
           </div>
           

@@ -41,13 +41,13 @@
     "home": "Ana Sayfa",
     "contacts": "Kişiler",
     "accounts": "Hesaplar",
-    "debts": "Borçlar",
+    "debts": "Gelir/Gider",
     "installments": "Taksitler"
   },
   "pages": {
     "accounts": "Hesaplar",
     "contacts": "Kişiler",
-    "debts": "Borçlar",
+    "debts": "Gelir/Gider",
     "installments": {
       "monthly": "Aylık Taksitler",
       "thisMonth": "Bu Ay"
@@ -109,8 +109,7 @@
     "expense": "Gider",
     "savingsRate": "Tasarruf Oranı",
     "incomeExpenseTrend": "Aylık Gelir-Gider Trendi",
-    "recentTransactions": "Son İşlemler"
-    ,
+    "recentTransactions": "Son İşlemler",
     "equalSharingBetweenInstallments": {
       "label": "Taksitlere eşit bölünsün",
       "title": "Eşit Taksit Dağıtımı",
@@ -187,14 +186,14 @@
     "titles": {
       "accountList": "Hesap Listesi",
       "contactList": "Kişi Listesi",
-      "debtList": "Borç Listesi",
+      "debtList": "Gelir/Gider Listesi",
       "installmentList": "Taksit Listesi"
     }
   },
   "buttons": {
     "newAccount": "Yeni Hesap",
     "newContact": "Yeni Kişi",
-    "newDebt": "Yeni Borç",
+    "newDebt": "Yeni Gelir/Gider",
     "edit": "Düzenle",
     "delete": "Sil",
     "save": "Kaydet",
@@ -204,18 +203,19 @@
     "viewDetails": "Detayları Gör",
     "close": "Kapat",
     "pay": "Öde",
+    "collect": "Al",
     "editDescription": "Açıklama Düzenle",
-    "deleteDebt": "Borcu Sil"
+    "deleteDebt": "Sil"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
     "newContact": "Yeni Kişi",
-    "newDebt": "Yeni Borç Girişi",
+    "newDebt": "Yeni Gelir/Gider",
     "editAccount": "Hesabı Düzenle",
     "transactionDetail": "İşlem Detayı",
     "payInstallment": "Taksit Ödemesi",
     "editInstallmentDescription": "Taksit Açıklaması",
-    "deleteDebt": "Borcu Sil"
+    "deleteDebt": "Sil"
   },
   "placeholders": {
     "fullName": "Ad Soyad giriniz",
@@ -253,8 +253,8 @@
     "selectPaymentDate": "Ödeme tarihini seçiniz"
   },
   "debt": {
-    "deleteConfirmation": "Bu borcu silmek istediğinizden emin misiniz?",
-    "deleteSuccess": "Borç başarıyla silindi",
+    "deleteConfirmation": "Bu gelir/gideri silmek istediğinizden emin misiniz?",
+    "deleteSuccess": "Gelir/Gider başarıyla silindi",
     "deleteWarning": "Bu işlem geri alınamaz ve tüm taksit bilgileri kaybolacaktır."
   }
 }

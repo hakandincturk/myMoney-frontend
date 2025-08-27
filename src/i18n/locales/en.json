@@ -41,14 +41,14 @@
     "home": "Home",
     "contacts": "Contacts",
     "accounts": "Accounts",
-    "debts": "Debts",
+    "debts": "Income/Expense",
     "installments": "Installments"
   },
   "pages": {
     "accounts": "Accounts",
     "contacts": "Contacts",
-    "debts": "Debts",
-		"installments": {
+    "debts": "Income/Expense",
+    "installments": {
       "monthly": "Monthly Installments",
       "thisMonth": "This Month"
     }
@@ -110,6 +110,7 @@
     "viewDetails": "View Details",
     "close": "Close",
     "pay": "Pay",
+    "collect": "Collectt",
     "editDescription": "Edit Description",
     "deleteDebt": "Delete Debt"
   },
@@ -183,8 +184,7 @@
     "expense": "Expense",
     "savingsRate": "Savings Rate",
     "incomeExpenseTrend": "Monthly Income-Expense Trend",
-    "recentTransactions": "Recent Transactions"
-    ,
+    "recentTransactions": "Recent Transactions",
     "equalSharingBetweenInstallments": {
       "label": "Split equally across installments",
       "title": "Equal Installment Distribution",

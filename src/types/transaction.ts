@@ -9,6 +9,7 @@ export namespace TransactionDTOs {
     type: TransactionType
     totalAmount: number
     totalInstallment?: number
+    name?: string
     description?: string
     debtDate?: string
     equalSharingBetweenInstallments?: boolean
@@ -17,6 +18,7 @@ export namespace TransactionDTOs {
   // İşlem listesi öğesi (yeni API response yapısına uygun)
   export type ListItem = {
     id: number
+    name?: string
     contactName: string
     accountName: string
     type: string

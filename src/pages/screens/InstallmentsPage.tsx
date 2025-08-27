@@ -103,6 +103,20 @@ export const InstallmentsPage: React.FC = () => {
     setDescriptionModalOpen(true)
   }
 
+  // İşlem tipine göre aksiyon butonu metni
+  const getActionLabelForType = (type?: string) => {
+    switch (type) {
+      case 'DEBT':
+      case 'PAYMENT':
+        return t('buttons.pay')
+      case 'CREDIT':
+      case 'COLLECTION':
+        return t('buttons.collect')
+      default:
+        return t('buttons.pay')
+    }
+  }
+
   // Modal kapatma fonksiyonları
   const closePaymentModal = () => {
     setPaymentModalOpen(false)
@@ -201,14 +215,14 @@ export const InstallmentsPage: React.FC = () => {
   })
 
   const columns = [
-    columnHelper.accessor('transactionDetail.name', {
+    columnHelper.accessor('transaction.name', {
       header: () => (
         <button
-          onClick={() => handleSortClick('transactionDetail.name')}
+          onClick={() => handleSortClick('transaction.name')}
           className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
         >
           {t('table.columns.name')}
-          {getSortIndicator('transactionDetail.name')}
+          {getSortIndicator('transaction.name')}
         </button>
       ),
       cell: (info) => info.getValue() || '-',
@@ -300,9 +314,9 @@ export const InstallmentsPage: React.FC = () => {
               <Button
                 onClick={() => openPaymentModal(installment)}
                 variant="secondary"
-                className="px-3 py-1 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50"
+                className="px-3 py-1 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50 min-w-[64px] text-center"
               >
-                {t('buttons.pay')}
+                {getActionLabelForType(installment.transaction?.type as string)}
               </Button>
             )}
             <Button

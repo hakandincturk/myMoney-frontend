@@ -47,6 +47,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   const inputRef = useRef<HTMLInputElement>(null)
   const optionRefs = useRef<HTMLDivElement[]>([])
   const listRef = useRef<HTMLDivElement>(null)
+  const [autoDirection, setAutoDirection] = useState<'down' | 'up'>(dropdownDirection)
 
   // Forwarded ref ile iç ref'i birleştir
   const setCombinedRef = (node: HTMLDivElement | null) => {
@@ -162,7 +163,17 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
 
   const handleToggle = () => {
     if (!disabled) {
-      setIsOpen(!isOpen)
+      const willOpen = !isOpen
+      setIsOpen(willOpen)
+      if (!isOpen && selectRef.current) {
+        const rect = selectRef.current.getBoundingClientRect()
+        const viewportHeight = window.innerHeight
+        const spaceBelow = viewportHeight - rect.bottom
+        const spaceAbove = rect.top
+        const estimatedMenuHeight = 320 // px
+        const shouldOpenUp = spaceBelow < Math.min(estimatedMenuHeight, viewportHeight * 0.4) && spaceAbove > spaceBelow
+        setAutoDirection(shouldOpenUp ? 'up' : 'down')
+      }
       if (!isOpen) {
         setSearchTerm('')
         // Açıldığında highlight açılış effect'inde ayarlanacak
@@ -211,7 +222,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
 
         {isOpen && (
           <div className={`absolute z-50 w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
-            dropdownDirection === 'up' 
+            (autoDirection || dropdownDirection) === 'up' 
               ? 'bottom-full mb-1' 
               : 'top-full mt-1'
           }`}>

@@ -610,6 +610,11 @@
             "format": "int32",
             "minimum": 1
           },
+          "name": {
+            "type": "string",
+            "maxLength": 2147483647,
+            "minLength": 2
+          },
           "description": {
             "type": "string"
           },
@@ -624,6 +629,7 @@
         "required": [
           "accountId",
           "debtDate",
+          "name",
           "totalAmount",
           "type"
         ]
@@ -792,6 +798,9 @@
             "type": "integer",
             "format": "int64"
           },
+          "name": {
+            "type": "string"
+          },
           "contactName": {
             "type": "string"
           },
@@ -874,7 +883,7 @@
             "type": "integer",
             "format": "int64"
           },
-          "transactionDetail": {
+          "transaction": {
             "$ref": "#/components/schemas/TransactionDetailDto"
           },
           "amount": {
@@ -942,6 +951,15 @@
           },
           "name": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DEBT",
+              "CREDIT",
+              "PAYMENT",
+              "COLLECTION"
+            ]
           }
         }
       },

@@ -3,9 +3,10 @@ export namespace InstallmentDTOs {
   // Aylık taksit listesi öğesi
   export type ListItem = {
     id: number
-    transactionDetail: {
+    transaction: {
       id: number
       name: string
+      type?: 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION'
     }
     amount: number
     debtDate: string

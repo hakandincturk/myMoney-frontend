@@ -32,6 +32,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [isOpen, setIsOpen] = useState(false)
   const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false)
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false)
+  const [autoDirection, setAutoDirection] = useState<'down' | 'up'>('down')
   const [currentDate, setCurrentDate] = useState(() => {
     if (value) {
       const date = new Date(value + 'T00:00:00') // Timezone sorununu çözmek için
@@ -165,7 +166,19 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           placeholder={placeholder}
           value={value ? new Date(value + 'T00:00:00').toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US') : ''}
           readOnly
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onClick={() => {
+            if (disabled) return
+            if (datePickerRef.current) {
+              const rect = datePickerRef.current.getBoundingClientRect()
+              const viewportHeight = window.innerHeight
+              const spaceBelow = viewportHeight - rect.bottom
+              const spaceAbove = rect.top
+              const estimatedMenuHeight = 360
+              const shouldOpenUp = spaceBelow < Math.min(estimatedMenuHeight, viewportHeight * 0.4) && spaceAbove > spaceBelow
+              setAutoDirection(shouldOpenUp ? 'up' : 'down')
+            }
+            setIsOpen(!isOpen)
+          }}
           disabled={disabled}
         />
         
@@ -182,7 +195,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
       {/* Takvim dropdown */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] bg-white dark:bg-gray-800 flex flex-col sm:absolute sm:inset-auto sm:w-80 sm:top-full sm:left-0 sm:mt-2 sm:rounded-xl  sm:shadow-2xl">
+        <div className={`fixed inset-0 z-[9999] bg-white dark:bg-gray-800 flex flex-col sm:absolute sm:inset-auto sm:w-80 sm:left-0 sm:rounded-xl sm:shadow-2xl ${autoDirection === 'up' ? 'sm:bottom-full sm:mb-2' : 'sm:top-full sm:mt-2'}`}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 sm:bg-transparent sm:dark:bg-transparent sm:p-3">
             <button
