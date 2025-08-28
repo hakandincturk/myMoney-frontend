@@ -462,6 +462,8 @@ export const InstallmentsPage: React.FC = () => {
             onChange={setPaymentDate}
             label={t('installment.paymentDate')}
             required
+            usePortal
+            dropdownZIndex={10050}
           />
         </div>
       </Modal>

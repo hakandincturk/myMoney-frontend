@@ -7,9 +7,11 @@ type ModalProps = {
   title?: string
   children: React.ReactNode
   footer?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  zIndex?: number
 }
 
-export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, footer }) => {
+export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, footer, size = 'md', zIndex = 10000 }) => {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -24,14 +26,22 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
     <>
       {/* Backdrop - Tüm ekranı kaplar ve sidebar/header dahil karartır */}
       <div 
-        className="fixed inset-0 z-[9999]" 
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+        className="fixed inset-0" 
+        style={{ 
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          zIndex: zIndex - 1
+        }}
         onClick={onClose}
       />
       
       {/* Modal Content - Backdrop'un üzerinde görünür */}
-      <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
-        <div className="relative w-full max-w-lg bg-white dark:bg-mm-card shadow-2xl pointer-events-auto rounded-xl border border-slate-200 dark:border-mm-border max-h-[90vh] flex flex-col">
+      <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none" style={{ zIndex }}>
+        <div className={`relative w-full bg-white dark:bg-mm-card shadow-2xl pointer-events-auto rounded-xl border border-slate-200 dark:border-mm-border max-h-[90vh] flex flex-col ${
+          size === 'sm' ? 'max-w-sm' :
+          size === 'md' ? 'max-w-md' :
+          size === 'lg' ? 'max-w-lg' :
+          size === 'xl' ? 'max-w-4xl' : 'max-w-md'
+        }`}>
           {/* Header */}
           {title && (
             <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">

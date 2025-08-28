@@ -41,6 +41,11 @@ export const transactionApi = createApi({
       // Cache'i environment variable'a göre tut
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
+    listTransactionInstallments: build.query<ApiResponse<Array<{ id: number; amount: number; debtDate: string; installmentNumber: number; descripton?: string; paidDate?: string; paid: boolean }>>, number>({
+      query: (id) => ({ url: ApiUrl.TRANSACTION_INSTALLMENTS.toString().replace('{id}', id.toString()) }),
+      providesTags: (result, error, id) => [{ type: 'Transaction', id }],
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
+    }),
     updateTransaction: build.mutation<ApiResponse<{ id: number }>, TransactionDTOs.UpdateRequest>({
       query: ({ id, ...body }) => ({ url: ApiUrl.TRANSACTION_BY_ID.toString().replace('{id}', id.toString()), method: 'PUT', body }),
       invalidatesTags: (result, error, { id }) => [
@@ -62,6 +67,7 @@ export const {
   useCreateTransactionMutation,
   useListMyTransactionsQuery,
   useGetTransactionDetailQuery,
+  useListTransactionInstallmentsQuery,
   useUpdateTransactionMutation,
   useDeleteTransactionMutation
 } = transactionApi

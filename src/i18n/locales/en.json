@@ -189,7 +189,8 @@
       "label": "Split equally across installments",
       "title": "Equal Installment Distribution",
       "help": "When enabled, the total amount is split equally into the selected number of installments. For example, a total of 3,000₺ with 3 installments will create 1,000₺ per month. If disabled, the system will create 3,000₺ installments for each month."
-    }
+    },
+    "installmentsDetail": "Installment Details"
   },
   "account": {
     "types": {
@@ -245,6 +246,11 @@
     "unknownTransaction": "Unknown Transaction"
   },
   "installment": {
+    "installment": "Taksitler",
+    "installments": "Installments",
+    "paidOn": "Paid On",
+    "totalPaid": "Total Paid",
+    "totalPending": "Total Pending",
     "paymentDate": "Payment Date",
     "description": "Description",
     "paymentSuccess": "Installment payment saved successfully",
