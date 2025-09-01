@@ -125,8 +125,8 @@ export const DebtsOverviewPage: React.FC = () => {
 	})
 
 	const { data: transactionsData, isLoading: transactionsLoading } = useListMyTransactionsQuery(pageParams, {
-		// Sadece gerekli olduğunda refetch yap
-		refetchOnMountOrArgChange: false,
+		// Parametre değiştiğinde mutlaka yeniden istekte bulun
+		refetchOnMountOrArgChange: true,
 		refetchOnFocus: false,
 	})
 
@@ -220,6 +220,7 @@ export const DebtsOverviewPage: React.FC = () => {
 		debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
 		equalSharingBetweenInstallments: true,
 	})
+	const [expandedGroups, setExpandedGroups] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean }>({ accountIds: false, contactIds: false, types: false })
 	const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
 
 	// Bugünün tarihini formatla (YYYY-MM-DD)
@@ -519,6 +520,41 @@ export const DebtsOverviewPage: React.FC = () => {
 		}
 		setPageParams(refreshedParams)
 	}
+
+	// Çoklu seçimli filtrelerden tek bir öğeyi kaldır (hesap, kişi, tür)
+	const removeAppliedFilterItem = (key: 'accountIds' | 'contactIds' | 'types', value: any) => {
+		const nextApplied: TransactionDTOs.TransactionFilterRequest = { ...appliedFilters }
+		const nextFilter: TransactionDTOs.TransactionFilterRequest = { ...filterParams }
+
+		const current = (nextApplied as any)[key] as any[] | undefined
+		const filtered = (current || []).filter((v) => v !== value)
+
+		if (filtered.length > 0) {
+			;(nextApplied as any)[key] = filtered
+			;(nextFilter as any)[key] = filtered
+		} else {
+			;(nextApplied as any)[key] = undefined
+			;(nextFilter as any)[key] = undefined
+		}
+
+		setAppliedFilters(nextApplied)
+		setFilterParams(nextFilter)
+
+		const refreshedParams: any = {
+			...pageParams,
+			pageNumber: 0
+		}
+		if (filtered.length > 0) {
+			refreshedParams[key] = filtered
+		} else {
+			delete refreshedParams[key]
+		}
+		setPageParams(refreshedParams)
+	}
+
+	// Label yardımcıları
+	const getAccountLabelById = (id: number) => accounts.find((a: any) => a.id === id)?.name || `#${id}`
+	const getContactLabelById = (id: number) => (id === 0 ? t('filters.noContact') : (contacts.find((c: any) => c.id === id)?.fullName || `#${id}`))
 
 	// Table bileşeninden gelen sıralama işlevi (sayfalama için)
 	const handleSort = (columnName: string, asc: boolean) => {
@@ -862,22 +898,100 @@ export const DebtsOverviewPage: React.FC = () => {
 							</span>
 						)}
 						{appliedFilters.accountIds && appliedFilters.accountIds.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.account')}: {appliedFilters.accountIds.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('accountIds')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
+							<div className="inline-flex flex-col gap-1">
+								<span
+									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
+									role="button"
+									aria-expanded={expandedGroups.accountIds}
+									tabIndex={0}
+									onClick={() => setExpandedGroups((g) => ({ ...g, accountIds: !g.accountIds }))}
+									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, accountIds: !g.accountIds })) } }}
+								>
+									<span className="text-xs">{expandedGroups.accountIds ? '▾' : '▸'}</span>
+									{t('table.columns.account')}: {appliedFilters.accountIds.length} {t('filters.selected')}
+									<button
+										type="button"
+										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('accountIds') }}
+										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
+									>
+										×
+									</button>
+								</span>
+								{expandedGroups.accountIds && (
+									<div className="mt-1 flex flex-wrap gap-1">
+										{appliedFilters.accountIds.map((id) => (
+											<span key={`acc-${id}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+												{getAccountLabelById(id as number)}
+												<button type="button" onClick={() => removeAppliedFilterItem('accountIds', id)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+											</span>
+										))}
+									</div>
+								)}
+							</div>
 						)}
 						{appliedFilters.contactIds && appliedFilters.contactIds.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.contact')}: {appliedFilters.contactIds.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('contactIds')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
+							<div className="inline-flex flex-col gap-1">
+								<span
+									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
+									role="button"
+									aria-expanded={expandedGroups.contactIds}
+									tabIndex={0}
+									onClick={() => setExpandedGroups((g) => ({ ...g, contactIds: !g.contactIds }))}
+									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, contactIds: !g.contactIds })) } }}
+								>
+									<span className="text-xs">{expandedGroups.contactIds ? '▾' : '▸'}</span>
+									{t('table.columns.contact')}: {appliedFilters.contactIds.length} {t('filters.selected')}
+									<button
+										type="button"
+										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('contactIds') }}
+										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
+									>
+										×
+									</button>
+								</span>
+								{expandedGroups.contactIds && (
+									<div className="mt-1 flex flex-wrap gap-1">
+										{appliedFilters.contactIds.map((id) => (
+											<span key={`contact-${id}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+												{getContactLabelById(id as number)}
+												<button type="button" onClick={() => removeAppliedFilterItem('contactIds', id)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+											</span>
+										))}
+									</div>
+								)}
+							</div>
 						)}
 						{appliedFilters.types && appliedFilters.types.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.type')}: {appliedFilters.types.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('types')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
+							<div className="inline-flex flex-col gap-1">
+								<span
+									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
+									role="button"
+									aria-expanded={expandedGroups.types}
+									tabIndex={0}
+									onClick={() => setExpandedGroups((g) => ({ ...g, types: !g.types }))}
+									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, types: !g.types })) } }}
+								>
+									<span className="text-xs">{expandedGroups.types ? '▾' : '▸'}</span>
+									{t('table.columns.type')}: {appliedFilters.types.length} {t('filters.selected')}
+									<button
+										type="button"
+										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('types') }}
+										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
+									>
+										×
+									</button>
+								</span>
+								{expandedGroups.types && (
+									<div className="mt-1 flex flex-wrap gap-1">
+										{appliedFilters.types.map((ty) => (
+											<span key={`type-${ty}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+												{getTransactionTypeText(String(ty))}
+												<button type="button" onClick={() => removeAppliedFilterItem('types', ty)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+											</span>
+										))}
+									</div>
+								)}
+							</div>
 						)}
 						{appliedFilters.minAmount && (
 							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
