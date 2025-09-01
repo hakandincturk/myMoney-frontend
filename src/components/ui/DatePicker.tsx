@@ -278,7 +278,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 												el.scrollTop = scrollTop
 											}
 										}}
-										className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-36 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-600 rounded-lg shadow-lg z-[10000] max-h-48 overflow-y-auto"
+										className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-36 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-600 rounded-lg shadow-lg z-[10000] max-h-48 overflow-y-auto custom-scrollbar"
                   >
                     {Array.from({ length: 12 }, (_, i) => {
                       const monthDate = new Date(2000, i, 1)
@@ -321,7 +321,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 {/* Yıl dropdown */}
                 {isYearDropdownOpen && (
                   <div
-                    className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-24 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-600 rounded-lg shadow-lg z-[10000] max-h-48 overflow-y-auto"
+                    className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-24 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-600 rounded-lg shadow-lg z-[10000] max-h-48 overflow-y-auto custom-scrollbar"
                     ref={(el) => {
                       if (el) {
                         const activeIndex = 10 // current year is at middle (current-10 .. current+10)

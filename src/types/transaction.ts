@@ -36,6 +36,20 @@ export namespace TransactionDTOs {
     asc?: boolean
   }
 
+  // Transaction filter parametreleri (yeni API endpoint'ine uygun)
+  export type TransactionFilterRequest = SortablePageRequest & {
+    name?: string
+    accountIds?: number[]  // accountId yerine accountIds array
+    contactIds?: number[]  // customerId yerine contactIds array, 0 = kişi seçilmemiş
+    minAmount?: number
+    maxAmount?: number
+    minInstallmentCount?: number
+    maxInstallmentCount?: number
+    startDate?: string
+    endDate?: string
+    types?: TransactionType[] // type yerine types array
+  }
+
   // Sayfalama response yapısı
   export type PagedResponse<T> = {
     content: T[]

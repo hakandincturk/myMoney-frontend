@@ -111,7 +111,7 @@ export const Table = <T extends object>({
         </div>
       )}
       
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-mm-bg">
             {table.getHeaderGroups().map((headerGroup) => (

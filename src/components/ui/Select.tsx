@@ -8,8 +8,8 @@ type Option = {
 type SelectProps = {
   id: string
   label?: string
-  value: string | number
-  onChange: (value: string | number) => void
+  value: string | number | (string | number)[]  // Multi-select için array desteği
+  onChange: (value: string | number | (string | number)[]) => void
   options: Option[]
   placeholder?: string
   error?: string
@@ -21,6 +21,8 @@ type SelectProps = {
   onLoadMore?: () => void
   hasMore?: boolean
   isLoadingMore?: boolean
+  isMulti?: boolean  // Multi-select için
+  closeMenuOnSelect?: boolean  // Multi-select için
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(({ 
@@ -39,6 +41,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   onLoadMore,
   hasMore = false,
   isLoadingMore = false,
+  isMulti = false,
+  closeMenuOnSelect = true,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -61,7 +65,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
     }
   }
 
-  const selectedOption = options.find(option => option.value === value)
+  const selectedOption = isMulti && Array.isArray(value) 
+    ? options.filter(option => value.includes(option.value))
+    : options.find(option => option.value === value)
   
   // Scroll event handler for infinity scroll
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -154,11 +160,27 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
     }
   }
 
-  const handleSelect = (selectedValue: string | number) => {
-    onChange(selectedValue)
-    setIsOpen(false)
-    setSearchTerm('')
-    setHighlightedIndex(-1)
+  const handleSelect = (selectedValue: string | number | null) => {
+    if (isMulti && Array.isArray(value)) {
+      // Multi-select: değeri ekle veya çıkar
+      const newValue = value.includes(selectedValue)
+        ? value.filter(v => v !== selectedValue)
+        : [...value, selectedValue]
+      onChange(newValue)
+      
+      // closeMenuOnSelect false ise menüyü açık tut
+      if (closeMenuOnSelect) {
+        setIsOpen(false)
+        setSearchTerm('')
+        setHighlightedIndex(-1)
+      }
+    } else {
+      // Single select: değeri değiştir ve menüyü kapat
+      onChange(selectedValue)
+      setIsOpen(false)
+      setSearchTerm('')
+      setHighlightedIndex(-1)
+    }
   }
 
   const handleToggle = () => {
@@ -208,7 +230,32 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
           aria-labelledby={label ? `${id}-label` : undefined}
         >
           <span className={`${!selectedOption ? 'text-slate-400 dark:text-mm-placeholder' : ''}`}>
-            {selectedOption ? selectedOption.label : placeholder}
+            {selectedOption ? (
+              isMulti && Array.isArray(selectedOption) ? (
+                <div className="flex flex-wrap gap-1">
+                  {selectedOption.map((option, index) => (
+                    <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs rounded-md">
+                      {option.label}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const newValue = (value as (string | number)[]).filter(v => v !== option.value)
+                          onChange(newValue)
+                        }}
+                        className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-800/40 rounded-full w-4 h-4 flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                (selectedOption as Option).label
+              )
+            ) : (
+              placeholder
+            )}
           </span>
           <svg 
             className={`w-5 h-5 text-slate-400 dark:text-mm-placeholder transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
@@ -239,7 +286,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
               </div>
             )}
             
-            <div className="max-h-64 overflow-y-auto" ref={listRef} onScroll={handleScroll}>
+            <div className="max-h-64 overflow-y-auto custom-scrollbar" ref={listRef} onScroll={handleScroll}>
               {filteredOptions.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center">
                   Sonuç bulunamadı

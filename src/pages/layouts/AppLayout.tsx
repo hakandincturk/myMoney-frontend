@@ -267,7 +267,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </Button>
               </div> */}
             </div>
-            <main className="w-full">{children}</main>
+            <main className="w-full custom-scrollbar">{children}</main>
           </div>
         </div>
       )}

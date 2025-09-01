@@ -158,31 +158,20 @@
       "recordsPerPage": "Sayfa başına kayıt"
     },
     "columns": {
-      "name": "Ad",
-      "type": "Tür",
-      "currency": "Para Birimi",
-      "balance": "Bakiye",
-      "totalBalance": "Toplam",
-      "edit": "Düzenle",
-      "delete": "Sil",
-      "fullName": "Ad Soyad",
-      "note": "Not",
+      "name": "İşlem Adı",
       "contact": "Kişi",
       "account": "Hesap",
-      "amount": "Tutar",
+      "type": "Tür",
       "totalAmount": "Toplam Tutar",
       "paidAmount": "Ödenen Tutar",
+      "totalInstallment": "Toplam Taksit",
       "remainingAmount": "Kalan Tutar",
       "status": "Durum",
-      "debtId": "Borç ID",
-      "month": "Ay",
-      "date": "Tarih",
-      "installmentNumber": "Taksit No",
-      "paid": "Ödeme Durumu",
-      "paidDate": "Ödeme Tarihi",
-      "totalInstallment": "Toplam Taksit",
       "actions": "İşlemler",
-      "debtDate": "Borç Tarihi"
+      "amount": "Tutar",
+      "installmentNumber": "Taksit No",
+      "debtDate": "Borç Tarihi",
+      "paidDate": "Ödeme Tarihi"
     },
     "titles": {
       "accountList": "Hesap Listesi",
@@ -206,7 +195,12 @@
     "pay": "Öde",
     "collect": "Al",
     "editDescription": "Açıklama Düzenle",
-    "deleteDebt": "Sil"
+    "deleteDebt": "Sil",
+    "filter": "Filtrele",
+    "clearFilters": "Filtreleri Temizle",
+    "clearAll": "Tümünü Temizle",
+    "applyFilters": "Filtreleri Uygula",
+    "payInstallment": "Taksit Öde"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
@@ -216,11 +210,18 @@
     "transactionDetail": "İşlem Detayı",
     "payInstallment": "Taksit Ödemesi",
     "editInstallmentDescription": "Taksit Açıklaması",
-    "deleteDebt": "Sil"
+    "deleteDebt": "Sil",
+    "filter": "Filtrele"
   },
   "placeholders": {
     "fullName": "Ad Soyad giriniz",
-    "note": "Not ekleyiniz (opsiyonel)"
+    "note": "Not ekleyiniz (opsiyonel)",
+    "searchByName": "İsme göre ara...",
+    "selectAccount": "Hesap seçiniz",
+    "selectContact": "Kişi seçiniz",
+    "selectType": "Tür seçiniz",
+    "selectStartDate": "Başlangıç tarihi seçiniz",
+    "selectEndDate": "Bitiş tarihi seçiniz"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -262,5 +263,22 @@
     "deleteConfirmation": "Bu gelir/gideri silmek istediğinizden emin misiniz?",
     "deleteSuccess": "Gelir/Gider başarıyla silindi",
     "deleteWarning": "Bu işlem geri alınamaz ve tüm taksit bilgileri kaybolacaktır."
+  },
+  "filters": {
+    "minAmount": "Minimum Tutar",
+    "maxAmount": "Maksimum Tutar",
+    "minInstallmentCount": "Minimum Taksit Sayısı",
+    "maxInstallmentCount": "Maksimum Taksit Sayısı",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "name": "İsim",
+    "basicFilters": "Temel Filtreler",
+    "amountFilters": "Tutar Filtreleri",
+    "installmentFilters": "Taksit Filtreleri",
+    "dateFilters": "Tarih Filtreleri",
+    "activeFilters": "Aktif Filtreler",
+    "activeFiltersSummary": "Aktif Filtre Özeti",
+    "selected": "seçili",
+    "noContact": "Kişi Seçilmemiş"
   }
 }

@@ -48,51 +48,16 @@ export const DebtsOverviewPage: React.FC = () => {
 		columnName: 'id',
 		asc: false,
 		name: '',
-		accountIds: undefined,
-		contactIds: undefined,  // customerIds yerine contactIds
+		accountId: undefined,
+		customerId: undefined,
 		minAmount: undefined,
 		maxAmount: undefined,
 		minInstallmentCount: undefined,
 		maxInstallmentCount: undefined,
 		startDate: '',
 		endDate: '',
-		types: undefined
+		type: undefined
 	})
-
-	// Filter modal state'i
-	const [filterModalOpen, setFilterModalOpen] = useState(false)
-	
-	// Uygulanan filtreler state'i (tablo üstünde gösterilecek)
-	const [appliedFilters, setAppliedFilters] = useState<TransactionDTOs.TransactionFilterRequest>({
-		pageNumber: 0,
-		pageSize: 10,
-		columnName: 'id',
-		asc: false,
-		name: '',
-		accountIds: undefined,
-		contactIds: undefined,
-		minAmount: undefined,
-		maxAmount: undefined,
-		minInstallmentCount: undefined,
-		maxInstallmentCount: undefined,
-		startDate: '',
-		endDate: '',
-		types: undefined
-	})
-
-	// Debug: Filter modal açıldığında çevirileri kontrol et
-	useEffect(() => {
-		if (filterModalOpen) {
-			console.log('Debug translations:', {
-				'modals.filter': t('modals.filter'),
-				'buttons.clearFilters': t('buttons.clearFilters'),
-				'buttons.applyFilters': t('buttons.applyFilters'),
-				'placeholders.searchByName': t('placeholders.searchByName'),
-				'filters.minAmount': t('filters.minAmount')
-			})
-			
-		}
-	}, [filterModalOpen, t])
 
 	// Infinity scroll için account state
 	const [accountPage, setAccountPage] = useState(0)
@@ -370,21 +335,7 @@ export const DebtsOverviewPage: React.FC = () => {
 
 	// Filter işlemleri
 	const handleFilterChange = (key: keyof TransactionDTOs.TransactionFilterRequest, value: any) => {
-		// contactIds için özel kontrol - null değerleri destekler
-		if (key === 'contactIds') {
-			setFilterParams(prev => ({ ...prev, [key]: value }))
-			return
-		}
-		
-		// 0 değerlerini undefined olarak set et
-		if (value === 0 || value === '0') {
-			setFilterParams(prev => ({ ...prev, [key]: undefined }))
-		} else if (value === null) {
-			// null değerleri koru (kişi seçilmemiş durumu için)
-			setFilterParams(prev => ({ ...prev, [key]: null }))
-		} else {
-			setFilterParams(prev => ({ ...prev, [key]: value }))
-		}
+		setFilterParams(prev => ({ ...prev, [key]: value }))
 	}
 
 	const applyFilters = () => {
@@ -403,31 +354,10 @@ export const DebtsOverviewPage: React.FC = () => {
 			if (combinedParams[k] === '' || combinedParams[k] === undefined) {
 				delete combinedParams[k]
 			}
-			// null değerleri koru (kişi seçilmemiş durumu için)
-			if (combinedParams[k] === null) {
-				// null değerleri silme, backend'e gönder
-			}
-			// minInstallmentCount ve maxInstallmentCount için özel kontrol
-			if (k === 'minInstallmentCount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
-			if (k === 'maxInstallmentCount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
-			// minAmount ve maxAmount için özel kontrol
-			if (k === 'minAmount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
-			if (k === 'maxAmount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
 		})
-
-		// Uygulanan filtre özetini güncelle (sadece temizlenmiş parametrelerle)
-		setAppliedFilters(combinedParams)
 		
 		setPageParams(combinedParams)
-		setFilterModalOpen(false)
+		// setFilterModalOpen(false) // Bu state'in tanımlanmadığı için kaldırıldı
 	}
 
 	const clearFilters = () => {
@@ -437,15 +367,15 @@ export const DebtsOverviewPage: React.FC = () => {
 			columnName: 'id',
 			asc: false,
 			name: '',
-			accountIds: undefined,
-			contactIds: undefined,
+			accountId: undefined,
+			customerId: undefined,
 			minAmount: undefined,
 			maxAmount: undefined,
 			minInstallmentCount: undefined,
 			maxInstallmentCount: undefined,
 			startDate: '',
 			endDate: '',
-			types: undefined
+			type: undefined
 		})
 		
 		// Sayfalama parametrelerini de sıfırla
@@ -458,66 +388,18 @@ export const DebtsOverviewPage: React.FC = () => {
 	}
 
 	const hasActiveFilters = () => {
-		// Sadece gerçekten aktif olan filtreleri say
-		const hasName = filterParams.name && filterParams.name.trim() !== ''
-		const hasAccountIds = filterParams.accountIds && filterParams.accountIds.length > 0
-		const hasContactIds = filterParams.contactIds && filterParams.contactIds.length > 0
-		const hasMinAmount = filterParams.minAmount && filterParams.minAmount > 0
-		const hasMaxAmount = filterParams.maxAmount && filterParams.maxAmount > 0
-		const hasMinInstallmentCount = filterParams.minInstallmentCount && filterParams.minInstallmentCount > 0
-		const hasMaxInstallmentCount = filterParams.maxInstallmentCount && filterParams.maxInstallmentCount > 0
-		const hasStartDate = filterParams.startDate && filterParams.startDate.trim() !== ''
-		const hasEndDate = filterParams.endDate && filterParams.endDate.trim() !== ''
-		const hasTypes = filterParams.types && filterParams.types.length > 0
-
-		return hasName || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount || 
-			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes
-	}
-
-	// Uygulanan filtrelerde aktif olan var mı?
-	const hasAppliedActiveFilters = () => {
-		const hasName = appliedFilters.name && appliedFilters.name.trim() !== ''
-		const hasAccountIds = appliedFilters.accountIds && appliedFilters.accountIds.length > 0
-		const hasContactIds = appliedFilters.contactIds && appliedFilters.contactIds.length > 0
-		const hasMinAmount = appliedFilters.minAmount && appliedFilters.minAmount > 0
-		const hasMaxAmount = appliedFilters.maxAmount && appliedFilters.maxAmount > 0
-		const hasMinInstallmentCount = appliedFilters.minInstallmentCount && appliedFilters.minInstallmentCount > 0
-		const hasMaxInstallmentCount = appliedFilters.maxInstallmentCount && appliedFilters.maxInstallmentCount > 0
-		const hasStartDate = appliedFilters.startDate && appliedFilters.startDate.trim() !== ''
-		const hasEndDate = appliedFilters.endDate && appliedFilters.endDate.trim() !== ''
-		const hasTypes = appliedFilters.types && appliedFilters.types.length > 0
-
-		return hasName || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount || 
-			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes
-	}
-
-	// Üst bardan chip kaldırma: hem appliedFilters hem filterParams temizlenir ve istek tekrar atılır
-	const removeAppliedFilter = (key: keyof TransactionDTOs.TransactionFilterRequest) => {
-		const nextApplied: TransactionDTOs.TransactionFilterRequest = { ...appliedFilters }
-		const nextFilter: TransactionDTOs.TransactionFilterRequest = { ...filterParams }
-
-		if (key === 'name' || key === 'startDate' || key === 'endDate') {
-			nextApplied[key] = '' as any
-			nextFilter[key] = '' as any
-		} else {
-			nextApplied[key] = undefined as any
-			nextFilter[key] = undefined as any
-		}
-
-		setAppliedFilters(nextApplied)
-		setFilterParams(nextFilter)
-
-		// Sayfayı başa al ve yeni parametrelerle isteği tetikle
-		const refreshedParams = {
-			...pageParams,
-			pageNumber: 0,
-			[key]: nextApplied[key]
-		} as any
-		// Boş değerleri tamamen kaldır
-		if (refreshedParams[key] === '' || refreshedParams[key] === undefined) {
-			delete refreshedParams[key]
-		}
-		setPageParams(refreshedParams)
+		return !!(
+			filterParams.name ||
+			filterParams.accountId ||
+			filterParams.customerId ||
+			filterParams.minAmount ||
+			filterParams.maxAmount ||
+			filterParams.minInstallmentCount ||
+			filterParams.maxInstallmentCount ||
+			filterParams.startDate ||
+			filterParams.endDate ||
+			filterParams.type
+		)
 	}
 
 	// Table bileşeninden gelen sıralama işlevi (sayfalama için)
@@ -614,28 +496,6 @@ export const DebtsOverviewPage: React.FC = () => {
 		cell: (info) => getTransactionTypeText(info.getValue()),
 		meta: {
 			className: 'min-w-[100px]'
-		}
-	}),
-	columnHelper.accessor('totalInstallment', {
-		header: () => (
-			<button
-				onClick={() => handleSortClick('totalInstallment')}
-				className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
-			>
-				{t('table.columns.totalInstallment')}
-				{getSortIndicator('totalInstallment')}
-			</button>
-		),
-		cell: (info) => {
-			const totalInstallment = info.getValue() || 0
-			return (
-				<span className="font-medium text-slate-700 dark:text-slate-300">
-					{totalInstallment}
-				</span>
-			)
-		},
-		meta: {
-			className: 'min-w-[100px] text-center'
 		}
 	}),
 	columnHelper.accessor('totalAmount', {
@@ -806,118 +666,16 @@ export const DebtsOverviewPage: React.FC = () => {
 		<div className="w-full">
 			<div className="flex items-center justify-between mb-4">
 				<h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
-				<div className="flex items-center gap-3">
-					<Button 
-						onClick={() => setFilterModalOpen(true)}
-						variant="secondary"
-						className={`${hasActiveFilters() ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700' : ''}`}
-					>
-						{t('buttons.filter')}
-						{hasActiveFilters() && (
-							<span className="ml-2 inline-flex items-center justify-center w-5 h-5 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
-								{(() => {
-									// Sadece gerçekten aktif olan filtreleri say
-									let count = 0
-									if (filterParams.name && filterParams.name.trim() !== '') count++
-									if (filterParams.accountIds && filterParams.accountIds.length > 0) count++
-									if (filterParams.contactIds && filterParams.contactIds.length > 0) count++
-									if (filterParams.minAmount && filterParams.minAmount > 0) count++
-									if (filterParams.maxAmount && filterParams.maxAmount > 0) count++
-									if (filterParams.minInstallmentCount && filterParams.minInstallmentCount > 0) count++
-									if (filterParams.maxInstallmentCount && filterParams.maxInstallmentCount > 0) count++
-									if (filterParams.startDate && filterParams.startDate.trim() !== '') count++
-									if (filterParams.endDate && filterParams.endDate.trim() !== '') count++
-									if (filterParams.types && filterParams.types.length > 0) count++
-									return count
-								})()}
-							</span>
-						)}
-					</Button>
-					<Button 
-						onClick={() => { 
-							setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
-							setModalOpen(true) 
-						}} 
-						variant="primary"
-					>
-						{t('buttons.newDebt')}
-					</Button>
-				</div>
+				<Button 
+					onClick={() => { 
+						setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
+						setModalOpen(true) 
+					}} 
+					variant="primary"
+				>
+					{t('buttons.newDebt')}
+				</Button>
 			</div>
-
-			{/* Uygulanan Akıllı Filtre Özeti - Tablo üstünde göster */}
-			{hasAppliedActiveFilters() && (
-				<div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-					<div className="flex items-center gap-2 mb-2">
-						<svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-						<h4 className="font-medium text-blue-800 dark:text-blue-300">{t('filters.activeFiltersSummary')}</h4>
-					</div>
-					<div className="flex flex-wrap gap-2">
-						{appliedFilters.name && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.name')}: {appliedFilters.name}
-								<button type="button" onClick={() => removeAppliedFilter('name')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.accountIds && appliedFilters.accountIds.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.account')}: {appliedFilters.accountIds.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('accountIds')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.contactIds && appliedFilters.contactIds.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.contact')}: {appliedFilters.contactIds.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('contactIds')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.types && appliedFilters.types.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('table.columns.type')}: {appliedFilters.types.length} {t('filters.selected')}
-								<button type="button" onClick={() => removeAppliedFilter('types')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.minAmount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.minAmount')}: ₺{appliedFilters.minAmount}
-								<button type="button" onClick={() => removeAppliedFilter('minAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.maxAmount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.maxAmount')}: ₺{appliedFilters.maxAmount}
-								<button type="button" onClick={() => removeAppliedFilter('maxAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.minInstallmentCount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.minInstallmentCount')}: {appliedFilters.minInstallmentCount}
-								<button type="button" onClick={() => removeAppliedFilter('minInstallmentCount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.maxInstallmentCount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.maxInstallmentCount')}: {appliedFilters.maxInstallmentCount}
-								<button type="button" onClick={() => removeAppliedFilter('maxInstallmentCount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.startDate && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.startDate')}: {appliedFilters.startDate}
-								<button type="button" onClick={() => removeAppliedFilter('startDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.endDate && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.endDate')}: {appliedFilters.endDate}
-								<button type="button" onClick={() => removeAppliedFilter('endDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-					</div>
-				</div>
-			)}
 
 			{/* Sıralama Durumu Bilgisi
 			{pageParams.columnName !== 'id' && (
@@ -935,7 +693,7 @@ export const DebtsOverviewPage: React.FC = () => {
 			)} */}
 
 			{isLoading ? (
-										<TableSkeleton columns={9} rows={5} />
+				<TableSkeleton columns={8} rows={5} />
 			) : (
 				<Table 
 					data={debts} 
@@ -1363,214 +1121,6 @@ export const DebtsOverviewPage: React.FC = () => {
 						)}
 					</div>
 				)}
-			</Modal>
-
-			{/* Filter Modal */}
-			<Modal
-				open={filterModalOpen}
-				onClose={() => setFilterModalOpen(false)}
-				title={t('modals.filter')}
-				size="lg"
-				zIndex={10000}
-				footer={
-					<div className="flex gap-3 justify-between items-center">
-						<div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-							<span>{t('filters.activeFilters')}:</span>
-							<span className="font-medium text-slate-800 dark:text-slate-200">
-								{(() => {
-									// Sadece gerçekten aktif olan filtreleri say
-									let count = 0
-									if (filterParams.name && filterParams.name.trim() !== '') count++
-									if (filterParams.accountIds && filterParams.accountIds.length > 0) count++
-									if (filterParams.contactIds && filterParams.contactIds.length > 0) count++
-									if (filterParams.minAmount && filterParams.minAmount > 0) count++
-									if (filterParams.maxAmount && filterParams.maxAmount > 0) count++
-									if (filterParams.minInstallmentCount && filterParams.minInstallmentCount > 0) count++
-									if (filterParams.maxInstallmentCount && filterParams.maxInstallmentCount > 0) count++
-									if (filterParams.startDate && filterParams.startDate.trim() !== '') count++
-									if (filterParams.endDate && filterParams.endDate.trim() !== '') count++
-									if (filterParams.types && filterParams.types.length > 0) count++
-									return count
-								})()}
-							</span>
-						</div>
-						<div className="flex gap-3">
-							<Button variant="secondary" onClick={clearFilters}>
-								{t('buttons.clearAll')}
-							</Button>
-							<Button variant="primary" onClick={applyFilters}>
-								{t('buttons.applyFilters')}
-							</Button>
-						</div>
-					</div>
-				}
-			>
-				<div className="space-y-6">
-					{/* Basic Filters Section */}
-					<div className="bg-slate-50 dark:bg-gray-800/50 rounded-xl p-4">
-						<div className="flex items-center gap-2 mb-4">
-							<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-							<h3 className="font-semibold text-slate-800 dark:text-slate-200">
-								{t('filters.basicFilters')}
-							</h3>
-						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input
-								id="filterName"
-								label={t('filters.name')}
-								value={filterParams.name || ''}
-								onChange={(value) => handleFilterChange('name', value)}
-								placeholder={t('placeholders.searchByName')}
-								className="md:col-span-2"
-							/>
-							
-							<Select
-								id="filterAccount"
-								label={t('table.columns.account')}
-								value={filterParams.accountIds || []}
-								onChange={(value) => handleFilterChange('accountIds', Array.isArray(value) ? value : [value])}
-								options={accounts.map((acc) => ({ value: acc.id, label: acc.name }))}
-								placeholder={t('placeholders.selectAccount')}
-								isMulti
-								closeMenuOnSelect={false}
-							/>
-							
-							<Select
-								id="filterContact"
-								label={t('table.columns.contact')}
-								value={filterParams.contactIds || []}
-								onChange={(value) => {
-									// Sadece "No Contact" seçildiğinde [null] şeklinde gel
-									if (Array.isArray(value)) {
-										// Eğer array içinde sadece null varsa, [null] olarak set et
-										if (value.length === 1 && value[0] === 0) {
-											handleFilterChange('contactIds', [0])
-										} else {
-											// Normal array değerlerini set et
-											handleFilterChange('contactIds', value)
-										}
-									} else if (value === 0) {
-										// Sadece "No Contact" seçildiğinde
-										handleFilterChange('contactIds', [0])
-									} else {
-										// Normal kişi ID'si seçildiğinde
-										handleFilterChange('contactIds', [value])
-									}
-								}}
-								options={[
-									{ value: 0, label: t('filters.noContact') },
-									...contacts.map((c) => ({ value: c.id, label: c.fullName }))
-								]}
-								placeholder={t('placeholders.selectContact')}
-								isMulti
-								closeMenuOnSelect={false}
-							/>
-							
-							<Select
-								id="filterType"
-								label={t('table.columns.type')}
-								value={filterParams.types || []}
-								onChange={(value) => handleFilterChange('types', Array.isArray(value) ? value : [value])}
-								options={TransactionHelpers.getTypeOptions(t)}
-								placeholder={t('placeholders.selectType')}
-								isMulti
-								closeMenuOnSelect={false}
-								className="md:col-span-2"
-							/>
-						</div>
-					</div>
-
-					{/* Amount Filters Section */}
-					<div className="bg-slate-50 dark:bg-gray-800/50 rounded-xl p-4">
-						<div className="flex items-center gap-2 mb-4">
-							<div className="w-2 h-2 bg-green-500 rounded-full"></div>
-							<h3 className="font-semibold text-slate-800 dark:text-slate-200">
-								{t('filters.amountFilters')}
-							</h3>
-						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input
-								id="filterMinAmount"
-								label={t('filters.minAmount')}
-								value={filterParams.minAmount || ''}
-								onChange={(value) => handleFilterChange('minAmount', value)}
-								placeholder="0,00"
-								formatCurrency
-								currencySymbol="₺"
-							/>
-							
-							<Input
-								id="filterMaxAmount"
-								label={t('filters.maxAmount')}
-								value={filterParams.maxAmount || ''}
-								onChange={(value) => handleFilterChange('maxAmount', value)}
-								placeholder="0,00"
-								formatCurrency
-								currencySymbol="₺"
-							/>
-						</div>
-					</div>
-
-					{/* Installment Filters Section */}
-					<div className="bg-slate-50 dark:bg-gray-800/50 rounded-xl p-4">
-						<div className="flex items-center gap-2 mb-4">
-							<div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-							<h3 className="font-semibold text-slate-800 dark:text-slate-200">
-								{t('filters.installmentFilters')}
-							</h3>
-						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input
-								id="filterMinInstallment"
-								label={t('filters.minInstallmentCount')}
-								value={filterParams.minInstallmentCount || ''}
-								onChange={(value) => handleFilterChange('minInstallmentCount', value)}
-								placeholder="1"
-								type="number"
-								min={1}
-							/>
-							
-							<Input
-								id="filterMaxInstallment"
-								label={t('filters.maxInstallmentCount')}
-								value={filterParams.maxInstallmentCount || ''}
-								onChange={(value) => handleFilterChange('maxInstallmentCount', value)}
-								placeholder="12"
-								type="number"
-								min={1}
-							/>
-						</div>
-					</div>
-
-					{/* Date Filters Section */}
-					<div className="bg-slate-50 dark:bg-gray-800/50 rounded-xl p-4">
-						<div className="flex items-center gap-2 mb-4">
-							<div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-							<h3 className="font-semibold text-slate-800 dark:text-slate-200">
-								{t('filters.dateFilters')}
-							</h3>
-						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<DatePicker
-								id="filterStartDate"
-								label={t('filters.startDate')}
-								value={filterParams.startDate || ''}
-								onChange={(value) => handleFilterChange('startDate', value)}
-								placeholder={t('placeholders.selectStartDate')}
-							/>
-							
-							<DatePicker
-								id="filterEndDate"
-								label={t('filters.endDate')}
-								value={filterParams.endDate || ''}
-								onChange={(value) => handleFilterChange('endDate', value)}
-								placeholder={t('placeholders.selectEndDate')}
-							/>
-						</div>
-					</div>
-
-					{/* Active Filters Summary kaldırıldı: artık özet üst barda gösteriliyor */}
-				</div>
 			</Modal>
 
 			{/* Ödeme Modal */}

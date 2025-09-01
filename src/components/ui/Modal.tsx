@@ -52,7 +52,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
           )}
           
           {/* Body - İçerik taşarsa modal içinde scroll */}
-          <div className="p-6 overflow-y-auto flex-1 min-h-0">
+          <div className="p-6 overflow-y-auto flex-1 min-h-0 modal-scrollbar">
             {children}
           </div>
           

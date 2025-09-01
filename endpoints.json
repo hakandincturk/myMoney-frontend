@@ -400,7 +400,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SortablePageRequest"
+              "$ref": "#/components/schemas/TransactionFilterRequest"
             }
           }
         ],
@@ -836,7 +836,7 @@
           }
         }
       },
-      "SortablePageRequest": {
+      "TransactionFilterRequest": {
         "type": "object",
         "properties": {
           "pageNumber": {
@@ -852,6 +852,57 @@
           },
           "asc": {
             "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "accountIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "contactIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "minAmount": {
+            "type": "number"
+          },
+          "maxAmount": {
+            "type": "number"
+          },
+          "minInstallmentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxInstallmentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "DEBT",
+                "CREDIT",
+                "PAYMENT",
+                "COLLECTION"
+              ]
+            }
           }
         }
       },
@@ -936,6 +987,25 @@
             "type": "boolean"
           },
           "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SortablePageRequest": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
             "type": "boolean"
           }
         }

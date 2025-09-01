@@ -7,6 +7,7 @@ import { ApiUrl } from '../config/ApiUrl'
 
 // Kısa alias'lar oluştur
 type SortablePageRequest = TransactionDTOs.SortablePageRequest
+type TransactionFilterRequest = TransactionDTOs.TransactionFilterRequest
 type PagedResponse<T> = TransactionDTOs.PagedResponse<T>
 type ListItem = TransactionDTOs.ListItem
 type ApiResponse<T> = CommonTypes.ApiResponse<T>
@@ -20,10 +21,10 @@ export const transactionApi = createApi({
       query: (body) => ({ url: ApiUrl.TRANSACTION.toString(), method: 'POST', body }),
       invalidatesTags: [{ type: 'Transaction', id: 'LIST' }],
     }),
-    listMyTransactions: build.query<ApiResponse<PagedResponse<ListItem>>, SortablePageRequest>({
-      query: (pageData) => ({ 
+    listMyTransactions: build.query<ApiResponse<PagedResponse<ListItem>>, TransactionFilterRequest>({
+      query: (filterData) => ({ 
         url: ApiUrl.TRANSACTION_MY.toString(),
-        params: pageData
+        params: filterData
       }),
       providesTags: (result) =>
         result
