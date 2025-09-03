@@ -613,7 +613,9 @@ export const DebtsOverviewPage: React.FC = () => {
 	}
 
 	// Çoklu seçimli filtrelerden tek bir öğeyi kaldır (hesap, kişi, tür)
-	const removeAppliedFilterItem = (key: 'accountIds' | 'contactIds' | 'types', value: any) => {
+	const removeAppliedFilterItem = (key: string, value: any) => {
+		// Güvenlik: yalnızca beklenen anahtarlar için işle
+		if (key !== 'accountIds' && key !== 'contactIds' && key !== 'types') return
 		const nextApplied: TransactionDTOs.TransactionFilterRequest = { ...appliedFilters }
 		const nextFilter: TransactionDTOs.TransactionFilterRequest = { ...filterParams }
 
