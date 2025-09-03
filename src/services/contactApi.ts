@@ -30,6 +30,15 @@ export type SortablePageRequest = {
   asc: boolean
 }
 
+export type ContactFilterRequestDto = {
+  pageNumber: number
+  pageSize: number
+  columnName: string
+  asc: boolean
+  fullName?: string
+  note?: string
+}
+
 export type PagedResponse<T> = {
   content: T[]
   pageNumber: number
@@ -45,7 +54,7 @@ export const contactApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Contact'],
   endpoints: (build) => ({
-    listMyActiveContacts: build.query<ApiResponse<PagedResponse<ListMyContactsResponseDto>>, SortablePageRequest>({
+    listMyActiveContacts: build.query<ApiResponse<PagedResponse<ListMyContactsResponseDto>>, ContactFilterRequestDto>({
       query: (pageData) => ({ 
         url: ApiUrl.CONTACT_MY_ACTIVE.toString(),
         params: pageData

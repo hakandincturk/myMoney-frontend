@@ -268,7 +268,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         </div>
 
         {isOpen && (
-          <div className={`absolute z-50 w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
+          <div className={`absolute z-[100] w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
             (autoDirection || dropdownDirection) === 'up' 
               ? 'bottom-full mb-1' 
               : 'top-full mt-1'

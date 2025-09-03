@@ -104,14 +104,14 @@ export const Table = <T extends object>({
   }
 
   return (
-    <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-hidden ${className}`}>
+    <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-visible ${className}`}>
       {title && (
         <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-mm-text">{title}</h3>
         </div>
       )}
       
-      <div className="overflow-x-auto custom-scrollbar">
+      <div className="overflow-x-auto overflow-y-visible custom-scrollbar">
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-mm-bg">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -158,7 +158,7 @@ export const Table = <T extends object>({
                 </span>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 relative z-10">
                 <span className="text-sm text-slate-500 dark:text-mm-subtleText whitespace-nowrap">
                   {t('table.pagination.recordsPerPage')}:
                 </span>

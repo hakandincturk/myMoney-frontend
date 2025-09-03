@@ -203,7 +203,7 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <AuthContainer title={t('auth.register')} subtitle={t('auth.startFinance')}>
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <Input
               id="fullName"
               label={t('auth.fullName')}

@@ -160,7 +160,7 @@ export const AccountsPage: React.FC = () => {
     }),
     columnHelper.display({
       id: 'actions',
-      header: t('table.columns.edit'),
+      header: t('table.columns.actions'),
       cell: (info) => (
         <div className="flex items-center justify-end">
           <Button 
@@ -168,7 +168,7 @@ export const AccountsPage: React.FC = () => {
             variant="primary"
             className="px-3 py-1.5 text-sm"
           >
-            {t('table.columns.edit')}
+            {t('buttons.edit')}
           </Button>
         </div>
       ),

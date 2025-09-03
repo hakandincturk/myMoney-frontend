@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
@@ -17,7 +18,8 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
-import { useToast } from '../../hooks/useToast'
+// Toast gösterimi için App seviyesindeki ToastContainer ile çalışan yardımcı
+import { FilterChips } from '@/components/ui/FilterChips'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
@@ -32,67 +34,93 @@ const columnHelper = createColumnHelper<TransactionListItem>()
 
 export const DebtsOverviewPage: React.FC = () => {
 	const { t, i18n } = useTranslation()
+	const [searchParams, setSearchParams] = useSearchParams()
 
-	// Sayfalama parametreleri
-	const [pageParams, setPageParams] = useState<SortablePageRequest>({
-		pageNumber: 0,
-		pageSize: 10,
-		columnName: 'id',
-		asc: false
+	// URL'den filtreleri oku
+	const loadFiltersFromURL = useCallback((): TransactionDTOs.TransactionFilterRequest => {
+		const params = new URLSearchParams(searchParams)
+		
+		const result = {
+			pageNumber: parseInt(params.get('page') || '0') || 0,
+			pageSize: parseInt(params.get('size') || '10') || 10,
+			columnName: params.get('sort') || 'id',
+			asc: params.get('direction') === 'asc',
+			name: params.get('name') || '',
+			accountIds: params.get('accounts') ? params.get('accounts')!.split(',').map(Number).filter(n => !isNaN(n)) : undefined,
+			contactIds: params.get('contacts') ? params.get('contacts')!.split(',').map(id => id === '0' ? 0 : Number(id)).filter(n => !isNaN(n)) : undefined,
+			minAmount: params.get('minAmount') ? Number(params.get('minAmount')) || undefined : undefined,
+			maxAmount: params.get('maxAmount') ? Number(params.get('maxAmount')) || undefined : undefined,
+			minInstallmentCount: params.get('minInstallments') ? Number(params.get('minInstallments')) || undefined : undefined,
+			maxInstallmentCount: params.get('maxInstallments') ? Number(params.get('maxInstallments')) || undefined : undefined,
+			startDate: params.get('startDate') || '',
+			endDate: params.get('endDate') || '',
+			types: params.get('types') ? params.get('types')!.split(',') as TransactionType[] : undefined
+		}
+		
+		return result
+	}, [searchParams])
+
+	// Filtreleri URL'ye yaz
+	const syncFiltersToURL = useCallback((filters: TransactionDTOs.TransactionFilterRequest) => {
+		const params = new URLSearchParams()
+		
+		// Sadece boş olmayan değerleri URL'ye ekle
+		if (filters.pageNumber && filters.pageNumber > 0) params.set('page', filters.pageNumber.toString())
+		if (filters.pageSize && filters.pageSize !== 10) params.set('size', filters.pageSize.toString())
+		if (filters.columnName && filters.columnName !== 'id') params.set('sort', filters.columnName)
+		if (filters.asc !== undefined && filters.asc !== false) params.set('direction', 'asc')
+		if (filters.name && filters.name.trim()) params.set('name', filters.name.trim())
+		if (filters.accountIds && filters.accountIds.length > 0) params.set('accounts', filters.accountIds.join(','))
+		if (filters.contactIds && filters.contactIds.length > 0) params.set('contacts', filters.contactIds.join(','))
+		if (filters.minAmount && filters.minAmount > 0) params.set('minAmount', filters.minAmount.toString())
+		if (filters.maxAmount && filters.maxAmount > 0) params.set('maxAmount', filters.maxAmount.toString())
+		if (filters.minInstallmentCount && filters.minInstallmentCount > 0) params.set('minInstallments', filters.minInstallmentCount.toString())
+		if (filters.maxInstallmentCount && filters.maxInstallmentCount > 0) params.set('maxInstallments', filters.maxInstallmentCount.toString())
+		if (filters.startDate && filters.startDate.trim()) params.set('startDate', filters.startDate.trim())
+		if (filters.endDate && filters.endDate.trim()) params.set('endDate', filters.endDate.trim())
+		if (filters.types && filters.types.length > 0) params.set('types', filters.types.join(','))
+		
+		setSearchParams(params, { replace: true })
+	}, [setSearchParams])
+
+	// Sayfalama parametreleri - URL'den yüklenecek
+	const [pageParams, setPageParams] = useState<SortablePageRequest>(() => {
+		const urlFilters = loadFiltersFromURL()
+		return {
+			pageNumber: urlFilters.pageNumber,
+			pageSize: urlFilters.pageSize,
+			columnName: urlFilters.columnName,
+			asc: urlFilters.asc
+		}
 	})
 
-	// Filter parametreleri
-	const [filterParams, setFilterParams] = useState<TransactionDTOs.TransactionFilterRequest>({
-		pageNumber: 0,
-		pageSize: 10,
-		columnName: 'id',
-		asc: false,
-		name: '',
-		accountIds: undefined,
-		contactIds: undefined,  // customerIds yerine contactIds
-		minAmount: undefined,
-		maxAmount: undefined,
-		minInstallmentCount: undefined,
-		maxInstallmentCount: undefined,
-		startDate: '',
-		endDate: '',
-		types: undefined
+	// Filter parametreleri - URL'den yüklenecek
+	const [filterParams, setFilterParams] = useState<TransactionDTOs.TransactionFilterRequest>(() => {
+		// İlk render'da URL'den filtreleri yükle
+		return loadFiltersFromURL()
 	})
 
 	// Filter modal state'i
 	const [filterModalOpen, setFilterModalOpen] = useState(false)
 	
-	// Uygulanan filtreler state'i (tablo üstünde gösterilecek)
-	const [appliedFilters, setAppliedFilters] = useState<TransactionDTOs.TransactionFilterRequest>({
-		pageNumber: 0,
-		pageSize: 10,
-		columnName: 'id',
-		asc: false,
-		name: '',
-		accountIds: undefined,
-		contactIds: undefined,
-		minAmount: undefined,
-		maxAmount: undefined,
-		minInstallmentCount: undefined,
-		maxInstallmentCount: undefined,
-		startDate: '',
-		endDate: '',
-		types: undefined
+	// Uygulanan filtreler state'i (tablo üstünde gösterilecek) - URL'den yüklenecek
+	const [appliedFilters, setAppliedFilters] = useState<TransactionDTOs.TransactionFilterRequest>(() => {
+		return loadFiltersFromURL()
 	})
 
-	// Debug: Filter modal açıldığında çevirileri kontrol et
+	// URL değişikliklerini dinle (geri/ileri butonları için)
 	useEffect(() => {
-		if (filterModalOpen) {
-			console.log('Debug translations:', {
-				'modals.filter': t('modals.filter'),
-				'buttons.clearFilters': t('buttons.clearFilters'),
-				'buttons.applyFilters': t('buttons.applyFilters'),
-				'placeholders.searchByName': t('placeholders.searchByName'),
-				'filters.minAmount': t('filters.minAmount')
-			})
-			
-		}
-	}, [filterModalOpen, t])
+		const urlFilters = loadFiltersFromURL()
+		setFilterParams(urlFilters)
+		setAppliedFilters(urlFilters)
+		setPageParams({
+			pageNumber: urlFilters.pageNumber,
+			pageSize: urlFilters.pageSize,
+			columnName: urlFilters.columnName,
+			asc: urlFilters.asc
+		})
+	}, [loadFiltersFromURL])
+
 
 	// Infinity scroll için account state
 	const [accountPage, setAccountPage] = useState(0)
@@ -124,11 +152,40 @@ export const DebtsOverviewPage: React.FC = () => {
 		refetchOnFocus: false,
 	})
 
-	const { data: transactionsData, isLoading: transactionsLoading } = useListMyTransactionsQuery(pageParams, {
+	const { data: transactionsData, isLoading: transactionsLoading, error: transactionsError } = useListMyTransactionsQuery(appliedFilters, {
 		// Parametre değiştiğinde mutlaka yeniden istekte bulun
 		refetchOnMountOrArgChange: true,
 		refetchOnFocus: false,
 	})
+
+
+
+	// Listeleme hatasında toast göster
+	useEffect(() => {
+		if (transactionsError) {
+			const errData = (transactionsError as any)?.data
+			const message = errData?.message || t('messages.operationFailed')
+			try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
+			// Validasyon detaylarını (ilk birkaçını) ayrıca göster
+			const fieldErrors = errData?.data
+			if (fieldErrors && typeof fieldErrors === 'object') {
+				try {
+					const firstFew = Object.entries(fieldErrors)
+						.slice(0, 3)
+						.map(([field, msgs]) => {
+							const firstMsg = Array.isArray(msgs) ? String(msgs[0]) : String(msgs)
+							return `${field}: ${firstMsg}`
+						})
+						.join(' | ')
+					if (firstFew) {
+						try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: firstFew, type: 'error' } })) } catch(_) {}
+					}
+				} catch (_) {
+					// ignore formatting errors
+				}
+			}
+		}
+	}, [transactionsError, t])
 
 	// Account verilerini birleştir
 	useEffect(() => {
@@ -180,11 +237,7 @@ export const DebtsOverviewPage: React.FC = () => {
 	const contacts = useMemo(() => allContacts, [allContacts])
 	const [createTransaction, { isLoading: createLoading }] = useCreateTransactionMutation()
 	const [deleteTransaction] = useDeleteTransactionMutation()
-	const { showToast } = useToast()
-
-	// Genel loading durumu
-	const isLoading = accountsLoading || contactsLoading || transactionsLoading
-
+	
 	// Modal açıldığında ilk input'a focus olmak için ref
 	const accountSelectRef = useRef<HTMLDivElement>(null)
 
@@ -220,8 +273,22 @@ export const DebtsOverviewPage: React.FC = () => {
 		debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
 		equalSharingBetweenInstallments: true,
 	})
-	const [expandedGroups, setExpandedGroups] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean }>({ accountIds: false, contactIds: false, types: false })
 	const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
+
+	// Para formatını ("3.000,50" gibi) Java/BigDecimal uyumlu sayıya çevir
+	const parseCurrencyToNumber = useCallback((input: any): number | undefined => {
+		if (input === undefined || input === null) return undefined
+		if (typeof input === 'number') return input
+		if (typeof input === 'string') {
+			const normalized = input
+				.replace(/\./g, '') // binlik ayıracı kaldır
+				.replace(/,/g, '.') // ondalığı noktaya çevir
+				.replace(/[^0-9.\-]/g, '') // kalan harf/simge temizle
+			const num = Number(normalized)
+			return isNaN(num) ? undefined : num
+		}
+		return undefined
+	}, [])
 
 	// Bugünün tarihini formatla (YYYY-MM-DD)
 	const today = (() => {
@@ -269,11 +336,11 @@ export const DebtsOverviewPage: React.FC = () => {
 
 		try {
 			await deleteTransaction(selectedTransaction.id).unwrap()
-			showToast(t('debt.deleteSuccess'), 'success')
+			// showToast(t('debt.deleteSuccess'), 'success') // Removed useToast
 			setDeleteModalOpen(false)
 			setSelectedTransaction(null)
 		} catch (error) {
-			showToast(t('messages.operationFailed'), 'error')
+			// showToast(t('messages.operationFailed'), 'error') // Removed useToast
 		}
 	}
 
@@ -340,7 +407,7 @@ export const DebtsOverviewPage: React.FC = () => {
 				data: { paidDate: paymentDate }
 			}).unwrap()
 			
-			showToast(t('installment.paymentSuccess'), 'success')
+			// showToast(t('installment.paymentSuccess'), 'success') // Removed useToast
 			closePaymentModal()
 			
 			// Taksit listesini yenile
@@ -348,7 +415,7 @@ export const DebtsOverviewPage: React.FC = () => {
 				refetchInstallments()
 			}
 		} catch (error) {
-			showToast(t('messages.operationFailed'), 'error')
+			// showToast(t('messages.operationFailed'), 'error') // Removed useToast
 		}
 	}
 
@@ -362,11 +429,17 @@ export const DebtsOverviewPage: React.FC = () => {
 
 	// Sayfalama işlemleri
 	const handlePageChange = (newPage: number) => {
-	setPageParams(prev => ({ ...prev, pageNumber: newPage }))
+		const newParams = { ...pageParams, pageNumber: newPage }
+		setPageParams(newParams)
+		// URL'yi güncelle
+		syncFiltersToURL({ ...appliedFilters, ...newParams })
 	}
 
 	const handlePageSizeChange = (newPageSize: number) => {
-	setPageParams(prev => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
+		const newParams = { ...pageParams, pageSize: newPageSize, pageNumber: 0 }
+		setPageParams(newParams)
+		// URL'yi güncelle
+		syncFiltersToURL({ ...appliedFilters, ...newParams })
 	}
 
 	// Filter işlemleri
@@ -390,12 +463,22 @@ export const DebtsOverviewPage: React.FC = () => {
 
 	const applyFilters = () => {
 		// Filter parametrelerini sayfalama parametreleriyle birleştir
-		const combinedParams = {
+		const combinedParams: any = {
 			...filterParams,
 			pageNumber: 0, // Filter uygulandığında ilk sayfaya dön
 			pageSize: pageParams.pageSize,
 			columnName: pageParams.columnName,
 			asc: pageParams.asc
+		}
+
+		// Tutar alanlarını backend uyumlu sayıya çevir (virgül/nokta normalize)
+		if (combinedParams.minAmount !== undefined) {
+			const v = parseCurrencyToNumber(combinedParams.minAmount)
+			combinedParams.minAmount = v === undefined || v === 0 ? undefined : v
+		}
+		if (combinedParams.maxAmount !== undefined) {
+			const v = parseCurrencyToNumber(combinedParams.maxAmount)
+			combinedParams.maxAmount = v === undefined || v === 0 ? undefined : v
 		}
 		
 		// Boş değerleri temizle
@@ -415,13 +498,9 @@ export const DebtsOverviewPage: React.FC = () => {
 			if (k === 'maxInstallmentCount' && combinedParams[k] === 0) {
 				delete combinedParams[k]
 			}
-			// minAmount ve maxAmount için özel kontrol
-			if (k === 'minAmount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
-			if (k === 'maxAmount' && combinedParams[k] === 0) {
-				delete combinedParams[k]
-			}
+			// minAmount ve maxAmount için 0 değerlerini gönderme
+			if (k === 'minAmount' && combinedParams[k] === 0) delete combinedParams[k]
+			if (k === 'maxAmount' && combinedParams[k] === 0) delete combinedParams[k]
 		})
 
 		// Uygulanan filtre özetini güncelle (sadece temizlenmiş parametrelerle)
@@ -429,10 +508,13 @@ export const DebtsOverviewPage: React.FC = () => {
 		
 		setPageParams(combinedParams)
 		setFilterModalOpen(false)
+		
+		// URL'yi güncelle
+		syncFiltersToURL(combinedParams)
 	}
 
 	const clearFilters = () => {
-		setFilterParams({
+		const defaultFilters = {
 			pageNumber: 0,
 			pageSize: 10,
 			columnName: 'id',
@@ -447,7 +529,10 @@ export const DebtsOverviewPage: React.FC = () => {
 			startDate: '',
 			endDate: '',
 			types: undefined
-		})
+		}
+		
+		setFilterParams(defaultFilters)
+		setAppliedFilters(defaultFilters)
 		
 		// Sayfalama parametrelerini de sıfırla
 		setPageParams({
@@ -456,6 +541,9 @@ export const DebtsOverviewPage: React.FC = () => {
 			columnName: 'id',
 			asc: false
 		})
+		
+		// URL'yi temizle
+		syncFiltersToURL(defaultFilters)
 	}
 
 	const hasActiveFilters = () => {
@@ -463,8 +551,8 @@ export const DebtsOverviewPage: React.FC = () => {
 		const hasName = filterParams.name && filterParams.name.trim() !== ''
 		const hasAccountIds = filterParams.accountIds && filterParams.accountIds.length > 0
 		const hasContactIds = filterParams.contactIds && filterParams.contactIds.length > 0
-		const hasMinAmount = filterParams.minAmount && filterParams.minAmount > 0
-		const hasMaxAmount = filterParams.maxAmount && filterParams.maxAmount > 0
+		const hasMinAmount = !!parseCurrencyToNumber(filterParams.minAmount as any)
+		const hasMaxAmount = !!parseCurrencyToNumber(filterParams.maxAmount as any)
 		const hasMinInstallmentCount = filterParams.minInstallmentCount && filterParams.minInstallmentCount > 0
 		const hasMaxInstallmentCount = filterParams.maxInstallmentCount && filterParams.maxInstallmentCount > 0
 		const hasStartDate = filterParams.startDate && filterParams.startDate.trim() !== ''
@@ -480,8 +568,8 @@ export const DebtsOverviewPage: React.FC = () => {
 		const hasName = appliedFilters.name && appliedFilters.name.trim() !== ''
 		const hasAccountIds = appliedFilters.accountIds && appliedFilters.accountIds.length > 0
 		const hasContactIds = appliedFilters.contactIds && appliedFilters.contactIds.length > 0
-		const hasMinAmount = appliedFilters.minAmount && appliedFilters.minAmount > 0
-		const hasMaxAmount = appliedFilters.maxAmount && appliedFilters.maxAmount > 0
+		const hasMinAmount = typeof appliedFilters.minAmount === 'number' && appliedFilters.minAmount > 0
+		const hasMaxAmount = typeof appliedFilters.maxAmount === 'number' && appliedFilters.maxAmount > 0
 		const hasMinInstallmentCount = appliedFilters.minInstallmentCount && appliedFilters.minInstallmentCount > 0
 		const hasMaxInstallmentCount = appliedFilters.maxInstallmentCount && appliedFilters.maxInstallmentCount > 0
 		const hasStartDate = appliedFilters.startDate && appliedFilters.startDate.trim() !== ''
@@ -519,6 +607,9 @@ export const DebtsOverviewPage: React.FC = () => {
 			delete refreshedParams[key]
 		}
 		setPageParams(refreshedParams)
+		
+		// URL'yi güncelle
+		syncFiltersToURL({ ...nextApplied, ...refreshedParams })
 	}
 
 	// Çoklu seçimli filtrelerden tek bir öğeyi kaldır (hesap, kişi, tür)
@@ -550,34 +641,44 @@ export const DebtsOverviewPage: React.FC = () => {
 			delete refreshedParams[key]
 		}
 		setPageParams(refreshedParams)
+		
+		// URL'yi güncelle
+		syncFiltersToURL({ ...nextApplied, ...refreshedParams })
 	}
-
-	// Label yardımcıları
-	const getAccountLabelById = (id: number) => accounts.find((a: any) => a.id === id)?.name || `#${id}`
-	const getContactLabelById = (id: number) => (id === 0 ? t('filters.noContact') : (contacts.find((c: any) => c.id === id)?.fullName || `#${id}`))
 
 	// Table bileşeninden gelen sıralama işlevi (sayfalama için)
 	const handleSort = (columnName: string, asc: boolean) => {
-	setPageParams(prev => ({ ...prev, columnName, asc, pageNumber: 0 }))
+		const newParams = { ...pageParams, columnName, asc, pageNumber: 0 }
+		setPageParams(newParams)
+		// URL'yi güncelle
+		syncFiltersToURL({ ...appliedFilters, ...newParams })
 	}
 
 	// Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
 	const handleSortClick = (columnName: string) => {
-	setPageParams(prev => {
-		// Eğer aynı sütuna tıklanıyorsa
-		if (prev.columnName === columnName) {
-			if (prev.asc === true) {
-				// ASC -> DESC
-				return { ...prev, asc: false }
-			} else if (prev.asc === false) {
-				// DESC -> Default (id, DESC)
-				return { ...prev, columnName: 'id', asc: false, pageNumber: 0 }
+		setPageParams(prev => {
+			let newParams: SortablePageRequest
+			// Eğer aynı sütuna tıklanıyorsa
+			if (prev.columnName === columnName) {
+				if (prev.asc === true) {
+					// ASC -> DESC
+					newParams = { ...prev, asc: false }
+				} else if (prev.asc === false) {
+					// DESC -> Default (id, DESC)
+					newParams = { ...prev, columnName: 'id', asc: false, pageNumber: 0 }
+				} else {
+					// Bu duruma düşmemesi gerekir ama güvenlik için
+					newParams = { ...prev, columnName, asc: true, pageNumber: 0 }
+				}
+			} else {
+				// Farklı sütuna tıklanıyorsa -> ASC
+				newParams = { ...prev, columnName, asc: true, pageNumber: 0 }
 			}
-		}
-		
-		// Farklı sütuna tıklanıyorsa -> ASC
-		return { ...prev, columnName, asc: true, pageNumber: 0 }
-	})
+			
+			// URL'yi güncelle
+			syncFiltersToURL({ ...appliedFilters, ...newParams })
+			return newParams
+		})
 	}
 
 	// Sıralama durumunu göster
@@ -592,6 +693,22 @@ export const DebtsOverviewPage: React.FC = () => {
 	}
 
 	const columns = [
+		// Status sütununu başa al - sadece tek bir status sütunu olmalı
+		columnHelper.accessor('status', {
+			header: () => (
+				<button
+					onClick={() => handleSortClick('status')}
+					className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
+				>
+					{t('table.columns.status')}
+					{getSortIndicator('status')}
+				</button>
+			),
+			cell: (info) => <StatusBadge status={info.getValue() as TransactionStatus} />,
+			meta: {
+				className: 'min-w-[100px]'
+			}
+		}),
 	columnHelper.accessor('name', {
 		header: () => (
 			<button
@@ -734,21 +851,6 @@ export const DebtsOverviewPage: React.FC = () => {
 			className: 'min-w-[120px] text-right'
 		}
 	}),
-	columnHelper.accessor('status', {
-		header: () => (
-			<button
-				onClick={() => handleSortClick('status')}
-				className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
-			>
-				{t('table.columns.status')}
-				{getSortIndicator('status')}
-			</button>
-		),
-		cell: (info) => <StatusBadge status={info.getValue() as TransactionStatus} />,
-		meta: {
-			className: 'min-w-[100px]'
-		}
-	}),
 	columnHelper.display({
 		id: 'actions',
 		header: t('table.columns.actions'),
@@ -808,7 +910,7 @@ export const DebtsOverviewPage: React.FC = () => {
 			setErrors({})
 			setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
 			setModalOpen(false)
-			showToast(t('messages.transactionCreated'), 'success')
+			// showToast(t('messages.transactionCreated'), 'success') // Removed useToast
 		}
 	} catch (error) {
 		// Hata durumunda modal açık kalır, kullanıcı düzeltebilir
@@ -833,9 +935,16 @@ export const DebtsOverviewPage: React.FC = () => {
 			})
 			setErrors(mapped)
 		}
-		showToast(errorMessage, 'error')
+		// showToast(errorMessage, 'error') // Removed useToast
 	}
 	}
+
+	const accountIdToName = useMemo(() => Object.fromEntries(accounts.map((a: any) => [a.id, a.name])), [accounts])
+	const contactIdToName = useMemo(() => Object.fromEntries(contacts.map((c: any) => [c.id, c.fullName])), [contacts])
+
+	const handleRemoveKey = (key: any) => removeAppliedFilter(key as keyof TransactionDTOs.TransactionFilterRequest)
+
+	const isLoading = accountsLoading || contactsLoading || transactionsLoading
 
 	return (
 	<div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
@@ -883,173 +992,18 @@ export const DebtsOverviewPage: React.FC = () => {
 
 			{/* Uygulanan Akıllı Filtre Özeti - Tablo üstünde göster */}
 			{hasAppliedActiveFilters() && (
-				<div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-					<div className="flex items-center gap-2 mb-2">
-						<svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-						<h4 className="font-medium text-blue-800 dark:text-blue-300">{t('filters.activeFiltersSummary')}</h4>
-					</div>
-					<div className="flex flex-wrap gap-2">
-						{appliedFilters.name && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.name')}: {appliedFilters.name}
-								<button type="button" onClick={() => removeAppliedFilter('name')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.accountIds && appliedFilters.accountIds.length > 0 && (
-							<div className="inline-flex flex-col gap-1">
-								<span
-									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
-									role="button"
-									aria-expanded={expandedGroups.accountIds}
-									tabIndex={0}
-									onClick={() => setExpandedGroups((g) => ({ ...g, accountIds: !g.accountIds }))}
-									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, accountIds: !g.accountIds })) } }}
-								>
-									<span className="text-xs">{expandedGroups.accountIds ? '▾' : '▸'}</span>
-									{t('table.columns.account')}: {appliedFilters.accountIds.length} {t('filters.selected')}
-									<button
-										type="button"
-										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('accountIds') }}
-										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
-									>
-										×
-									</button>
-								</span>
-								{expandedGroups.accountIds && (
-									<div className="mt-1 flex flex-wrap gap-1">
-										{appliedFilters.accountIds.map((id) => (
-											<span key={`acc-${id}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
-												{getAccountLabelById(id as number)}
-												<button type="button" onClick={() => removeAppliedFilterItem('accountIds', id)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-											</span>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-						{appliedFilters.contactIds && appliedFilters.contactIds.length > 0 && (
-							<div className="inline-flex flex-col gap-1">
-								<span
-									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
-									role="button"
-									aria-expanded={expandedGroups.contactIds}
-									tabIndex={0}
-									onClick={() => setExpandedGroups((g) => ({ ...g, contactIds: !g.contactIds }))}
-									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, contactIds: !g.contactIds })) } }}
-								>
-									<span className="text-xs">{expandedGroups.contactIds ? '▾' : '▸'}</span>
-									{t('table.columns.contact')}: {appliedFilters.contactIds.length} {t('filters.selected')}
-									<button
-										type="button"
-										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('contactIds') }}
-										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
-									>
-										×
-									</button>
-								</span>
-								{expandedGroups.contactIds && (
-									<div className="mt-1 flex flex-wrap gap-1">
-										{appliedFilters.contactIds.map((id) => (
-											<span key={`contact-${id}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
-												{getContactLabelById(id as number)}
-												<button type="button" onClick={() => removeAppliedFilterItem('contactIds', id)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-											</span>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-						{appliedFilters.types && appliedFilters.types.length > 0 && (
-							<div className="inline-flex flex-col gap-1">
-								<span
-									className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
-									role="button"
-									aria-expanded={expandedGroups.types}
-									tabIndex={0}
-									onClick={() => setExpandedGroups((g) => ({ ...g, types: !g.types }))}
-									onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedGroups((g) => ({ ...g, types: !g.types })) } }}
-								>
-									<span className="text-xs">{expandedGroups.types ? '▾' : '▸'}</span>
-									{t('table.columns.type')}: {appliedFilters.types.length} {t('filters.selected')}
-									<button
-										type="button"
-										onClick={(e) => { e.stopPropagation(); removeAppliedFilter('types') }}
-										className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center"
-									>
-										×
-									</button>
-								</span>
-								{expandedGroups.types && (
-									<div className="mt-1 flex flex-wrap gap-1">
-										{appliedFilters.types.map((ty) => (
-											<span key={`type-${ty}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
-												{getTransactionTypeText(String(ty))}
-												<button type="button" onClick={() => removeAppliedFilterItem('types', ty)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-											</span>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-						{appliedFilters.minAmount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.minAmount')}: ₺{appliedFilters.minAmount}
-								<button type="button" onClick={() => removeAppliedFilter('minAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.maxAmount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.maxAmount')}: ₺{appliedFilters.maxAmount}
-								<button type="button" onClick={() => removeAppliedFilter('maxAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.minInstallmentCount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.minInstallmentCount')}: {appliedFilters.minInstallmentCount}
-								<button type="button" onClick={() => removeAppliedFilter('minInstallmentCount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.maxInstallmentCount && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.maxInstallmentCount')}: {appliedFilters.maxInstallmentCount}
-								<button type="button" onClick={() => removeAppliedFilter('maxInstallmentCount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.startDate && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.startDate')}: {appliedFilters.startDate}
-								<button type="button" onClick={() => removeAppliedFilter('startDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-						{appliedFilters.endDate && (
-							<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
-								{t('filters.endDate')}: {appliedFilters.endDate}
-								<button type="button" onClick={() => removeAppliedFilter('endDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
-							</span>
-						)}
-					</div>
-				</div>
+				<FilterChips
+					appliedFilters={appliedFilters}
+					onRemoveKey={handleRemoveKey}
+					onRemoveItem={removeAppliedFilterItem}
+					accountIdToName={accountIdToName}
+					contactIdToName={contactIdToName}
+					getTypeLabel={(v) => getTransactionTypeText(String(v))}
+				/>
 			)}
 
-			{/* Sıralama Durumu Bilgisi
-			{pageParams.columnName !== 'id' && (
-				<div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-					<div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
-						<span className="font-medium">Sıralama:</span>
-						<span className="capitalize">{pageParams.columnName}</span>
-						<span className="font-bold">
-							{pageParams.asc ? '↑ Artan' : '↓ Azalan'}
-						</span>
-						<span className="text-blue-600 dark:text-blue-400">•</span>
-						<span>Bir kez daha tıklayarak varsayılan sıralamaya dön</span>
-					</div>
-				</div>
-			)} */}
-
 			{isLoading ? (
-										<TableSkeleton columns={9} rows={5} />
+										<TableSkeleton columns={8} rows={5} />
 			) : (
 				<Table 
 					data={debts} 

@@ -101,16 +101,22 @@ export const Toast: React.FC<ToastProps> = ({
       <div className={`
         flex flex-col rounded-lg shadow-2xl border-2 overflow-hidden 
         ${getToastStyles()} 
-        min-w-[350px] max-w-[450px]
+        min-w-[350px] max-w-[600px]
       `}>
         {/* Toast Content */}
-        <div className="flex items-center gap-3 px-4 py-3">
-          <span className="text-lg flex-shrink-0">{getIcon()}</span>
-          <span className="flex-1 text-sm font-medium break-words">{message}</span>
+        <div className="flex items-start gap-3 px-4 py-3">
+          <span className="text-lg flex-shrink-0 mt-0.5">{getIcon()}</span>
+          <div className="flex-1 text-sm font-medium break-words">
+            {message.split('\n').map((line, index) => (
+              <div key={index} className={index > 0 ? 'mt-2' : ''}>
+                {line}
+              </div>
+            ))}
+          </div>
           <Button
             onClick={handleClose}
             variant="secondary"
-            className="text-white/80 hover:text-white text-lg font-bold transition-colors duration-200 hover:scale-110 flex-shrink-0 bg-transparent border-none hover:bg-transparent p-0 min-w-0 h-auto"
+            className="text-white/80 hover:text-white text-lg font-bold transition-colors duration-200 hover:scale-110 flex-shrink-0 bg-transparent border-none hover:bg-transparent p-0 min-w-0 h-auto mt-0.5"
             aria-label="Toast'u kapat"
           >
             ×

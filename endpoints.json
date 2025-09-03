@@ -400,7 +400,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TransactionFilterRequest"
+              "$ref": "#/components/schemas/TransactionFilterRequestDto"
             }
           }
         ],
@@ -480,7 +480,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SortablePageRequest"
+              "$ref": "#/components/schemas/ContactFilterRequestDto"
             }
           }
         ],
@@ -836,7 +836,7 @@
           }
         }
       },
-      "TransactionFilterRequest": {
+      "TransactionFilterRequestDto": {
         "type": "object",
         "properties": {
           "pageNumber": {
@@ -1112,6 +1112,31 @@
               "PAYMENT",
               "COLLECTION"
             ]
+          }
+        }
+      },
+      "ContactFilterRequestDto": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
+            "type": "boolean"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
           }
         }
       },
