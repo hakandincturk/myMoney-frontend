@@ -9,6 +9,7 @@ import { CommonTypes } from '../types'
 type SortablePageRequest = InstallmentDTOs.SortablePageRequest
 type PagedResponse<T> = InstallmentDTOs.PagedResponse<T>
 type ListItem = InstallmentDTOs.ListItem
+type FilterRequest = InstallmentDTOs.FilterRequest
 type ApiResponse<T> = CommonTypes.ApiResponse<T>
 
 export const installmentApi = createApi({
@@ -16,10 +17,10 @@ export const installmentApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Installment'],
   endpoints: (build) => ({
-    listMonthlyInstallments: build.query<ApiResponse<PagedResponse<ListItem>>, { month: number; year: number; pageData: SortablePageRequest }>({
-      query: ({ month, year, pageData }) => ({ 
-        url: ApiUrl.INSTALLMENT_MONTH.toString().replace('{month}', month.toString()).replace('{year}', year.toString()),
-        params: pageData
+    listMonthlyInstallments: build.query<ApiResponse<PagedResponse<ListItem>>, FilterRequest>({
+      query: (filterData) => ({ 
+        url: ApiUrl.INSTALLMENT_MONTH.toString(),
+        params: filterData
       }),
       providesTags: (result) =>
         result

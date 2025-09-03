@@ -418,7 +418,7 @@
         }
       }
     },
-    "/api/installment/month/{month}/{year}": {
+    "/api/installment/month": {
       "get": {
         "tags": [
           "Installment"
@@ -428,29 +428,11 @@
         "operationId": "listMySpecisifDateInstallments",
         "parameters": [
           {
-            "name": "month",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "year",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
             "name": "pageData",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SortablePageRequest"
+              "$ref": "#/components/schemas/FilterListMyInstallmentRequestDto"
             }
           }
         ],
@@ -991,7 +973,7 @@
           }
         }
       },
-      "SortablePageRequest": {
+      "FilterListMyInstallmentRequestDto": {
         "type": "object",
         "properties": {
           "pageNumber": {
@@ -1007,6 +989,40 @@
           },
           "asc": {
             "type": "boolean"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "minTotalAmount": {
+            "type": "number"
+          },
+          "maxTotalAmount": {
+            "type": "number"
+          },
+          "isPaid": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "paidStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "paidEndDate": {
+            "type": "string",
+            "format": "date"
           }
         }
       },
@@ -1202,6 +1218,25 @@
             "type": "boolean"
           },
           "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SortablePageRequest": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
             "type": "boolean"
           }
         }

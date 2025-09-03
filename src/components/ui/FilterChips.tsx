@@ -33,7 +33,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 	getTypeLabel,
 }) => {
 	const { t } = useTranslation()
-	const [expanded, setExpanded] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean }>({ accountIds: false, contactIds: false, types: false })
+	const [expanded, setExpanded] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean; isPaid: boolean }>({ accountIds: false, contactIds: false, types: false, isPaid: false })
 
 	const hasApplied = useMemo(() => {
 		const hasName = appliedFilters.name && appliedFilters.name.trim() !== ''
@@ -48,9 +48,18 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 		const hasStartDate = appliedFilters.startDate && appliedFilters.startDate.trim() !== ''
 		const hasEndDate = appliedFilters.endDate && appliedFilters.endDate.trim() !== ''
 		const hasTypes = appliedFilters.types && appliedFilters.types.length > 0
+		// InstallmentsPage özel alanları
+		const hasTransactionName = appliedFilters.transactionName && appliedFilters.transactionName.trim() !== ''
+		const hasDescription = appliedFilters.description && appliedFilters.description.trim() !== ''
+		const hasMinTotalAmount = typeof appliedFilters.minTotalAmount === 'number' && appliedFilters.minTotalAmount > 0
+		const hasMaxTotalAmount = typeof appliedFilters.maxTotalAmount === 'number' && appliedFilters.maxTotalAmount > 0
+		const hasIsPaid = appliedFilters.isPaid && appliedFilters.isPaid.length > 0
+		const hasPaidStartDate = appliedFilters.paidStartDate && appliedFilters.paidStartDate.trim() !== ''
+		const hasPaidEndDate = appliedFilters.paidEndDate && appliedFilters.paidEndDate.trim() !== ''
 		return (
 			hasName || hasFullName || hasNote || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount ||
-			hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes
+			hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes ||
+			hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid || hasPaidStartDate || hasPaidEndDate
 		)
 	}, [appliedFilters])
 
@@ -69,6 +78,77 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 				<h4 className="font-medium text-blue-800 dark:text-blue-300">{t('filters.activeFiltersSummary')}</h4>
 			</div>
 			<div className="flex flex-wrap gap-2">
+				{/* Installments filters: transactionName */}
+				{appliedFilters.transactionName && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.transactionName')}: {appliedFilters.transactionName}
+						<button type="button" onClick={() => onRemoveKey('transactionName')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
+
+				{/* Installments filters: description */}
+				{appliedFilters.description && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.description')}: {appliedFilters.description}
+						<button type="button" onClick={() => onRemoveKey('description')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
+
+				{/* Installments filters: min/max total amount */}
+				{typeof appliedFilters.minTotalAmount === 'number' && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.minTotalAmount')}: ₺{Number(appliedFilters.minTotalAmount).toLocaleString('tr-TR')}
+						<button type="button" onClick={() => onRemoveKey('minTotalAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
+				{typeof appliedFilters.maxTotalAmount === 'number' && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.maxTotalAmount')}: ₺{Number(appliedFilters.maxTotalAmount).toLocaleString('tr-TR')}
+						<button type="button" onClick={() => onRemoveKey('maxTotalAmount')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
+
+				{/* Installments filters: isPaid (multi grouped) */}
+				{appliedFilters.isPaid && Array.isArray(appliedFilters.isPaid) && appliedFilters.isPaid.length > 0 && (
+					<div className="inline-flex flex-col gap-1">
+						<span
+							className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
+							role="button"
+							aria-expanded={expanded.isPaid}
+							tabIndex={0}
+							onClick={() => setExpanded((g) => ({ ...g, isPaid: !g.isPaid }))}
+							onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((g) => ({ ...g, isPaid: !g.isPaid })) } }}
+						>
+							<span className="text-xs">{expanded.isPaid ? '▾' : '▸'}</span>
+							{t('filters.paymentStatus')}: {appliedFilters.isPaid.length} {t('filters.selected')}
+							<button type="button" onClick={(e) => { e.stopPropagation(); onRemoveKey('isPaid') }} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+						</span>
+						{expanded.isPaid && (
+							<div className="mt-1 flex flex-wrap gap-1">
+								{appliedFilters.isPaid.map((v: boolean, idx: number) => (
+									<span key={`paid-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+										{t(v ? 'status.paid' : 'status.pending')}
+										<button type="button" onClick={() => onRemoveItem('isPaid', v)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+									</span>
+								))}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Installments filters: paid date range */}
+				{appliedFilters.paidStartDate && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.paidStartDate')}: {appliedFilters.paidStartDate}
+						<button type="button" onClick={() => onRemoveKey('paidStartDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
+				{appliedFilters.paidEndDate && (
+					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+						{t('filters.paidEndDate')}: {appliedFilters.paidEndDate}
+						<button type="button" onClick={() => onRemoveKey('paidEndDate')} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+					</span>
+				)}
 				{/* Transaction name filter */}
 				{appliedFilters.name && (
 					<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full">

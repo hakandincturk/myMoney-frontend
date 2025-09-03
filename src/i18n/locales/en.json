@@ -127,7 +127,12 @@
     "selectContact": "Select contact",
     "selectType": "Select type",
     "selectStartDate": "Select start date",
-    "selectEndDate": "Select end date"
+    "selectEndDate": "Select end date",
+    "searchByTransactionName": "Search by transaction name...",
+    "searchByDescription": "Search by description...",
+    "selectPaymentStatus": "Select payment status",
+    "selectPaidStartDate": "Select paid start date",
+    "selectPaidEndDate": "Select paid end date"
   },
   "auth": {
     "login": "Login",
@@ -282,6 +287,14 @@
     "activeFilters": "Active Filters",
     "activeFiltersSummary": "Active Filters Summary",
     "selected": "selected",
-    "noContact": "No Contact Selected"
+    "noContact": "No Contact Selected",
+    "transactionName": "Transaction Name",
+    "description": "Description",
+    "minTotalAmount": "Minimum Amount",
+    "maxTotalAmount": "Maximum Amount",
+    "paymentStatus": "Payment Status",
+    "paidDateFilters": "Payment Date Filters",
+    "paidStartDate": "Payment Start Date",
+    "paidEndDate": "Payment End Date"
   }
 }

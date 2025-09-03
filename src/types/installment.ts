@@ -39,4 +39,21 @@ export namespace InstallmentDTOs {
   export type PayRequest = {
     paidDate: string
   }
+
+  // Aylık taksit filtreleme isteği - endpoints.json FilterListMyInstallmentRequestDto'dan
+  export type FilterRequest = {
+    pageNumber?: number
+    pageSize?: number
+    columnName?: string
+    asc?: boolean
+    month?: number
+    year?: number
+    transactionName?: string
+    description?: string
+    minTotalAmount?: number
+    maxTotalAmount?: number
+    isPaid?: boolean[]
+    paidStartDate?: string
+    paidEndDate?: string
+  }
 }

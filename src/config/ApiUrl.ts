@@ -21,7 +21,7 @@ export enum ApiUrl {
   CONTACT_BY_ID = '/api/contact/{id}',
   
   // Installment endpoints
-  INSTALLMENT_MONTH = '/api/installment/month/{month}/{year}',
+  INSTALLMENT_MONTH = '/api/installment/month',
   INSTALLMENT_PAY = '/api/installment/pay/{id}',
   
   // Auth endpoints

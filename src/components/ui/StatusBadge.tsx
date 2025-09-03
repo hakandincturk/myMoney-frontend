@@ -19,40 +19,26 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = ''
       case TransactionStatus.PAID:
         return t('status.paid')
       default:
-        return status
+        return String(status)
     }
   }
   
-  const getStatusColor = (status: TransactionStatus): string => {
+  const getContainerClasses = (status: TransactionStatus): string => {
     switch (status) {
-      case TransactionStatus.PENDING:
-        return 'text-amber-600'
-      case TransactionStatus.PARTIAL:
-        return 'text-blue-600'
       case TransactionStatus.PAID:
-        return 'text-emerald-600'
-      default:
-        return 'text-gray-600'
-    }
-  }
-  
-  const getStatusBackground = (status: TransactionStatus): string => {
-    switch (status) {
-      case TransactionStatus.PENDING:
-        return 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700'
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-700'
       case TransactionStatus.PARTIAL:
-        return 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
-      case TransactionStatus.PAID:
-        return 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-700'
+        return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+      case TransactionStatus.PENDING:
       default:
-        return 'bg-gray-50 border-gray-200 dark:bg-gray-900/20 dark:border-gray-700'
+        return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
     }
   }
 
   return (
-    <span className={`inline-block w-20 px-3 py-1.5 rounded-lg text-sm font-medium border-2 text-center ${getStatusColor(status)} ${getStatusBackground(status)} ${className}`}>
+    <div className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium w-20 ${getContainerClasses(status)} ${className}`}>
       {getStatusText(status)}
-    </span>
+    </div>
   )
 }
 

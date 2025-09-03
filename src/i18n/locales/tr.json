@@ -231,7 +231,12 @@
     "selectContact": "Kişi seçiniz",
     "selectType": "Tür seçiniz",
     "selectStartDate": "Başlangıç tarihi seçiniz",
-    "selectEndDate": "Bitiş tarihi seçiniz"
+    "selectEndDate": "Bitiş tarihi seçiniz",
+    "searchByTransactionName": "İşlem adına göre ara...",
+    "searchByDescription": "Açıklamaya göre ara...",
+    "selectPaymentStatus": "Ödeme durumu seçiniz",
+    "selectPaidStartDate": "Ödeme başlangıç tarihi seçiniz",
+    "selectPaidEndDate": "Ödeme bitiş tarihi seçiniz"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -292,6 +297,14 @@
     "activeFilters": "Aktif Filtreler",
     "activeFiltersSummary": "Aktif Filtre Özeti",
     "selected": "seçili",
-    "noContact": "Kişi Seçilmemiş"
+    "noContact": "Kişi Seçilmemiş",
+    "transactionName": "İşlem Adı",
+    "description": "Açıklama",
+    "minTotalAmount": "Minimum Tutar",
+    "maxTotalAmount": "Maksimum Tutar",
+    "paymentStatus": "Ödeme Durumu",
+    "paidDateFilters": "Ödeme Tarihi Filtreleri",
+    "paidStartDate": "Ödeme Başlangıç Tarihi",
+    "paidEndDate": "Ödeme Bitiş Tarihi"
   }
 }
