@@ -54,29 +54,14 @@ export const Table = <T extends object>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    // Dışarıdan kontrol edilen sayfalama: tablo kendi kendine sayfayı değiştirmesin
+    manualPagination: true,
+    autoResetPageIndex: false,
     state: {
       pagination: {
         pageIndex: currentPage,
         pageSize: pageSize,
       },
-    },
-    onPaginationChange: (updater) => {
-      if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: currentPage, pageSize: pageSize })
-        if (onPageSizeChange && newState.pageSize !== pageSize) {
-          onPageSizeChange(newState.pageSize)
-        }
-        if (onPageChange && newState.pageIndex !== currentPage) {
-          onPageChange(newState.pageIndex)
-        }
-      } else if (typeof updater === 'object') {
-        if (onPageSizeChange && updater.pageSize && updater.pageSize !== pageSize) {
-          onPageSizeChange(updater.pageSize)
-        }
-        if (onPageChange && updater.pageIndex !== undefined && updater.pageIndex !== currentPage) {
-          onPageChange(updater.pageIndex)
-        }
-      }
     },
   })
 

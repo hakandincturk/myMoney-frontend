@@ -441,15 +441,19 @@ export const DebtsOverviewPage: React.FC = () => {
 	const handlePageChange = (newPage: number) => {
 		const newParams = { ...pageParams, pageNumber: newPage }
 		setPageParams(newParams)
+		const combined = { ...appliedFilters, ...newParams }
+		setAppliedFilters(combined)
 		// URL'yi güncelle
-		syncFiltersToURL({ ...appliedFilters, ...newParams })
+		syncFiltersToURL(combined)
 	}
 
 	const handlePageSizeChange = (newPageSize: number) => {
 		const newParams = { ...pageParams, pageSize: newPageSize, pageNumber: 0 }
 		setPageParams(newParams)
+		const combined = { ...appliedFilters, ...newParams }
+		setAppliedFilters(combined)
 		// URL'yi güncelle
-		syncFiltersToURL({ ...appliedFilters, ...newParams })
+		syncFiltersToURL(combined)
 	}
 
 	// Filter işlemleri
@@ -679,9 +683,10 @@ export const DebtsOverviewPage: React.FC = () => {
 				// Farklı sütuna tıklanıyorsa -> ASC
 				newParams = { ...prev, columnName, asc: true, pageNumber: 0 }
 			}
-			
+			const combined = { ...appliedFilters, ...newParams }
+			setAppliedFilters(combined)
 			// URL'yi güncelle
-			syncFiltersToURL({ ...appliedFilters, ...newParams })
+			syncFiltersToURL(combined)
 			return newParams
 		})
 	}
