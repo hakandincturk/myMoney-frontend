@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { Skeleton, TableSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
 import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation } from '@/services/installmentApi'
 import { InstallmentDTOs } from '../../types/installment'
@@ -361,13 +361,7 @@ export const InstallmentsPage: React.FC = () => {
     syncFiltersToURL(refreshedParams)
   }
 
-  // Table bileşeninden gelen sıralama işlevi
-  const handleSort = (columnName: string, asc: boolean) => {
-    const newParams = { ...appliedFilters, columnName, asc, pageNumber: 0 }
-    setAppliedFilters(newParams)
-    // URL'yi güncelle
-    syncFiltersToURL(newParams)
-  }
+  // Tablo dışı sıralama kaldırıldı; sayfa içi handleSortClick kullanılacak
 
   // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
   const handleSortClick = (columnName: string) => {
@@ -570,20 +564,7 @@ export const InstallmentsPage: React.FC = () => {
   // Yeni API response yapısına göre veriyi al
   const rows: InstallmentRow[] = data?.data?.content || []
 
-  // Para formatını ("3.000,50" gibi) Java/BigDecimal uyumlu sayıya çevir
-  const parseCurrencyToNumber = useCallback((input: any): number | undefined => {
-    if (input === undefined || input === null) return undefined
-    if (typeof input === 'number') return input
-    if (typeof input === 'string') {
-      const normalized = input
-        .replace(/\./g, '') // binlik ayıracı kaldır
-        .replace(/,/g, '.') // ondalığı noktaya çevir
-        .replace(/[^0-9.\-]/g, '') // kalan harf/simge temizle
-      const num = Number(normalized)
-      return isNaN(num) ? undefined : num
-    }
-    return undefined
-  }, [])
+  
 
   const handleRemoveKey = (key: any) => removeAppliedFilter(key as keyof FilterRequest)
 
@@ -703,9 +684,7 @@ export const InstallmentsPage: React.FC = () => {
           totalRecords={data?.data?.totalElements || 0}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          onSort={handleSort}
-            sortColumn={appliedFilters.columnName}
-            sortDirection={appliedFilters.asc ? 'asc' : 'desc'}
+          
           isFirstPage={data?.data?.first}
           isLastPage={data?.data?.last}
         />

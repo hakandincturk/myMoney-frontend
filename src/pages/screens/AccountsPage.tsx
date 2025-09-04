@@ -4,7 +4,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
-import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton } from '@/components/ui/Skeleton'
 import { AccountType, CurrencyType, useCreateAccountMutation, useListMyActiveAccountsQuery, useUpdateMyAccountMutation } from '@/services/accountApi'
 import { AccountDTOs } from '../../types'
 import { AccountHelpers } from '../../types'
@@ -62,10 +62,6 @@ export const AccountsPage: React.FC = () => {
     setPageParams((prev: SortablePageRequest) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
   }
 
-  // Table bileşeninden gelen sıralama işlevi (sayfalama için)
-  const handleSort = (columnName: string, asc: boolean) => {
-    setPageParams((prev: SortablePageRequest) => ({ ...prev, columnName, asc, pageNumber: 0 }))
-  }
 
   // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
   const handleSortClick = (columnName: string) => {
@@ -324,9 +320,6 @@ export const AccountsPage: React.FC = () => {
             totalRecords={data?.data?.totalElements || 0}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
-            onSort={handleSort}
-            sortColumn={pageParams.columnName}
-            sortDirection={pageParams.asc ? 'asc' : 'desc'}
             isFirstPage={data?.data?.first}
             isLastPage={data?.data?.last}
           />

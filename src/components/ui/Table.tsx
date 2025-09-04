@@ -4,7 +4,6 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
-  createColumnHelper,
   ColumnDef,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/Button'
@@ -13,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 type TableProps<T> = {
   data: T[]
-  columns: any[]
+  columns: ColumnDef<T, any>[]
   className?: string
   title?: string
   showPagination?: boolean

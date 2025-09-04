@@ -4,9 +4,9 @@ import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation, SortablePageRequest, ContactFilterRequestDto } from '@/services/contactApi'
+import { useCreateContactMutation, useDeleteContactMutation, useListMyActiveContactsQuery, useUpdateMyContactMutation, SortablePageRequest, ContactFilterRequestDto, ListMyContactsResponseDto } from '@/services/contactApi'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
@@ -137,13 +137,7 @@ export const ContactsPage: React.FC = () => {
     syncFiltersToURL({ ...appliedFilters, ...newParams })
   }
 
-  // Table bileşeninden gelen sıralama işlevi (sayfalama için)
-  const handleSort = (columnName: string, asc: boolean) => {
-    const newParams = { ...pageParams, columnName, asc, pageNumber: 0 }
-    setPageParams(newParams)
-    // URL'yi güncelle
-    syncFiltersToURL({ ...appliedFilters, ...newParams })
-  }
+  // Table'dan dış sıralama kaldırıldı; sayfa içi handleSortClick kullanılacak
 
   // Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
   const handleSortClick = (columnName: string) => {
@@ -288,10 +282,11 @@ export const ContactsPage: React.FC = () => {
   const contacts = useMemo(() => {
     if (!data?.data?.content) return []
     
-    return data.data.content.map(contact => ({
+    const list: ListMyContactsResponseDto[] = data.data.content
+    return list.map((contact) => ({
       ...contact,
       onEdit: (id: number) => {
-        const c = data.data.content.find((x: any) => x.id === id)
+        const c = list.find((x) => x.id === id)
         if (c) {
           setForm({ id: c.id, fullName: c.fullName, note: c.note })
           setOpen(true)
@@ -459,9 +454,6 @@ export const ContactsPage: React.FC = () => {
             totalRecords={data?.data?.totalElements || 0}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
-            onSort={handleSort}
-            sortColumn={pageParams.columnName}
-            sortDirection={pageParams.asc ? 'asc' : 'desc'}
             isFirstPage={data?.data?.first}
             isLastPage={data?.data?.last}
           />

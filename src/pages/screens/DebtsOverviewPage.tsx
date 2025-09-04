@@ -7,10 +7,11 @@ import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { Skeleton, TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
 import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, useListTransactionInstallmentsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
 import { usePayInstallmentMutation } from '@/services/installmentApi'
-import { TransactionHelpers, TransactionDTOs } from '../../types'
+import { TransactionHelpers, TransactionDTOs, AccountDTOs } from '../../types'
+import type { ListMyContactsResponseDto } from '@/services/contactApi'
 
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { useListMyActiveContactsQuery, SortablePageRequest as ContactSortablePageRequest } from '@/services/contactApi'
@@ -124,12 +125,12 @@ export const DebtsOverviewPage: React.FC = () => {
 
 	// Infinity scroll için account state
 	const [accountPage, setAccountPage] = useState(0)
-	const [allAccounts, setAllAccounts] = useState<any[]>([])
+	const [allAccounts, setAllAccounts] = useState<AccountDTOs.ListItem[]>([])
 	const [hasMoreAccounts, setHasMoreAccounts] = useState(true)
 
 	// Infinity scroll için contact state
 	const [contactPage, setContactPage] = useState(0)
-	const [allContacts, setAllContacts] = useState<any[]>([])
+	const [allContacts, setAllContacts] = useState<ListMyContactsResponseDto[]>([])
 	const [hasMoreContacts, setHasMoreContacts] = useState(true)
 
 	const { data: accountsData, isLoading: accountsLoading, refetch: refetchAccounts } = useListMyActiveAccountsQuery({
@@ -248,7 +249,7 @@ export const DebtsOverviewPage: React.FC = () => {
 	
 	// Ödeme modalı için state'ler
 	const [paymentModalOpen, setPaymentModalOpen] = useState(false)
-	const [selectedInstallment, setSelectedInstallment] = useState<any>(null)
+	const [selectedInstallment, setSelectedInstallment] = useState<TransactionInstallmentRow | null>(null)
 	const [paymentDate, setPaymentDate] = useState('')
 	  const selectedTransactionId = selectedTransaction?.id ?? 0
   	const { data: installmentsData, isLoading: installmentsLoading, refetch: refetchInstallments } = useListTransactionInstallmentsQuery(selectedTransactionId, { 
@@ -260,7 +261,16 @@ export const DebtsOverviewPage: React.FC = () => {
   const [payInstallment] = usePayInstallmentMutation()
   
   // Taksit verilerini manuel olarak yönet
-  const [currentInstallments, setCurrentInstallments] = useState<any[]>([])
+  type TransactionInstallmentRow = {
+    id: number
+    amount: number
+    debtDate: string
+    installmentNumber: number
+    descripton?: string
+    paidDate?: string
+    paid: boolean
+  }
+  const [currentInstallments, setCurrentInstallments] = useState<TransactionInstallmentRow[]>([])
   const [currentInstallmentsLoading, setCurrentInstallmentsLoading] = useState(false)
 	const [form, setForm] = useState({
 		accountId: undefined as number | undefined,
@@ -384,7 +394,7 @@ export const DebtsOverviewPage: React.FC = () => {
 	}
 
 	// Ödeme modalını aç
-	const openPaymentModal = (installment: any) => {
+	const openPaymentModal = (installment: TransactionInstallmentRow) => {
 		setSelectedInstallment(installment)
 		setPaymentDate(today)
 		setPaymentModalOpen(true)
@@ -648,13 +658,6 @@ export const DebtsOverviewPage: React.FC = () => {
 		syncFiltersToURL({ ...nextApplied, ...refreshedParams })
 	}
 
-	// Table bileşeninden gelen sıralama işlevi (sayfalama için)
-	const handleSort = (columnName: string, asc: boolean) => {
-		const newParams = { ...pageParams, columnName, asc, pageNumber: 0 }
-		setPageParams(newParams)
-		// URL'yi güncelle
-		syncFiltersToURL({ ...appliedFilters, ...newParams })
-	}
 
 	// Sütun sıralama - 3 aşamalı: ASC -> DESC -> Default (id, DESC)
 	const handleSortClick = (columnName: string) => {
@@ -941,8 +944,8 @@ export const DebtsOverviewPage: React.FC = () => {
 	}
 	}
 
-	const accountIdToName = useMemo(() => Object.fromEntries(accounts.map((a: any) => [a.id, a.name])), [accounts])
-	const contactIdToName = useMemo(() => Object.fromEntries(contacts.map((c: any) => [c.id, c.fullName])), [contacts])
+	const accountIdToName = useMemo(() => Object.fromEntries(accounts.map((a) => [a.id, a.name])), [accounts])
+	const contactIdToName = useMemo(() => Object.fromEntries(contacts.map((c) => [c.id, c.fullName])), [contacts])
 
 	const handleRemoveKey = (key: any) => removeAppliedFilter(key as keyof TransactionDTOs.TransactionFilterRequest)
 
@@ -1018,9 +1021,6 @@ export const DebtsOverviewPage: React.FC = () => {
 					totalRecords={transactionsData?.data?.totalElements || 0}
 					onPageChange={handlePageChange}
 					onPageSizeChange={handlePageSizeChange}
-					onSort={handleSort}
-					sortColumn={pageParams.columnName}
-					sortDirection={pageParams.asc ? 'asc' : 'desc'}
 					isFirstPage={transactionsData?.data?.first}
 					isLastPage={transactionsData?.data?.last}
 				/>
@@ -1321,7 +1321,7 @@ export const DebtsOverviewPage: React.FC = () => {
 											</tr>
 										</thead>
 										<tbody>
-											{currentInstallments.map((ins: any) => (
+											{currentInstallments.map((ins) => (
 												<tr 
 													key={ins.id} 
 													className={`border-t border-slate-100 dark:border-mm-border transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
