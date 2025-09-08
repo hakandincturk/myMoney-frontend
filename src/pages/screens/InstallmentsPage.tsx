@@ -27,6 +27,22 @@ export const InstallmentsPage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
 
+  // Son seçilen ay/yıl bilgisini saklamak için storage key
+  const STORAGE_KEY = 'installments:lastMonthYear'
+
+  const getStoredMonthYear = (): { month?: number; year?: number } => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return {}
+      const parsed = JSON.parse(raw)
+      const month = typeof parsed?.month === 'number' ? parsed.month : undefined
+      const year = typeof parsed?.year === 'number' ? parsed.year : undefined
+      return { month, year }
+    } catch (_) {
+      return {}
+    }
+  }
+
   // URL'den filtreleri oku
   const loadFiltersFromURL = useCallback((): FilterRequest => {
     const params = new URLSearchParams(searchParams)
@@ -80,11 +96,12 @@ export const InstallmentsPage: React.FC = () => {
   // Filter parametreleri - URL'den yüklenecek
   const [filterParams, setFilterParams] = useState<FilterRequest>(() => {
     const urlFilters = loadFiltersFromURL()
+    const stored = getStoredMonthYear()
     // Eğer ay/yıl URL'de yoksa varsayılan değerleri kullan
     return {
       ...urlFilters,
-      month: urlFilters.month || defaultMonth,
-      year: urlFilters.year || defaultYear
+      month: urlFilters.month || stored.month || defaultMonth,
+      year: urlFilters.year || stored.year || defaultYear
     }
   })
 
@@ -94,24 +111,35 @@ export const InstallmentsPage: React.FC = () => {
   // Uygulanan filtreler state'i (tablo üstünde gösterilecek) - URL'den yüklenecek
   const [appliedFilters, setAppliedFilters] = useState<FilterRequest>(() => {
     const urlFilters = loadFiltersFromURL()
+    const stored = getStoredMonthYear()
     return {
       ...urlFilters,
-      month: urlFilters.month || defaultMonth,
-      year: urlFilters.year || defaultYear
+      month: urlFilters.month || stored.month || defaultMonth,
+      year: urlFilters.year || stored.year || defaultYear
     }
   })
 
   // URL değişikliklerini dinle (geri/ileri butonları için)
   useEffect(() => {
     const urlFilters = loadFiltersFromURL()
+    const stored = getStoredMonthYear()
     const updatedFilters = {
       ...urlFilters,
-      month: urlFilters.month || defaultMonth,
-      year: urlFilters.year || defaultYear
+      month: urlFilters.month || stored.month || defaultMonth,
+      year: urlFilters.year || stored.year || defaultYear
     }
     setFilterParams(updatedFilters)
     setAppliedFilters(updatedFilters)
   }, [loadFiltersFromURL, defaultMonth, defaultYear])
+
+  // Seçilen ay/yıl değiştiğinde localStorage'a yaz
+  useEffect(() => {
+    const month = appliedFilters.month || defaultMonth
+    const year = appliedFilters.year || defaultYear
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ month, year }))
+    } catch (_) {}
+  }, [appliedFilters.month, appliedFilters.year, defaultMonth, defaultYear])
 
   // API hooks
   const { data, isLoading, error } = useListMonthlyInstallmentsQuery(appliedFilters, {

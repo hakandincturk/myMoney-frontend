@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 // Toast gösterimi için App seviyesindeki ToastContainer ile çalışan yardımcı
 import { FilterChips } from '@/components/ui/FilterChips'
+import { AccountType } from '@/enums/account'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
@@ -284,6 +285,34 @@ export const DebtsOverviewPage: React.FC = () => {
 		equalSharingBetweenInstallments: true,
 	})
 	const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
+
+	// Hesap türü kredi kartı ise işlem türlerini (DEBT, PAYMENT) ile sınırla
+	const selectedAccount = useMemo(() => {
+		return accounts.find((a) => a.id === form.accountId)
+	}, [accounts, form.accountId])
+
+	const isCreditCardAccount = selectedAccount?.type === AccountType.CREDIT_CARD
+
+	const typeOptions = useMemo(() => {
+		const all = TransactionHelpers.getTypeOptions(t)
+		return isCreditCardAccount
+			? all.filter((opt) => opt.value === TransactionType.DEBT || opt.value === TransactionType.PAYMENT || opt.value === TransactionType.CREDIT)
+			: all
+	}, [isCreditCardAccount, t])
+
+	const handleAccountChange = useCallback((value: unknown) => {
+		const newAccountId = value as number
+		const acc = accounts.find((a) => a.id === newAccountId)
+		setForm((prev) => {
+			let nextType = prev.type
+			if (acc?.type === AccountType.CREDIT_CARD) {
+				if (nextType !== TransactionType.DEBT && nextType !== TransactionType.PAYMENT && nextType !== TransactionType.CREDIT) {
+					nextType = TransactionType.DEBT
+				}
+			}
+			return { ...prev, accountId: newAccountId, type: nextType }
+		})
+	}, [accounts])
 
 	// Para formatını ("3.000,50" gibi) Java/BigDecimal uyumlu sayıya çevir
 	const parseCurrencyToNumber = useCallback((input: any): number | undefined => {
@@ -1085,7 +1114,7 @@ export const DebtsOverviewPage: React.FC = () => {
 								id="accountId"
 								label="Hesap *"
 								value={form.accountId ?? ''}
-								onChange={(value) => setForm((p) => ({ ...p, accountId: value as number }))}
+								onChange={handleAccountChange}
 								options={accounts.map((a) => ({ value: a.id, label: a.name }))}
 								placeholder="Hesap seçiniz"
 								required
@@ -1172,7 +1201,7 @@ export const DebtsOverviewPage: React.FC = () => {
 								label="İşlem Türü"
 								value={form.type}
 								onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
-								options={TransactionHelpers.getTypeOptions(t)}
+								options={typeOptions}
 								placeholder="İşlem türü seçiniz"
 								required
 								error={errors.type}
