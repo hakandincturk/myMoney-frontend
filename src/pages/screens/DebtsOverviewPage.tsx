@@ -354,6 +354,16 @@ export const DebtsOverviewPage: React.FC = () => {
     }
   }, [installmentsData, selectedTransaction?.id, selectedTransactionId])
 
+  // Aynı işlem detayı tekrar açıldığında da yeniden fetch et
+  useEffect(() => {
+    if (detailModalOpen && selectedTransactionId) {
+      try {
+        setCurrentInstallmentsLoading(true)
+        refetchInstallments()
+      } catch (_) {}
+    }
+  }, [detailModalOpen, selectedTransactionId, refetchInstallments])
+
 	  // İşlem detayını göster
   const showTransactionDetail = (transaction: TransactionListItem) => {
     setSelectedTransaction(transaction)
