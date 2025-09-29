@@ -40,8 +40,8 @@ export const AccountsPage: React.FC = () => {
   })
   
   const { data, isLoading } = useListMyActiveAccountsQuery(pageParams, {
-    // Sadece gerekli olduğunda refetch yap
-    refetchOnMountOrArgChange: false,
+    // Mount olduğunda ve arg değiştiğinde mutlaka refetch yap
+    refetchOnMountOrArgChange: true,
     refetchOnFocus: false,
   })
   

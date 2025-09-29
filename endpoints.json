@@ -442,7 +442,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMySpecisifDateInstallmentsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListMySpecificDateInstallmentsResponseDto"
                 }
               }
             }
@@ -595,6 +595,24 @@
           "totalBalance"
         ]
       },
+      "CreateTransactionCategoryDetail": {
+        "type": "object",
+        "properties": {
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "newCategories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "CreateTransactionRequestDto": {
         "type": "object",
         "properties": {
@@ -637,6 +655,9 @@
           },
           "equalSharingBetweenInstallments": {
             "type": "boolean"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CreateTransactionCategoryDetail"
           }
         },
         "required": [
@@ -1026,7 +1047,7 @@
           }
         }
       },
-      "ApiResponsePagedResponseListMySpecisifDateInstallmentsResponseDto": {
+      "ApiResponsePagedResponseListMySpecificDateInstallmentsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -1040,11 +1061,11 @@
             "format": "date-time"
           },
           "data": {
-            "$ref": "#/components/schemas/PagedResponseListMySpecisifDateInstallmentsResponseDto"
+            "$ref": "#/components/schemas/PagedResponseListMySpecificDateInstallmentsResponseDto"
           }
         }
       },
-      "ListMySpecisifDateInstallmentsResponseDto": {
+      "ListMySpecificDateInstallmentsResponseDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -1077,13 +1098,13 @@
           }
         }
       },
-      "PagedResponseListMySpecisifDateInstallmentsResponseDto": {
+      "PagedResponseListMySpecificDateInstallmentsResponseDto": {
         "type": "object",
         "properties": {
           "content": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ListMySpecisifDateInstallmentsResponseDto"
+              "$ref": "#/components/schemas/ListMySpecificDateInstallmentsResponseDto"
             }
           },
           "pageNumber": {

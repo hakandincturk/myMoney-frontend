@@ -22,6 +22,7 @@ import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 // Toast gösterimi için App seviyesindeki ToastContainer ile çalışan yardımcı
 import { FilterChips } from '@/components/ui/FilterChips'
 import { AccountType } from '@/enums/account'
+import { useListMyActiveCategoriesQuery } from '@/services/categoryApi'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
@@ -283,8 +284,20 @@ export const DebtsOverviewPage: React.FC = () => {
 		description: '',
 		debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
 		equalSharingBetweenInstallments: true,
+		// Kategori form state'i: mevcut kategori id'leri ve yeni isimler
+		categoryIds: [] as number[],
+		newCategories: [] as string[],
 	})
+
+	// Kategori seçenekleri (mevcut backend endpoint'i gelene kadar local yönetim)
+	const [categoryOptions, setCategoryOptions] = useState<Array<{ value: string | number; label: string }>>([])
 	const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
+	const { data: categoriesData, isLoading: categoriesLoading } = useListMyActiveCategoriesQuery({ pageNumber: 0, pageSize: 50 })
+	useEffect(() => {
+		if (categoriesData?.data?.content) {
+			setCategoryOptions(categoriesData.data.content.map(c => ({ value: c.id, label: c.name })))
+		}
+	}, [categoriesData])
 
 	// Hesap türü kredi kartı ise işlem türlerini (DEBT, PAYMENT) ile sınırla
 	const selectedAccount = useMemo(() => {
@@ -952,12 +965,16 @@ export const DebtsOverviewPage: React.FC = () => {
 			totalInstallment: form.totalInstallment || undefined,
 			debtDate: form.debtDate,
 			equalSharingBetweenInstallments: form.equalSharingBetweenInstallments,
+			category: {
+				categoryIds: form.categoryIds,
+				newCategories: form.newCategories,
+			},
 		}).unwrap()
 		
 		// Sadece başarılı sonuçta modal'ı kapat
 		if (result && result.type === true) {
 			setErrors({})
-			setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
+			setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, categoryIds: [], newCategories: [] })
 			setModalOpen(false)
 			// showToast(t('messages.transactionCreated'), 'success') // Removed useToast
 		}
@@ -1029,7 +1046,7 @@ export const DebtsOverviewPage: React.FC = () => {
 					</Button>
 					<Button 
 						onClick={() => { 
-							setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true })
+							setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, categoryIds: [], newCategories: [] })
 							setModalOpen(true) 
 						}} 
 						variant="primary"
@@ -1208,13 +1225,39 @@ export const DebtsOverviewPage: React.FC = () => {
 							
 							<Select 
 								id="type"
-								label="İşlem Türü"
+								label={"İşlem Türü"}
 								value={form.type}
 								onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
 								options={typeOptions}
-								placeholder="İşlem türü seçiniz"
+								placeholder={"İşlem türü seçiniz"}
 								required
 								error={errors.type}
+							/>
+							
+							{/* Kategoriler: Çoklu seçim + Enter ile yeni kategori oluşturma */}
+							<Select
+								id="categories"
+								label={t('transaction.categories')}
+								value={[...form.categoryIds, ...form.newCategories]}
+								onChange={(value) => {
+									const arr = Array.isArray(value) ? value : [value]
+									const ids = arr.filter(v => typeof v === 'number') as number[]
+									const news = arr.filter(v => typeof v === 'string') as string[]
+									setForm((p) => ({ ...p, categoryIds: ids, newCategories: news }))
+								}}
+								options={categoryOptions}
+								placeholder={t('transaction.categoryPlaceholder')}
+								isMulti
+								closeMenuOnSelect={false}
+								creatable
+								onCreateOption={(label) => {
+									setForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
+									setCategoryOptions((opts) => {
+										if (opts.some(o => o.label.toLowerCase() === label.toLowerCase())) return opts
+										return [...opts, { value: label, label }]
+									})
+								}}
+								createOptionText={(lbl) => `${t('common.create')}: \"${lbl}\"`}
 							/>
 							
 							<DatePicker

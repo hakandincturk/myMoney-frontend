@@ -1,7 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import DashboardStats from './DashboardStats'
-import DashboardCharts from './DashboardCharts'
+import { Suspense, lazy } from 'react'
+const DashboardCharts = lazy(() => import('./DashboardCharts'))
 import DashboardTables from './DashboardTables'
 import QuickActions from './QuickActions'
 
@@ -140,10 +141,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
       <DashboardStats data={MOCK_DASHBOARD_DATA.stats} />
 
       {/* Grafikler */}
-      <DashboardCharts 
-        monthlyData={MOCK_DASHBOARD_DATA.monthlyData}
-        expenseCategories={MOCK_DASHBOARD_DATA.expenseCategories}
-      />
+      <Suspense fallback={<div className="h-80 flex items-center justify-center">Grafikler yükleniyor…</div>}>
+        <DashboardCharts 
+          monthlyData={MOCK_DASHBOARD_DATA.monthlyData}
+          expenseCategories={MOCK_DASHBOARD_DATA.expenseCategories}
+        />
+      </Suspense>
 
       {/* Tablolar */}
       <DashboardTables 

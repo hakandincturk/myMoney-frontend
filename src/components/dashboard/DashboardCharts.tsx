@@ -65,7 +65,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           color: isDarkMode() ? '#E2E8F0' : '#1E293B',
           font: {
             size: 12,
-            weight: '500' as const
+            weight: 500
           },
           padding: 20,
           usePointStyle: true,
@@ -134,7 +134,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           color: isDarkMode() ? '#E2E8F0' : '#1E293B',
           font: {
             size: 12,
-            weight: '500' as const
+            weight: 500
           },
           padding: 15,
           usePointStyle: true,

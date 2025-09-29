@@ -20,6 +20,15 @@ export default defineConfig(({ mode }) => {
       target: 'ES2022',
       outDir: 'dist',
       sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            charts: ['chart.js', 'react-chartjs-2'],
+            i18n: ['i18next', 'react-i18next']
+          },
+        },
+      },
     },
 
   }

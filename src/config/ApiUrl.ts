@@ -20,6 +20,13 @@ export enum ApiUrl {
   CONTACT_MY_BY_ID = '/api/contact/my/{id}',
   CONTACT_BY_ID = '/api/contact/{id}',
   
+  // Category endpoints (tahmini isimlendirme backend ile aynı pattern)
+  CATEGORY = '/api/category/',
+  CATEGORY_MY = '/api/category/my',
+  CATEGORY_MY_ACTIVE = '/api/category/my/active',
+  CATEGORY_MY_BY_ID = '/api/category/my/{id}',
+  CATEGORY_BY_ID = '/api/category/{id}',
+  
   // Installment endpoints
   INSTALLMENT_MONTH = '/api/installment/month',
   INSTALLMENT_PAY = '/api/installment/pay/{id}',

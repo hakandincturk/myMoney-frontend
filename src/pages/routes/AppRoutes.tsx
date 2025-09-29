@@ -1,12 +1,12 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
-import { HomePage } from '@/pages/screens/HomePage'
-import { ContactsPage } from '../screens/ContactsPage'
-import { AccountsPage } from '../screens/AccountsPage'
-import { DebtsOverviewPage } from '../screens/DebtsOverviewPage'
-import { InstallmentsPage } from '../screens/InstallmentsPage'
-import { LoginPage } from '@/pages/screens/auth/LoginPage'
-import { RegisterPage } from '@/pages/screens/auth/RegisterPage'
+const HomePage = lazy(() => import('@/pages/screens/HomePage'))
+const ContactsPage = lazy(() => import('../screens/ContactsPage'))
+const AccountsPage = lazy(() => import('../screens/AccountsPage'))
+const DebtsOverviewPage = lazy(() => import('../screens/DebtsOverviewPage'))
+const InstallmentsPage = lazy(() => import('../screens/InstallmentsPage'))
+const LoginPage = lazy(() => import('@/pages/screens/auth/LoginPage'))
+const RegisterPage = lazy(() => import('@/pages/screens/auth/RegisterPage'))
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 export const AppRoutes: React.FC = () => {
@@ -17,7 +17,9 @@ export const AppRoutes: React.FC = () => {
         path="/" 
         element={
           <ProtectedRoute requireAuth={true}>
-            <HomePage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <HomePage />
+            </Suspense>
           </ProtectedRoute>
         } 
       />
@@ -27,7 +29,9 @@ export const AppRoutes: React.FC = () => {
         path="/contacts"
         element={
           <ProtectedRoute requireAuth={true}>
-            <ContactsPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <ContactsPage />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -37,7 +41,9 @@ export const AppRoutes: React.FC = () => {
         path="/accounts"
         element={
           <ProtectedRoute requireAuth={true}>
-            <AccountsPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <AccountsPage />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -47,7 +53,9 @@ export const AppRoutes: React.FC = () => {
         path="/debts/overview"
         element={
           <ProtectedRoute requireAuth={true}>
-            <DebtsOverviewPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <DebtsOverviewPage />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -57,7 +65,9 @@ export const AppRoutes: React.FC = () => {
         path="/installments"
         element={
           <ProtectedRoute requireAuth={true}>
-            <InstallmentsPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <InstallmentsPage />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -67,7 +77,9 @@ export const AppRoutes: React.FC = () => {
         path="/login" 
         element={
           <ProtectedRoute requireAuth={false}>
-            <LoginPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <LoginPage />
+            </Suspense>
           </ProtectedRoute>
         } 
       />
@@ -77,7 +89,9 @@ export const AppRoutes: React.FC = () => {
         path="/register" 
         element={
           <ProtectedRoute requireAuth={false}>
-            <RegisterPage />
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <RegisterPage />
+            </Suspense>
           </ProtectedRoute>
         } 
       />

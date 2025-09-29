@@ -13,6 +13,10 @@ export namespace TransactionDTOs {
     description?: string
     debtDate?: string
     equalSharingBetweenInstallments?: boolean
+    category?: {
+      categoryIds: number[]
+      newCategories: string[]
+    }
   }
 
   // İşlem listesi öğesi (yeni API response yapısına uygun)

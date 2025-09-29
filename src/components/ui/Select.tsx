@@ -23,6 +23,9 @@ type SelectProps = {
   isLoadingMore?: boolean
   isMulti?: boolean  // Multi-select için
   closeMenuOnSelect?: boolean  // Multi-select için
+  creatable?: boolean  // Serbest metin ile yeni seçenek oluşturma
+  onCreateOption?: (label: string) => void  // Yeni seçenek oluşturma callback'i
+  createOptionText?: (label: string) => string  // Oluşturma satırı metni
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(({ 
@@ -43,6 +46,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   isLoadingMore = false,
   isMulti = false,
   closeMenuOnSelect = true,
+  creatable = false,
+  onCreateOption,
+  createOptionText,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -81,6 +87,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         option.label.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : options
+
+  const canCreate = creatable && searchable && !!searchTerm.trim() && !options.some(o => o.label.toLowerCase() === searchTerm.trim().toLowerCase())
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -149,6 +157,11 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         e.preventDefault()
         if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
           handleSelect(filteredOptions[highlightedIndex].value)
+        } else if (canCreate && onCreateOption) {
+          const label = searchTerm.trim()
+          onCreateOption(label)
+          // oluşturma sonrası aramayı temizle ve açık bırak
+          setSearchTerm('')
         }
         break
       case 'Escape':
@@ -160,13 +173,13 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
     }
   }
 
-  const handleSelect = (selectedValue: string | number | null) => {
+  const handleSelect = (selectedValue: string | number) => {
     if (isMulti && Array.isArray(value)) {
       // Multi-select: değeri ekle veya çıkar
       const newValue = value.includes(selectedValue)
         ? value.filter(v => v !== selectedValue)
         : [...value, selectedValue]
-      onChange(newValue)
+      onChange(newValue as (string | number)[])
       
       // closeMenuOnSelect false ise menüyü açık tut
       if (closeMenuOnSelect) {
@@ -280,6 +293,17 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (canCreate && onCreateOption) {
+                        const label = searchTerm.trim()
+                        onCreateOption(label)
+                        setSearchTerm('')
+                      }
+                    }
+                  }}
                   placeholder="Ara..."
                   className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-slate-900 dark:text-mm-text placeholder-slate-400 dark:placeholder-mm-placeholder focus:outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary"
                 />
@@ -287,44 +311,59 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
             )}
             
             <div className="max-h-64 overflow-y-auto custom-scrollbar" ref={listRef} onScroll={handleScroll}>
-              {filteredOptions.length === 0 ? (
+              {filteredOptions.length === 0 && !canCreate && (
                 <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center">
                   Sonuç bulunamadı
                 </div>
-              ) : (
-                <>
-                  {filteredOptions.map((option, index) => (
-                    <div
-                      key={option.value}
-                      ref={(el) => {
-                        if (el) optionRefs.current[index] = el
-                      }}
-                      className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
-                        index === highlightedIndex
-                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                          : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
-                      }`}
-                      onClick={() => handleSelect(option.value)}
-                      onMouseEnter={() => setHighlightedIndex(index)}
-                    >
-                      {option.label}
+              )}
+              {canCreate && (
+                <div
+                  className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                    highlightedIndex === -1
+                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                      : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
+                  }`}
+                  onClick={() => {
+                    if (onCreateOption) {
+                      const label = searchTerm.trim()
+                      onCreateOption(label)
+                      setSearchTerm('')
+                    }
+                  }}
+                >
+                  {createOptionText ? createOptionText(searchTerm.trim()) : `Oluştur: "${searchTerm.trim()}"`}
+                </div>
+              )}
+              {filteredOptions.map((option, index) => (
+                <div
+                  key={option.value}
+                  ref={(el) => {
+                    if (el) optionRefs.current[index] = el
+                  }}
+                  className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                    index === highlightedIndex
+                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                      : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
+                  }`}
+                  onClick={() => handleSelect(option.value)}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                >
+                  {option.label}
+                </div>
+              ))}
+              
+              {/* Loading indicator for infinity scroll */}
+              {hasMore && (
+                <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center border-t border-slate-100 dark:border-gray-600">
+                  {isLoadingMore ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                      <span>Yükleniyor...</span>
                     </div>
-                  ))}
-                  
-                  {/* Loading indicator for infinity scroll */}
-                  {hasMore && (
-                    <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center border-t border-slate-100 dark:border-gray-600">
-                      {isLoadingMore ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
-                          <span>Yükleniyor...</span>
-                        </div>
-                      ) : (
-                        <span>Daha fazla yüklemek için aşağı kaydırın</span>
-                      )}
-                    </div>
+                  ) : (
+                    <span>Daha fazla yüklemek için aşağı kaydırın</span>
                   )}
-                </>
+                </div>
               )}
             </div>
           </div>

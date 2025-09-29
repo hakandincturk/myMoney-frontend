@@ -1,7 +1,7 @@
 // Cache Configuration
 export const CACHE_CONFIG = {
-  // Cache aktif mi?
-  ENABLED: import.meta.env.VITE_ENABLE_CACHE === 'true' || import.meta.env.MODE === 'production',
+  // Cache aktif mi? Production'da dahi env ile kapatılabilir
+  ENABLED: (import.meta.env.VITE_ENABLE_CACHE ?? (import.meta.env.MODE === 'production' ? 'true' : 'false')) === 'true',
   
   // Cache süreleri (saniye)
   DURATIONS: {
