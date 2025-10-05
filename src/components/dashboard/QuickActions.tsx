@@ -150,6 +150,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
   return (
     <Card 
       title="Hızlı İşlemler" 
+      subtitle="Sık kullanılan kayıt işlemlerine tek tıkla erişin."
+      subtitleHelp="Gelir/Gider ekleme ve raporlar gibi en sık yapılan aksiyonlar burada yer alır."
       className={`hover:shadow-md transition-all duration-200 ${className}`}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

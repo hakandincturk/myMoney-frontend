@@ -227,6 +227,8 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
       {/* Aylık Gelir/Gider Grafiği */}
       <Card 
         title="Aylık Gelir/Gider Trendi" 
+        subtitle="Bu grafik, ay bazında gerçekleşen toplam gelir ve giderleri gösterir."
+        subtitleHelp="Yeşil alan gelirleri, kırmızı alan giderleri temsil eder. Değerler Türk Lirası cinsindedir."
         className="hover:shadow-md transition-all duration-200"
       >
         <div className="h-80">
@@ -237,6 +239,8 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
       {/* Harcama Kategorileri Dağılımı */}
       <Card 
         title="Harcama Kategorileri Dağılımı" 
+        subtitle="Toplam giderin kategori bazında yüzde dağılımı."
+        subtitleHelp="Her dilimde kategoriye ait toplam gider ve yüzde oranı gösterilir."
         className="hover:shadow-md transition-all duration-200"
       >
         <div className="h-80">

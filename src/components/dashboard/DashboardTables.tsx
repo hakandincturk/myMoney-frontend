@@ -97,6 +97,8 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
       {/* Son İşlemler */}
       <Card 
         title="Son İşlemler" 
+        subtitle="En son kaydedilen gelir ve gider hareketleri."
+        subtitleHelp="Tutarlar pozitifse gelir, negatifse giderdir. Tarihe göre geriden öne listelenir."
         className="hover:shadow-md transition-all duration-200"
       >
         <div className="space-y-3">
@@ -166,6 +168,8 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
       {/* Yaklaşan Ödemeler */}
       <Card 
         title="Yaklaşan Ödemeler" 
+        subtitle="Kısa süre içinde ödenmesi gereken taksit ve faturalar."
+        subtitleHelp="Durum: Gecikmiş, Yaklaşan veya Bekliyor olarak gösterilir. Tarihler yerel forma göre görüntülenir."
         className="hover:shadow-md transition-all duration-200"
       >
         <div className="space-y-3">

@@ -34,12 +34,20 @@
       "description": "Hesap işlemleri"
     },
     {
+      "name": "Category",
+      "description": "Kategori işlemleri"
+    },
+    {
       "name": "Transaction",
       "description": "Transaction işlemleri"
     },
     {
       "name": "Installment",
       "description": "Taksit işlemleri"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Ana sayfa işlemleri"
     }
   ],
   "paths": {
@@ -174,6 +182,60 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/monthly-summery/backfill/specific-users": {
+      "post": {
+        "tags": [
+          "monthly-summary-controller-impl"
+        ],
+        "summary": "Calculate monthly summeries for specific users",
+        "description": "Secilen kullanicilar icin aylik ozet hesaplamalarini yapar",
+        "operationId": "fillForUsers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackFillMonthlySummeriesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/monthly-summery/backfill/all-users": {
+      "post": {
+        "tags": [
+          "monthly-summary-controller-impl"
+        ],
+        "summary": "Calculate monthly summeries for all users",
+        "description": "Butun kullanicilar icin aylik ozet hesaplamalarini yapar",
+        "operationId": "fillForAllUsers",
         "responses": {
           "200": {
             "description": "OK",
@@ -450,6 +512,28 @@
         }
       }
     },
+    "/api/dashboard/quick-view": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Quick View",
+        "description": "Ana sayfa hızlı bakış verilerini getirir",
+        "operationId": "quickViewResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseQuickViewResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/contact/my/active": {
       "get": {
         "tags": [
@@ -473,6 +557,36 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponsePagedResponseListMyContactsResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category/my/active": {
+      "get": {
+        "tags": [
+          "Category"
+        ],
+        "operationId": "listUserCategories",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FilterListUserCategories"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListUserCategoriesDto"
                 }
               }
             }
@@ -667,6 +781,20 @@
           "totalAmount",
           "type"
         ]
+      },
+      "BackFillMonthlySummeriesRequest": {
+        "type": "object",
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "maxItems": 2147483647,
+            "minItems": 0
+          }
+        }
       },
       "CreateContactRequestDto": {
         "type": "object",
@@ -1152,6 +1280,67 @@
           }
         }
       },
+      "ApiResponseQuickViewResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/QuickViewResponseDto"
+          }
+        }
+      },
+      "QuickViewIncomeAndExpenseDetailDto": {
+        "type": "object",
+        "properties": {
+          "occured": {
+            "type": "number"
+          },
+          "waiting": {
+            "type": "number"
+          },
+          "lastMonthChangeRate": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "QuickViewResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalBalance": {
+            "type": "number"
+          },
+          "pastMonthIncome": {
+            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
+          },
+          "pastMonthExpense": {
+            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
+          },
+          "currentMonthIncome": {
+            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
+          },
+          "currentMonthExpense": {
+            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
+          },
+          "savingRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "waitingInstallments": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ContactFilterRequestDto": {
         "type": "object",
         "properties": {
@@ -1217,6 +1406,103 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ListMyContactsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FilterListUserCategories": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "createdEndDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListUserCategoriesDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PagedResponseListUserCategoriesDto"
+          }
+        }
+      },
+      "ListUserCategoriesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PagedResponseListUserCategoriesDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListUserCategoriesDto"
             }
           },
           "pageNumber": {

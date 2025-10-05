@@ -37,6 +37,9 @@ export enum ApiUrl {
   AUTH_REFRESH = '/api/auth/refresh',
   AUTH_LOGOUT = '/api/auth/logout',
   
+  // Dashboard endpoints
+  DASHBOARD_QUICK_VIEW = '/api/dashboard/quick-view',
+
   // User endpoints
   USER_PROFILE = '/api/user/profile',
   USER_UPDATE = '/api/user/update',
