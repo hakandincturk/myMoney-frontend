@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/Button'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation, usePayInstallmentsMutation } from '@/services/installmentApi'
+import { useListMonthlyInstallmentsQuery } from '@/services/installmentApi'
 import { InstallmentDTOs } from '../../types/installment'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Checkbox from '@/components/ui/Checkbox'
 import { TransactionStatus } from '../../enums'
+import PayInstallmentsModal from '@/components/ui/PayInstallmentsModal'
 
 // Kısa alias'lar oluştur
 type FilterRequest = InstallmentDTOs.FilterRequest
@@ -148,8 +149,6 @@ export const InstallmentsPage: React.FC = () => {
     refetchOnMountOrArgChange: true,
     refetchOnFocus: false,
   })
-  const [payInstallment] = usePayInstallmentMutation()
-  const [payInstallments] = usePayInstallmentsMutation()
 
   // Listeleme hatasında toast göster
   useEffect(() => {
@@ -178,7 +177,9 @@ export const InstallmentsPage: React.FC = () => {
 
   // Modal açma fonksiyonları
   const openPaymentModal = (installment: InstallmentRow) => {
-    setSelectedInstallment(installment)
+    // For single payment, set selectedInstallment to null and set selectedIds to the single id
+    setSelectedInstallment(null)
+    setSelectedIds([installment.id])
     setPaymentDate(today)
     setPaymentModalOpen(true)
   }
@@ -215,30 +216,7 @@ export const InstallmentsPage: React.FC = () => {
   // selectedTotal is computed after rows is available below (useMemo placed later)
 
   // Ödeme işlemi
-  const handlePayment = async () => {
-    if (!paymentDate) return
-
-    try {
-      if (selectedInstallment) {
-        // Single payment
-        await payInstallment({
-          installmentId: selectedInstallment.id,
-          data: { paidDate: paymentDate }
-        }).unwrap()
-      } else if (selectedIds.length > 0) {
-        // Bulk payment
-        await payInstallments({ data: { ids: selectedIds, paidDate: paymentDate } }).unwrap()
-        // Clear selection after successful bulk pay
-        setSelectedIds([])
-        setSelectAllOnPage(false)
-      }
-
-      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.paymentSuccess'), type: 'success' } })) } catch(_) {}
-      closePaymentModal()
-    } catch (error) {
-      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.operationFailed'), type: 'error' } })) } catch(_) {}
-    }
-  }
+  // Payment is handled by the shared PayInstallmentsModal which calls the bulk API with ids: number[]
 
   // Sayfalama işlemleri
   const handlePageChange = (newPage: number) => {
@@ -936,63 +914,20 @@ export const InstallmentsPage: React.FC = () => {
         </Modal>
 
       {/* Ödeme Modal */}
-      <Modal
+      <PayInstallmentsModal
         open={paymentModalOpen}
         onClose={closePaymentModal}
-        title={t('modals.payInstallment')}
-          size="sm"
-          zIndex={10001}
-        footer={
-          <div className="flex gap-3 justify-end">
-            <Button variant="secondary" onClick={closePaymentModal}>
-              {t('buttons.cancel')}
-            </Button>
-            <Button variant="primary" onClick={handlePayment}>
-              {t('buttons.save')}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-">
-          {selectedIds.length > 0 && !selectedInstallment ? (
-            <div className="space-y-3">
-              <div className="rounded-md border border-yellow-200 bg-yellow-50/30 dark:bg-yellow-800/20 px-3 py-2">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-yellow-600 dark:text-yellow-300" aria-hidden>
-                      <path d="M12 9v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-yellow-700 dark:text-yellow-100">{t('bulkPay.warning')}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-400 dark:text-mm-text">{t('bulkPay.selectedTotal')}</span>
-                <span className="text-lg font-bold text-slate-700 dark:text-white">₺{selectedTotal.toLocaleString('tr-TR')}</span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-mm-subtleText">{t('installment.selectPaymentDate')}</p>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-slate-600 dark:text-mm-subtleText">{t('installment.selectPaymentDate')}</p>
-            </>
-          )}
-
-          <DatePicker
-            id="paymentDate"
-            value={paymentDate}
-            onChange={setPaymentDate}
-            label={t('installment.paymentDate')}
-            required
-            usePortal
-            dropdownZIndex={10050}
-          />
-        </div>
-      </Modal>
+        ids={selectedIds}
+        initialDate={paymentDate}
+        selectedTotal={selectedTotal}
+        onSuccess={() => {
+          // Clear selection and uncheck selectAllOnPage after successful payment
+          setSelectedIds([])
+          setSelectAllOnPage(false)
+          // Trigger refetch by updating appliedFilters pageNumber (keeps current filters)
+          setAppliedFilters(prev => ({ ...prev }))
+        }}
+      />
         </div>
     </div>
   )
