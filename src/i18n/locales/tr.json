@@ -211,6 +211,7 @@
     "clearAll": "Tümünü Temizle",
     "applyFilters": "Filtreleri Uygula",
     "payInstallment": "Taksit Öde"
+    ,"bulkPay": "Toplu Ödeme"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
@@ -275,6 +276,10 @@
     "descriptionUpdateSuccess": "Taksit açıklaması başarıyla güncellendi",
     "enterDescription": "Açıklama giriniz",
     "selectPaymentDate": "Ödeme tarihini seçiniz"
+  },
+  "bulkPay": {
+    "warning": "Toplu ödeme işlevi yalnızca borçlar için geçerlidir.",
+    "selectedTotal": "Seçili toplam"
   },
   "debt": {
     "deleteConfirmation": "Bu gelir/gideri silmek istediğinizden emin misiniz?",

@@ -37,6 +37,9 @@ export namespace InstallmentDTOs {
 
   // Taksit ödeme isteği
   export type PayRequest = {
+    // If single payment is performed using endpoint with id path, `ids` can be omitted.
+    // For bulk payments `ids` contains the list of installment ids to pay.
+    ids?: number[]
     paidDate: string
   }
 

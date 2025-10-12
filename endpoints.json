@@ -376,23 +376,12 @@
         }
       }
     },
-    "/api/installment/pay/{installmentId}": {
+    "/api/installment/pay": {
       "patch": {
         "tags": [
           "Installment"
         ],
         "operationId": "payInstallment",
-        "parameters": [
-          {
-            "name": "installmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -910,6 +899,13 @@
       "PayInstallmentRequestDto": {
         "type": "object",
         "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
           "paidDate": {
             "type": "string",
             "format": "date"
@@ -1319,16 +1315,10 @@
           "totalBalance": {
             "type": "number"
           },
-          "pastMonthIncome": {
+          "income": {
             "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
           },
-          "pastMonthExpense": {
-            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
-          },
-          "currentMonthIncome": {
-            "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
-          },
-          "currentMonthExpense": {
+          "expense": {
             "$ref": "#/components/schemas/QuickViewIncomeAndExpenseDetailDto"
           },
           "savingRate": {

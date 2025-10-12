@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/Button'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation } from '@/services/installmentApi'
+import { useListMonthlyInstallmentsQuery, usePayInstallmentMutation, usePayInstallmentsMutation } from '@/services/installmentApi'
 import { InstallmentDTOs } from '../../types/installment'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import StatusBadge from '@/components/ui/StatusBadge'
+import Checkbox from '@/components/ui/Checkbox'
 import { TransactionStatus } from '../../enums'
 
 // Kısa alias'lar oluştur
@@ -148,6 +149,7 @@ export const InstallmentsPage: React.FC = () => {
     refetchOnFocus: false,
   })
   const [payInstallment] = usePayInstallmentMutation()
+  const [payInstallments] = usePayInstallmentsMutation()
 
   // Listeleme hatasında toast göster
   useEffect(() => {
@@ -162,6 +164,9 @@ export const InstallmentsPage: React.FC = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedInstallment, setSelectedInstallment] = useState<InstallmentRow | null>(null)
   const [paymentDate, setPaymentDate] = useState('')
+  // Selection for bulk operations
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [selectAllOnPage, setSelectAllOnPage] = useState(false)
 
   // Bugünün tarihini formatla (YYYY-MM-DD)
   const today = (() => {
@@ -174,6 +179,14 @@ export const InstallmentsPage: React.FC = () => {
   // Modal açma fonksiyonları
   const openPaymentModal = (installment: InstallmentRow) => {
     setSelectedInstallment(installment)
+    setPaymentDate(today)
+    setPaymentModalOpen(true)
+  }
+
+  // Open payment modal for bulk selection
+  const openBulkPaymentModal = () => {
+    if (selectedIds.length === 0) return
+    setSelectedInstallment(null)
     setPaymentDate(today)
     setPaymentModalOpen(true)
   }
@@ -199,16 +212,27 @@ export const InstallmentsPage: React.FC = () => {
     setPaymentDate('')
   }
 
+  // selectedTotal is computed after rows is available below (useMemo placed later)
+
   // Ödeme işlemi
   const handlePayment = async () => {
-    if (!selectedInstallment || !paymentDate) return
+    if (!paymentDate) return
 
     try {
-      await payInstallment({
-        installmentId: selectedInstallment.id,
-        data: { paidDate: paymentDate }
-      }).unwrap()
-      
+      if (selectedInstallment) {
+        // Single payment
+        await payInstallment({
+          installmentId: selectedInstallment.id,
+          data: { paidDate: paymentDate }
+        }).unwrap()
+      } else if (selectedIds.length > 0) {
+        // Bulk payment
+        await payInstallments({ data: { ids: selectedIds, paidDate: paymentDate } }).unwrap()
+        // Clear selection after successful bulk pay
+        setSelectedIds([])
+        setSelectAllOnPage(false)
+      }
+
       try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.paymentSuccess'), type: 'success' } })) } catch(_) {}
       closePaymentModal()
     } catch (error) {
@@ -450,7 +474,57 @@ export const InstallmentsPage: React.FC = () => {
     return { value: y, label: String(y) }
   })
 
+  // Yeni API response yapısına göre veriyi al
+  const rows: InstallmentRow[] = data?.data?.content || []
+
+  // Compute total amount of selected installments (memoized)
+  const selectedTotal = useMemo(() => {
+    return selectedIds.reduce((sum, id) => {
+      const it = rows.find(r => r.id === id)
+      return sum + (it ? Number(it.amount || 0) : 0)
+    }, 0)
+  }, [selectedIds, rows])
+
   const columns = [
+    // Selection checkbox column
+    columnHelper.display({
+      id: 'select',
+      header: () => {
+        const idsOnPage = rows.filter(r => !r.paid && r.transaction?.type === 'DEBT').map(r => r.id)
+        return (
+          <Checkbox
+            checked={selectAllOnPage}
+            onChange={(checked: boolean) => {
+              setSelectAllOnPage(checked)
+              if (checked) {
+                setSelectedIds(idsOnPage)
+              } else {
+                setSelectedIds([])
+              }
+            }}
+            disabled={idsOnPage.length === 0}
+          />
+        )
+      },
+      cell: (info) => {
+        const installment = info.row.original
+        // If installment is not DEBT or already paid, render empty cell (no checkbox)
+        if (installment.transaction?.type !== 'DEBT' || installment.paid) return null
+
+        return (
+          <Checkbox
+            checked={selectedIds.includes(installment.id)}
+            onChange={(checked: boolean) => {
+              setSelectedIds(prev => {
+                if (checked) return [...prev, installment.id]
+                return prev.filter(id => id !== installment.id)
+              })
+            }}
+          />
+        )
+      },
+      meta: { className: 'w-8' }
+    }),
     columnHelper.accessor('transaction.name', {
       header: () => (
         <button
@@ -589,11 +663,6 @@ export const InstallmentsPage: React.FC = () => {
     }),
   ]
 
-  // Yeni API response yapısına göre veriyi al
-  const rows: InstallmentRow[] = data?.data?.content || []
-
-  
-
   const handleRemoveKey = (key: any) => removeAppliedFilter(key as keyof FilterRequest)
 
   return (
@@ -622,6 +691,19 @@ export const InstallmentsPage: React.FC = () => {
                     if (filterParams.paidEndDate && filterParams.paidEndDate.trim() !== '') count++
                     return count
                   })()}
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={openBulkPaymentModal}
+              variant="primary"
+              className="px-3 py-2 text-sm"
+              disabled={selectedIds.length === 0}
+            >
+              {t('buttons.bulkPay')}
+              {selectedIds.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 bg-white dark:bg-slate-900 text-xs font-semibold rounded-full text-slate-800 dark:text-white leading-none align-middle">
+                  {selectedIds.length}
                 </span>
               )}
             </Button>
@@ -871,10 +953,35 @@ export const InstallmentsPage: React.FC = () => {
           </div>
         }
       >
-        <div className="space-y-4">
-          <p className="text-sm text-slate-600 dark:text-mm-subtleText">
-            {t('installment.selectPaymentDate')}
-          </p>
+        <div className="space-y-">
+          {selectedIds.length > 0 && !selectedInstallment ? (
+            <div className="space-y-3">
+              <div className="rounded-md border border-yellow-200 bg-yellow-50/30 dark:bg-yellow-800/20 px-3 py-2">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-yellow-600 dark:text-yellow-300" aria-hidden>
+                      <path d="M12 9v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-yellow-700 dark:text-yellow-100">{t('bulkPay.warning')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-400 dark:text-mm-text">{t('bulkPay.selectedTotal')}</span>
+                <span className="text-lg font-bold text-slate-700 dark:text-white">₺{selectedTotal.toLocaleString('tr-TR')}</span>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-mm-subtleText">{t('installment.selectPaymentDate')}</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-slate-600 dark:text-mm-subtleText">{t('installment.selectPaymentDate')}</p>
+            </>
+          )}
+
           <DatePicker
             id="paymentDate"
             value={paymentDate}

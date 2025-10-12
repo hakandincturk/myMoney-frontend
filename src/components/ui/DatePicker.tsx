@@ -50,6 +50,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return new Date()
   })
   const [selectedDate, setSelectedDate] = useState<Date | null>(value ? new Date(value + 'T00:00:00') : null)
+  // Görüntülenecek metin (kullanıcının yazdığı veya selectedDate'ten türetilmiş)
+  const [inputText, setInputText] = useState<string>(() => {
+    if (!value) return ''
+    const date = new Date(value + 'T00:00:00')
+    return isNaN(date.getTime()) ? '' : date.toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US')
+  })
   const datePickerRef = useRef<HTMLDivElement>(null)
   const portalContainerRef = useRef<HTMLDivElement>(null)
   const [portalCoords, setPortalCoords] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 320 })
@@ -72,6 +78,18 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [usePortal])
+
+  // Dışarıdan value veya dil değiştiğinde inputText'i senkronize et
+  useEffect(() => {
+    if (!value) {
+      setInputText('')
+      return
+    }
+    const date = new Date(value + 'T00:00:00')
+    if (!isNaN(date.getTime())) {
+      setInputText(date.toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US'))
+    }
+  }, [value, i18n.language])
 
   // Ay navigasyonu
   const goToPreviousMonth = () => {
@@ -145,6 +163,101 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }
   }
 
+  // Kullanıcı girdisini tarihe çevir (yyyy-mm-dd)
+  const parseUserDate = (text: string): string | null => {
+    if (!text) return ''
+    const trimmed = text.trim()
+    // Her zaman destekle: yyyy-mm-dd
+    const iso = /^\d{4}-\d{2}-\d{2}$/
+    if (iso.test(trimmed)) {
+      const d = new Date(trimmed + 'T00:00:00')
+      if (!isNaN(d.getTime())) return trimmed
+      return null
+    }
+
+    // TR: dd.mm.yyyy veya dd/mm/yyyy
+    if (i18n.language === 'tr') {
+      const m = trimmed.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/)
+      if (m) {
+        const day = parseInt(m[1], 10)
+        const month = parseInt(m[2], 10)
+        const year = parseInt(m[3], 10)
+        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+          const candidate = new Date(year, month - 1, day)
+          if (candidate.getMonth() === month - 1 && candidate.getDate() === day && candidate.getFullYear() === year) {
+            const y = String(year)
+            const m2 = String(month).padStart(2, '0')
+            const d2 = String(day).padStart(2, '0')
+            return `${y}-${m2}-${d2}`
+          }
+        }
+        return null
+      }
+    }
+
+    // EN: mm/dd/yyyy veya m/d/yyyy
+    const mEn = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+    if (mEn) {
+      const month = parseInt(mEn[1], 10)
+      const day = parseInt(mEn[2], 10)
+      const year = parseInt(mEn[3], 10)
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const candidate = new Date(year, month - 1, day)
+        if (candidate.getMonth() === month - 1 && candidate.getDate() === day && candidate.getFullYear() === year) {
+          const y = String(year)
+          const m2 = String(month).padStart(2, '0')
+          const d2 = String(day).padStart(2, '0')
+          return `${y}-${m2}-${d2}`
+        }
+      }
+      return null
+    }
+
+    // Son çare: Date.parse dene (locale bağımsız güvenilir değil, ama destek)
+    const fallback = new Date(trimmed)
+    if (!isNaN(fallback.getTime())) {
+      const y = fallback.getFullYear()
+      const m = String(fallback.getMonth() + 1).padStart(2, '0')
+      const d = String(fallback.getDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
+    }
+    return null
+  }
+
+  const isWithinBounds = (yyyyMmDd: string): boolean => {
+    if (!yyyyMmDd) return true
+    if (!min && !max) return true
+    const val = new Date(yyyyMmDd + 'T00:00:00').getTime()
+    if (min) {
+      const minT = new Date(min + 'T00:00:00').getTime()
+      if (val < minT) return false
+    }
+    if (max) {
+      const maxT = new Date(max + 'T00:00:00').getTime()
+      if (val > maxT) return false
+    }
+    return true
+  }
+
+  const commitInputText = () => {
+    const parsed = parseUserDate(inputText)
+    if (parsed === '') {
+      setSelectedDate(null)
+      onChange('')
+      return
+    }
+    if (parsed && isWithinBounds(parsed)) {
+      const d = new Date(parsed + 'T00:00:00')
+      setSelectedDate(d)
+      setCurrentDate(d)
+      onChange(parsed)
+      // Görüntüyü locale'e göre normalize et
+      setInputText(d.toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US'))
+    } else {
+      // Geçersizse state'i koru, onChange çağırma
+    }
+  }
+
   // Tarih formatını kontrol et
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === currentDate.getMonth()
@@ -204,10 +317,30 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <input
           id={id}
           type="text"
-          className={`${baseClasses} ${borderClasses} ${disabledClasses} cursor-pointer`}
+          className={`${baseClasses} ${borderClasses} ${disabledClasses}`}
           placeholder={placeholder}
-          value={value ? new Date(value + 'T00:00:00').toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US') : ''}
-          readOnly
+          value={inputText}
+          onChange={(e) => {
+            if (disabled) return
+            setInputText(e.target.value)
+          }}
+          onBlur={() => {
+            if (disabled) return
+            commitInputText()
+          }}
+          onKeyDown={(e) => {
+            if (disabled) return
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              commitInputText()
+            }
+          }}
+          disabled={disabled}
+        />
+        
+        {/* Takvim ikonu */}
+        <button
+          type="button"
           onClick={() => {
             if (disabled) return
             if (usePortal) {
@@ -223,13 +356,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             }
             setIsOpen(!isOpen)
           }}
-          disabled={disabled}
-        />
-        
-        {/* Takvim ikonu */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-mm-placeholder">
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-mm-placeholder"
+          aria-label="Open calendar"
+        >
           <FontAwesomeIcon icon={faCalendarAlt} />
-        </div>
+        </button>
       </div>
 
       {/* Hata mesajı */}

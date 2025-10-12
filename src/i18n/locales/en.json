@@ -105,6 +105,7 @@
     "clearFilters": "Clear Filters",
     "clearAll": "Clear All",
     "applyFilters": "Apply Filters"
+    ,"bulkPay": "Bulk Pay"
   },
   "modals": {
     "editContact": "Edit Contact",
@@ -265,6 +266,10 @@
     "descriptionUpdateSuccess": "Installment description updated successfully",
     "enterDescription": "Enter description",
     "selectPaymentDate": "Select payment date"
+  },
+  "bulkPay": {
+    "warning": "Bulk payment function is valid for debts only.",
+    "selectedTotal": "Selected total"
   },
   "debt": {
     "deleteConfirmation": "Are you sure you want to delete this debt?",

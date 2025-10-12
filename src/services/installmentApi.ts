@@ -42,9 +42,20 @@ export const installmentApi = createApi({
         { type: 'Installment', id: installmentId },
       ],
     }),
+    // Bulk pay mutation - accepts body with `ids: number[]` and `paidDate`
+    payInstallments: build.mutation<ApiResponse<any>, { data: InstallmentDTOs.PayRequest }>({
+      query: ({ data }) => ({
+        url: ApiUrl.INSTALLMENT_PAY_BULK.toString(),
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: (result) => [
+        { type: 'Installment', id: 'LIST' },
+      ],
+    }),
   }),
 })
 
-export const { useListMonthlyInstallmentsQuery, usePayInstallmentMutation } = installmentApi
+export const { useListMonthlyInstallmentsQuery, usePayInstallmentMutation, usePayInstallmentsMutation } = installmentApi
 
 
