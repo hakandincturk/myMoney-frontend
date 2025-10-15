@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TransactionDTOs } from '../../types'
 
-export type MultiKey = 'accountIds' | 'contactIds' | 'types'
+export type MultiKey = 'accountIds' | 'contactIds' | 'types' | 'statuses'
 
 // Generic interface for any filter type
 interface GenericFilterChipsProps<T> {
@@ -33,7 +33,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 	getTypeLabel,
 }) => {
 	const { t } = useTranslation()
-	const [expanded, setExpanded] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean; isPaid: boolean }>({ accountIds: false, contactIds: false, types: false, isPaid: false })
+	const [expanded, setExpanded] = useState<{ accountIds: boolean; contactIds: boolean; types: boolean; statuses: boolean; isPaid: boolean }>({ accountIds: false, contactIds: false, types: false, statuses: false, isPaid: false })
 
 	const hasApplied = useMemo(() => {
 		const hasName = appliedFilters.name && appliedFilters.name.trim() !== ''
@@ -48,6 +48,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 		const hasStartDate = appliedFilters.startDate && appliedFilters.startDate.trim() !== ''
 		const hasEndDate = appliedFilters.endDate && appliedFilters.endDate.trim() !== ''
 		const hasTypes = appliedFilters.types && appliedFilters.types.length > 0
+		const hasStatuses = appliedFilters.statuses && appliedFilters.statuses.length > 0
 		// InstallmentsPage özel alanları
 		const hasTransactionName = appliedFilters.transactionName && appliedFilters.transactionName.trim() !== ''
 		const hasDescription = appliedFilters.description && appliedFilters.description.trim() !== ''
@@ -59,7 +60,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 		return (
 			hasName || hasFullName || hasNote || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount ||
 			hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes ||
-			hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid || hasPaidStartDate || hasPaidEndDate
+			hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid || hasPaidStartDate || hasPaidEndDate || hasStatuses
 		)
 	}, [appliedFilters])
 
@@ -250,6 +251,34 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 									<span key={`type-${ty}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
 										{getTypeText(ty)}
 										<button type="button" onClick={() => onRemoveItem('types', ty)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+									</span>
+								))}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Statuses filter */}
+				{appliedFilters.statuses && appliedFilters.statuses.length > 0 && (
+					<div className="inline-flex flex-col gap-1">
+						<span
+							className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-sm rounded-full cursor-pointer hover:bg-blue-200/60 dark:hover:bg-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-300/60"
+							role="button"
+							aria-expanded={expanded.statuses}
+							tabIndex={0}
+							onClick={() => setExpanded((g) => ({ ...g, statuses: !g.statuses }))}
+							onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((g) => ({ ...g, statuses: !g.statuses })) } }}
+						>
+							<span className="text-xs">{expanded.statuses ? '▾' : '▸'}</span>
+							{t('table.columns.status')}: {appliedFilters.statuses.length} {t('filters.selected')}
+							<button type="button" onClick={(e) => { e.stopPropagation(); onRemoveKey('statuses' as any) }} className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-700/60 rounded-full w-4 h-4 flex items-center justify-center">×</button>
+						</span>
+						{expanded.statuses && (
+							<div className="mt-1 flex flex-wrap gap-1">
+								{appliedFilters.statuses.map((st: any) => (
+									<span key={`status-${st}`} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100/70 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+										{t(`status.${String(st).toLowerCase()}`)}
+										<button type="button" onClick={() => onRemoveItem('statuses', st)} className="ml-0.5 hover:bg-blue-200/70 dark:hover:bg-blue-700/50 rounded-full w-4 h-4 flex items-center justify-center">×</button>
 									</span>
 								))}
 							</div>

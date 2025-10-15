@@ -6,8 +6,10 @@
 @layer base {
   html, body, #root {
     height: 100%;
+    overflow-x: hidden;
   }
   body {
+    margin: 0; /* Remove default browser margin causing left gap on mobile */
     @apply bg-white text-slate-900 antialiased;
   }
   ::selection {

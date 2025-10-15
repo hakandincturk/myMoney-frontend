@@ -88,50 +88,56 @@ export const Table = <T extends object>({
   }
 
   return (
-    <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-visible ${className}`}>
+  <div className={`bg-white dark:bg-mm-card rounded-xl border border-slate-200 dark:border-mm-border overflow-hidden flex flex-col min-h-0 ${className}`}>
       {title && (
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border flex-shrink-0">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-mm-text">{title}</h3>
         </div>
       )}
-      
-      <div className="overflow-x-auto overflow-y-visible custom-scrollbar">
-        <table className="w-full">
-          <thead className="bg-slate-50 dark:bg-mm-bg">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase tracking-wider"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-mm-border">
-            {table.getRowModel().rows.map((row) => (
-              <tr 
-                key={row.id} 
-                className="hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4 text-sm text-slate-900 dark:text-mm-text">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Table area: make it grow and be scrollable */}
+  <div className="flex-1 overflow-auto custom-scrollbar min-h-0 relative">
+        <div className="min-w-max">
+          <table className="table-auto border-separate border-spacing-0 min-w-max w-full">
+            <thead className="bg-slate-50 dark:bg-mm-bg sticky top-0 z-20 border-b border-slate-200 dark:border-mm-border">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-6 py-3 text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase tracking-wider whitespace-nowrap sticky top-0 z-20 bg-slate-50 dark:bg-mm-bg"
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr 
+                  key={row.id} 
+                  className="relative hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="align-middle">
+                      <div className="px-6 py-4 w-full text-sm text-slate-900 dark:text-mm-text whitespace-nowrap">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {showPagination && (
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-mm-border bg-slate-50 dark:bg-mm-bg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      <div className="px-6 py-4 overflow-visible border-t border-slate-100 dark:border-mm-border bg-slate-50 dark:bg-mm-bg flex-shrink-0">
+          <div className="w-full overflow-x-auto custom-scrollbar">
+            <div className="min-w-max flex flex-nowrap items-center justify-between gap-6 pr-1">
+            <div className="flex items-center gap-4 whitespace-nowrap">
               <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mm-subtleText">
                 <span>
                   {t('table.pagination.page')} {currentPage + 1} {t('table.pagination.of')} {totalPages || table.getPageCount()}
@@ -142,7 +148,7 @@ export const Table = <T extends object>({
                 </span>
               </div>
               
-              <div className="flex items-center gap-3 relative z-10">
+              <div className="flex items-center gap-3 relative z-20">
                 <span className="text-sm text-slate-500 dark:text-mm-subtleText whitespace-nowrap">
                   {t('table.pagination.recordsPerPage')}:
                 </span>
@@ -158,11 +164,12 @@ export const Table = <T extends object>({
                   ]}
                   className="w-24"
                   dropdownDirection="up"
+                  usePortal
                 />
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <Button
                 onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
                 disabled={isFirstPage !== undefined ? isFirstPage : currentPage === 0}
@@ -179,6 +186,7 @@ export const Table = <T extends object>({
               >
                 {t('buttons.next')}
               </Button>
+            </div>
             </div>
           </div>
         </div>

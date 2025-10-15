@@ -52,6 +52,7 @@ export namespace TransactionDTOs {
     startDate?: string
     endDate?: string
     types?: TransactionType[] // type yerine types array
+    statuses?: TransactionStatus[] // yeni: durum filtreleri (PENDING, PARTIAL, PAID)
   }
 
   // Sayfalama response yapısı

@@ -38,6 +38,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const collapsedWidth = 72
 
   // Sidebar durumunu localStorage'a kaydet
   useEffect(() => {
@@ -80,6 +81,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [sidebarOpen])
 
+  // (Removed) desktop floating open button pulse state
+
   const logout = () => {
     dispatch(authSlice.actions.logout())
     navigate('/login')
@@ -112,30 +115,54 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       ) : (
         <div className="min-h-screen w-full flex">
           {/* Sidebar */}
-          <aside 
-            className={`fixed inset-y-0 left-0 z-40 transform bg-slate-50 dark:bg-mm-card border-r border-slate-200 dark:border-mm-border transition-all duration-300 ease-in-out shadow-lg ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          <aside
+            className={`fixed inset-y-0 left-0 z-40 transform bg-slate-50 dark:bg-mm-card border-r ${(!isMobile && !sidebarOpen) ? 'border-blue-300 dark:border-blue-800' : 'border-slate-200 dark:border-mm-border'} transition-all duration-300 ease-in-out shadow-lg overflow-hidden ${
+              isMobile ? (sidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
             }`}
-            style={{ width: `${sidebarWidth}px` }}
+            style={{ width: isMobile ? '85vw' : `${sidebarOpen ? sidebarWidth : collapsedWidth}px` }}
           >
-            <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card">
-              <Link to="/" className="flex items-center gap-3 group">
+            <div className={`h-16 flex items-center ${(!isMobile && !sidebarOpen) ? 'justify-center' : 'justify-between'} px-4 sm:px-6 border-b border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card`}>
+              {/* Logo + title (condensed when collapsed on desktop) */}
+              <Link to="/" className={`flex items-center ${!isMobile && !sidebarOpen ? '' : 'gap-3'} group`}>
                 <div className="h-10 w-10 rounded-lg bg-mm-primary/20 dark:bg-mm-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                   <span className="text-mm-primary dark:text-mm-primary font-bold text-lg">₺</span>
                 </div>
-                <span className="font-semibold text-lg text-slate-900 dark:text-mm-text group-hover:text-mm-primary transition-colors duration-200">MyMoney</span>
+                {(!isMobile && !sidebarOpen) ? null : (
+                  <span className="font-semibold text-lg text-slate-900 dark:text-mm-text group-hover:text-mm-primary transition-colors duration-200">MyMoney</span>
+                )}
               </Link>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={toggleSidebar} 
-                  className="p-2 rounded hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-all duration-200 hover:scale-110" 
-                  aria-label="Sidebar'ı kapat"
-                  title="Sidebar'ı kapat"
+              {/* Toggle button */}
+              <div className={`flex items-center gap-2 ${!isMobile && !sidebarOpen ? 'hidden' : ''}`}>
+                <button
+                  onClick={toggleSidebar}
+                  className="p-2 rounded hover:bg-slate-100 dark:hover:bg-mm-cardHover transition-all duration-200 hover:scale-110"
+                  aria-label={sidebarOpen ? "Sidebar'ı kapat" : "Sidebar'ı aç"}
+                  title={sidebarOpen ? "Sidebar'ı kapat" : "Sidebar'ı aç"}
                 >
-                  <FontAwesomeIcon icon={faTimes} className="text-lg" />
+                  <FontAwesomeIcon icon={sidebarOpen ? faTimes : faBars} className="text-lg" />
                 </button>
               </div>
+              {/* In collapsed desktop, header centers the logo; toggle is rendered outside */}
             </div>
+            {/* Collapsed state hint inside rail (desktop) */}
+            {(!isMobile && !sidebarOpen) && (
+              <div className="relative">
+                {/* small hint badge at the top */}
+                <div className="absolute top-4 right-0 w-px h-8 bg-blue-400/40" />
+                <div className="pt-3 flex justify-center">
+                  {/* Compact circular toggle to avoid overflow into content */}
+                  <button
+                    type="button"
+                    onClick={toggleSidebar}
+                    title={t('navigation.menu')}
+                    aria-label={t('navigation.menu')}
+                    className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 flex items-center justify-center shadow-sm hover:shadow-md hover:bg-blue-200 dark:hover:bg-blue-900/30 transition"
+                  >
+                    <FontAwesomeIcon icon={faBars} className="text-[13px]" />
+                  </button>
+                </div>
+              </div>
+            )}
             <nav className="p-4 pb-24 space-y-2 bg-slate-50 dark:bg-mm-card">
               {[
                 { to: '/', label: t('sidebar.home'), icon: faHome, end: true },
@@ -148,9 +175,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   key={i.to}
                   to={i.to}
                   end={i.end as boolean | undefined}
-                  className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-all duration-200 ease-in-out transform hover:scale-105 ${
-                    isActive 
-                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-md' 
+                  className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                    isActive
+                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
                       : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
                   }`}
                   onClick={() => {
@@ -159,62 +186,73 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                       hideSidebar()
                     }
                   }}
-                  style={{ 
-                    animationDelay: `${index * 50}ms`,
-                    transform: sidebarOpen ? 'translateX(0)' : 'translateX(-20px)',
-                    opacity: sidebarOpen ? 1 : 0.8
-                  }}
+                  title={i.label}
                 >
-                  <FontAwesomeIcon icon={i.icon} className="text-lg" />
-                  {i.label}
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />
+                      )}
+                      <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                        <FontAwesomeIcon icon={i.icon} className="text-lg" />
+                      </span>
+                      {(!isMobile && !sidebarOpen) ? null : (
+                        <span>{i.label}</span>
+                      )}
+                    </>
+                  )}
                 </NavLink>
               ))}
             </nav>
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <LanguageToggle />
-                  <ThemeToggle />
+            {(!isMobile && !sidebarOpen) ? null : (
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <LanguageToggle />
+                    <ThemeToggle />
+                  </div>
+                  <Button
+                    onClick={logout}
+                    variant="secondary"
+                    className="w-full !bg-red-600 hover:!bg-red-700 !text-white !border-red-600 hover:!border-red-700 dark:!bg-red-600 dark:hover:!bg-red-700 dark:!text-white dark:!border-red-600 dark:hover:!border-red-700 transition-all duration-200"
+                  >
+                    {t('navigation.logout')}
+                  </Button>
                 </div>
-                <Button 
-                  onClick={logout} 
-                  variant="secondary" 
-                  className="w-full !bg-red-600 hover:!bg-red-700 !text-white !border-red-600 hover:!border-red-700 dark:!bg-red-600 dark:hover:!bg-red-700 dark:!text-white dark:!border-red-600 dark:hover:!border-red-700 transition-all duration-200"
-                >
-                  {t('navigation.logout')}
-                </Button>
               </div>
-            </div>
+            )}
             
             {/* Sidebar genişlik ayarlayıcı */}
-            <div 
-              className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 active:bg-blue-600 transition-colors group"
-              onMouseDown={(e) => {
-                e.preventDefault()
-                const startX = e.clientX
-                const startWidth = sidebarWidth
-                
-                const handleMouseMove = (moveEvent: MouseEvent) => {
-                  const deltaX = moveEvent.clientX - startX
-                  adjustSidebarWidth(startWidth + deltaX)
-                }
-                
-                const handleMouseUp = () => {
-                  document.removeEventListener('mousemove', handleMouseMove)
-                  document.removeEventListener('mouseup', handleMouseUp)
-                }
-                
-                document.addEventListener('mousemove', handleMouseMove)
-                document.addEventListener('mouseup', handleMouseUp)
-              }}
-              title="Genişliği ayarlamak için sürükleyin"
-            >
-              <div className="absolute top-1/2 right-1 transform translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                  {sidebarWidth}px
+            {(!isMobile && sidebarOpen) && (
+              <div
+                className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 active:bg-blue-600 transition-colors group"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  const startX = e.clientX
+                  const startWidth = sidebarWidth
+
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    const deltaX = moveEvent.clientX - startX
+                    adjustSidebarWidth(startWidth + deltaX)
+                  }
+
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove)
+                    document.removeEventListener('mouseup', handleMouseUp)
+                  }
+
+                  document.addEventListener('mousemove', handleMouseMove)
+                  document.addEventListener('mouseup', handleMouseUp)
+                }}
+                title="Genişliği ayarlamak için sürükleyin"
+              >
+                <div className="absolute top-1/2 right-1 transform translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    {sidebarWidth}px
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </aside>
 
           {/* Overlay for mobile */}
@@ -225,49 +263,36 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             />
           )}
 
+          {/* Mobile top bar (replaces floating button) */}
+          {isMobile && !sidebarOpen && (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title={t('navigation.menu')}
+              aria-label={t('navigation.menu')}
+              className="fixed z-40 h-9 w-9 inline-flex items-center justify-center rounded-md text-slate-700 dark:text-mm-text bg-white/15 dark:bg-slate-900/25 backdrop-blur-md backdrop-saturate-150 hover:bg-white/25 dark:hover:bg-slate-900/35 ring-1 ring-white/30 dark:ring-white/10 shadow-sm transition-colors"
+              style={{
+                top: 'max(env(safe-area-inset-top), 0.75rem)',
+                left: 'max(env(safe-area-inset-left), 0.75rem)'
+              }}
+            >
+              <FontAwesomeIcon icon={faBars} className="text-[16px]" />
+            </button>
+          )}
+
           {/* Content wrapper */}
           <div 
-            className={`flex-1 transition-all duration-300 ease-in-out w-full`}
+            className={`flex-1 transition-all duration-300 ease-in-out w-full overflow-hidden flex flex-col`}
             style={{ 
-              marginLeft: !isMobile && sidebarOpen ? `${sidebarWidth}px` : '0px' 
+              marginLeft: !isMobile ? (sidebarOpen ? `${sidebarWidth}px` : `${collapsedWidth}px`) : '0px'
             }}
           >
-            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card z-20">
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={toggleSidebar} 
-                  className={`p-2 rounded transition-all duration-200 hover:scale-110 ${
-                    sidebarOpen 
-                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' 
-                      : 'hover:bg-slate-100 dark:hover:bg-mm-cardHover text-slate-700 dark:text-mm-text'
-                  }`}
-                  aria-label="Sidebar'ı aç/kapat"
-                  title={`Sidebar'ı ${sidebarOpen ? 'kapat' : 'aç'} (Ctrl+B)`}
-                >
-                  <FontAwesomeIcon icon={faBars} className="text-lg" />
-                </button>
-                {!sidebarOpen && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-500 dark:text-slate-400 hidden sm:block">
-                      Sidebar kapalı
-                    </span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 hidden md:block">
-                      Ctrl+B ile aç
-                    </span>
-                  </div>
-                )}
-              </div>
-              {/* <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <LanguageToggle />
-                  <ThemeToggle />
-                </div>
-                <Button onClick={logout} variant="secondary" className="!bg-red-600 hover:!bg-red-700 !text-white !border-red-600 hover:!border-red-700 dark:!bg-red-600 dark:hover:!bg-red-700 dark:!text-white dark:!border-red-600 dark:hover:!border-red-700 transition-all duration-200 hover:scale-105">
-                  {t('navigation.logout')}
-                </Button>
-              </div> */}
-            </div>
-            <main className="w-full custom-scrollbar">{children}</main>
+            {/* Content area uses full viewport on desktop; on mobile subtract top bar height */}
+            <main
+              className={`w-full custom-scrollbar overflow-hidden flex flex-col ${isMobile ? 'h-screen' : 'h-screen'}`}
+            >
+              {children}
+            </main>
           </div>
         </div>
       )}

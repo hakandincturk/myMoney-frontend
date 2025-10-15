@@ -1030,6 +1030,17 @@
                 "COLLECTION"
               ]
             }
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PARTIAL",
+                "PAID"
+              ]
+            }
           }
         }
       },

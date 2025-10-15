@@ -33,6 +33,7 @@
     "accounts": "Accounts",
     "debts": "Debts",
     "installments": "Installments",
+    "menu": "Menu",
     "settings": "Settings",
     "profile": "Profile",
     "logout": "Logout"
@@ -127,6 +128,7 @@
     "selectAccount": "Select account",
     "selectContact": "Select contact",
     "selectType": "Select type",
+  "selectStatus": "Select status",
     "selectStartDate": "Select start date",
     "selectEndDate": "Select end date",
     "searchByTransactionName": "Search by transaction name...",

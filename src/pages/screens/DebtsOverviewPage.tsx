@@ -57,7 +57,8 @@ export const DebtsOverviewPage: React.FC = () => {
 			maxInstallmentCount: params.get('maxInstallments') ? Number(params.get('maxInstallments')) || undefined : undefined,
 			startDate: params.get('startDate') || '',
 			endDate: params.get('endDate') || '',
-			types: params.get('types') ? params.get('types')!.split(',') as TransactionType[] : undefined
+			types: params.get('types') ? params.get('types')!.split(',') as TransactionType[] : undefined,
+			statuses: params.get('statuses') ? params.get('statuses')!.split(',') as TransactionStatus[] : undefined
 		}
 		
 		return result
@@ -82,6 +83,7 @@ export const DebtsOverviewPage: React.FC = () => {
 		if (filters.startDate && filters.startDate.trim()) params.set('startDate', filters.startDate.trim())
 		if (filters.endDate && filters.endDate.trim()) params.set('endDate', filters.endDate.trim())
 		if (filters.types && filters.types.length > 0) params.set('types', filters.types.join(','))
+		if (filters.statuses && filters.statuses.length > 0) params.set('statuses', filters.statuses.join(','))
 		
 		setSearchParams(params, { replace: true })
 	}, [setSearchParams])
@@ -594,7 +596,8 @@ export const DebtsOverviewPage: React.FC = () => {
 			maxInstallmentCount: undefined,
 			startDate: '',
 			endDate: '',
-			types: undefined
+			types: undefined,
+			statuses: undefined
 		}
 		
 		setFilterParams(defaultFilters)
@@ -624,9 +627,10 @@ export const DebtsOverviewPage: React.FC = () => {
 		const hasStartDate = filterParams.startDate && filterParams.startDate.trim() !== ''
 		const hasEndDate = filterParams.endDate && filterParams.endDate.trim() !== ''
 		const hasTypes = filterParams.types && filterParams.types.length > 0
+		const hasStatuses = filterParams.statuses && filterParams.statuses.length > 0
 
 		return hasName || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount || 
-			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes
+			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes || hasStatuses
 	}
 
 	// Uygulanan filtrelerde aktif olan var mı?
@@ -641,9 +645,10 @@ export const DebtsOverviewPage: React.FC = () => {
 		const hasStartDate = appliedFilters.startDate && appliedFilters.startDate.trim() !== ''
 		const hasEndDate = appliedFilters.endDate && appliedFilters.endDate.trim() !== ''
 		const hasTypes = appliedFilters.types && appliedFilters.types.length > 0
+		const hasStatuses = appliedFilters.statuses && appliedFilters.statuses.length > 0
 
 		return hasName || hasAccountIds || hasContactIds || hasMinAmount || hasMaxAmount || 
-			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes
+			   hasMinInstallmentCount || hasMaxInstallmentCount || hasStartDate || hasEndDate || hasTypes || hasStatuses
 	}
 
 	// Üst bardan chip kaldırma: hem appliedFilters hem filterParams temizlenir ve istek tekrar atılır
@@ -681,7 +686,7 @@ export const DebtsOverviewPage: React.FC = () => {
 	// Çoklu seçimli filtrelerden tek bir öğeyi kaldır (hesap, kişi, tür)
 	const removeAppliedFilterItem = (key: string, value: any) => {
 		// Güvenlik: yalnızca beklenen anahtarlar için işle
-		if (key !== 'accountIds' && key !== 'contactIds' && key !== 'types') return
+		if (key !== 'accountIds' && key !== 'contactIds' && key !== 'types' && key !== 'statuses') return
 		const nextApplied: TransactionDTOs.TransactionFilterRequest = { ...appliedFilters }
 		const nextFilter: TransactionDTOs.TransactionFilterRequest = { ...filterParams }
 
@@ -1013,8 +1018,8 @@ export const DebtsOverviewPage: React.FC = () => {
 	const isLoading = accountsLoading || contactsLoading || transactionsLoading
 
 	return (
-	<div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
-		<div className="w-full">
+	<div className="h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0 flex flex-col min-h-0 box-border">
+		<div className="w-full flex-1 flex flex-col min-h-0">
 			<div className="flex items-center justify-between mb-4">
 				<h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.debts')}</h2>
 				<div className="flex items-center gap-3">
@@ -1039,6 +1044,7 @@ export const DebtsOverviewPage: React.FC = () => {
 									if (filterParams.startDate && filterParams.startDate.trim() !== '') count++
 									if (filterParams.endDate && filterParams.endDate.trim() !== '') count++
 									if (filterParams.types && filterParams.types.length > 0) count++
+									if (filterParams.statuses && filterParams.statuses.length > 0) count++
 									return count
 								})()}
 							</span>
@@ -1068,24 +1074,27 @@ export const DebtsOverviewPage: React.FC = () => {
 				/>
 			)}
 
-			{isLoading ? (
-										<TableSkeleton columns={8} rows={5} />
-			) : (
-				<Table 
-					data={debts} 
-					columns={columns} 
-					title={t('table.titles.debtList')}
-					showPagination={true}
-					pageSize={pageParams.pageSize}
-					currentPage={pageParams.pageNumber}
-					totalPages={transactionsData?.data?.totalPages || 0}
-					totalRecords={transactionsData?.data?.totalElements || 0}
-					onPageChange={handlePageChange}
-					onPageSizeChange={handlePageSizeChange}
-					isFirstPage={transactionsData?.data?.first}
-					isLastPage={transactionsData?.data?.last}
-				/>
-			)}
+				<div className="flex-1 flex flex-col min-h-0">
+					{isLoading ? (
+						<TableSkeleton columns={8} rows={5} />
+					) : (
+						<Table 
+							data={debts} 
+							columns={columns} 
+							title={t('table.titles.debtList')}
+							showPagination={true}
+							pageSize={pageParams.pageSize}
+							currentPage={pageParams.pageNumber}
+							totalPages={transactionsData?.data?.totalPages || 0}
+							totalRecords={transactionsData?.data?.totalElements || 0}
+							onPageChange={handlePageChange}
+							onPageSizeChange={handlePageSizeChange}
+							isFirstPage={transactionsData?.data?.first}
+							isLastPage={transactionsData?.data?.last}
+							className="h-full"
+						/>
+					)}
+				</div>
 
 			{/* Borç Girişi Modal */}
 			<Modal 
@@ -1547,6 +1556,7 @@ export const DebtsOverviewPage: React.FC = () => {
 									if (filterParams.startDate && filterParams.startDate.trim() !== '') count++
 									if (filterParams.endDate && filterParams.endDate.trim() !== '') count++
 									if (filterParams.types && filterParams.types.length > 0) count++
+									if (filterParams.statuses && filterParams.statuses.length > 0) count++
 									return count
 								})()}
 							</span>
@@ -1630,6 +1640,23 @@ export const DebtsOverviewPage: React.FC = () => {
 								onChange={(value) => handleFilterChange('types', Array.isArray(value) ? value : [value])}
 								options={TransactionHelpers.getTypeOptions(t)}
 								placeholder={t('placeholders.selectType')}
+								isMulti
+								closeMenuOnSelect={false}
+								className="md:col-span-2"
+							/>
+
+							{/* Statuses filter */}
+							<Select
+								id="filterStatus"
+								label={t('table.columns.status')}
+								value={filterParams.statuses || []}
+								onChange={(value) => handleFilterChange('statuses', Array.isArray(value) ? value : [value])}
+								options={[
+									{ value: TransactionStatus.PENDING, label: t('status.pending') },
+									{ value: TransactionStatus.PARTIAL, label: t('status.partial') },
+									{ value: TransactionStatus.PAID, label: t('status.paid') },
+								]}
+								placeholder={t('placeholders.selectStatus')}
 								isMulti
 								closeMenuOnSelect={false}
 								className="md:col-span-2"

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, forwardRef } from 'react'
+import { createPortal } from 'react-dom'
 
 type Option = {
   value: string | number
@@ -26,6 +27,7 @@ type SelectProps = {
   creatable?: boolean  // Serbest metin ile yeni seçenek oluşturma
   onCreateOption?: (label: string) => void  // Yeni seçenek oluşturma callback'i
   createOptionText?: (label: string) => string  // Oluşturma satırı metni
+  usePortal?: boolean  // Dropdown'u body'e portalla ve fixed konumla aç
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(({ 
@@ -49,6 +51,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   creatable = false,
   onCreateOption,
   createOptionText,
+  usePortal = false,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -58,6 +61,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   const optionRefs = useRef<HTMLDivElement[]>([])
   const listRef = useRef<HTMLDivElement>(null)
   const [autoDirection, setAutoDirection] = useState<'down' | 'up'>(dropdownDirection)
+  const portalMenuRef = useRef<HTMLDivElement>(null)
+  const [portalStyle, setPortalStyle] = useState<React.CSSProperties | undefined>(undefined)
 
   // Forwarded ref ile iç ref'i birleştir
   const setCombinedRef = (node: HTMLDivElement | null) => {
@@ -93,7 +98,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const root = selectRef.current
-      if (root && !root.contains(event.target as Node)) {
+      const menuEl = portalMenuRef.current
+      const target = event.target as Node
+      if (root && !root.contains(target) && (!menuEl || !menuEl.contains(target))) {
         setIsOpen(false)
         setSearchTerm('')
         setHighlightedIndex(-1)
@@ -109,6 +116,30 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       inputRef.current.focus()
     }
   }, [isOpen, searchable])
+
+  // Portal konumlandırma: açıldığında ve scroll/resize olduğunda güncelle
+  useEffect(() => {
+    if (!isOpen || !usePortal) return
+    const updatePosition = () => {
+      const root = selectRef.current
+      if (!root) return
+      const rect = root.getBoundingClientRect()
+      const gap = 4
+      const dir = autoDirection || dropdownDirection
+      if (dir === 'up') {
+        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.top - gap, transform: 'translateY(-100%)', zIndex: 9999 })
+      } else {
+        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.bottom + gap, zIndex: 9999 })
+      }
+    }
+    updatePosition()
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [isOpen, usePortal, autoDirection, dropdownDirection])
 
   // Menü açıldığında seçili değeri vurgula ve görünür alana/merkeze getir
   useEffect(() => {
@@ -280,8 +311,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
           </svg>
         </div>
 
-        {isOpen && (
-          <div className={`absolute z-[100] w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
+        {isOpen && !usePortal && (
+          <div className={`absolute z-[200] w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden ${
             (autoDirection || dropdownDirection) === 'up' 
               ? 'bottom-full mb-1' 
               : 'top-full mt-1'
@@ -367,6 +398,93 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
               )}
             </div>
           </div>
+        )}
+
+        {isOpen && usePortal && createPortal(
+          <div ref={portalMenuRef} style={portalStyle} className={`z-[9999]`}> 
+            <div className={`w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden`}>
+              {searchable && (
+                <div className="p-2 border-b border-slate-100 dark:border-gray-600">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (canCreate && onCreateOption) {
+                          const label = searchTerm.trim()
+                          onCreateOption(label)
+                          setSearchTerm('')
+                        }
+                      }
+                    }}
+                    placeholder="Ara..."
+                    className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-slate-900 dark:text-mm-text placeholder-slate-400 dark:placeholder-mm-placeholder focus:outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary"
+                  />
+                </div>
+              )}
+
+              <div className="max-h-64 overflow-y-auto custom-scrollbar" ref={listRef} onScroll={handleScroll}>
+                {filteredOptions.length === 0 && !canCreate && (
+                  <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center">
+                    Sonuç bulunamadı
+                  </div>
+                )}
+                {canCreate && (
+                  <div
+                    className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                      highlightedIndex === -1
+                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                        : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
+                    }`}
+                    onClick={() => {
+                      if (onCreateOption) {
+                        const label = searchTerm.trim()
+                        onCreateOption(label)
+                        setSearchTerm('')
+                      }
+                    }}
+                  >
+                    {createOptionText ? createOptionText(searchTerm.trim()) : `Oluştur: "${searchTerm.trim()}"`}
+                  </div>
+                )}
+                {filteredOptions.map((option, index) => (
+                  <div
+                    key={option.value}
+                    ref={(el) => {
+                      if (el) optionRefs.current[index] = el
+                    }}
+                    className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                      index === highlightedIndex
+                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                        : 'hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-900 dark:text-mm-text'
+                    }`}
+                    onClick={() => handleSelect(option.value)}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                  >
+                    {option.label}
+                  </div>
+                ))}
+
+                {hasMore && (
+                  <div className="px-4 py-3 text-sm text-slate-500 dark:text-mm-subtleText text-center border-t border-slate-100 dark:border-gray-600">
+                    {isLoadingMore ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                        <span>Yükleniyor...</span>
+                      </div>
+                    ) : (
+                      <span>Daha fazla yüklemek için aşağı kaydırın</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
       </div>
       

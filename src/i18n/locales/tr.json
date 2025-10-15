@@ -33,6 +33,7 @@
     "accounts": "Hesaplar",
     "debts": "Borçlar",
     "installments": "Taksitler",
+    "menu": "Menü",
     "settings": "Ayarlar",
     "profile": "Profil",
     "logout": "Çıkış"
@@ -233,6 +234,7 @@
     "selectAccount": "Hesap seçiniz",
     "selectContact": "Kişi seçiniz",
     "selectType": "Tür seçiniz",
+  "selectStatus": "Durum seçiniz",
     "selectStartDate": "Başlangıç tarihi seçiniz",
     "selectEndDate": "Bitiş tarihi seçiniz",
     "searchByTransactionName": "İşlem adına göre ara...",

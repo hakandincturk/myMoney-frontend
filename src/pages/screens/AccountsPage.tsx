@@ -282,8 +282,8 @@ export const AccountsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0">
-      <div className="w-full">
+  <div className="h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 relative z-0 flex flex-col min-h-0 box-border">
+      <div className="w-full flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-mm-text">{t('pages.accounts')}</h2>
           <Button onClick={() => setOpenCreate(true)} variant="primary">
@@ -306,24 +306,27 @@ export const AccountsPage: React.FC = () => {
           </div>
         )}
 
-        {isLoading ? (
-          <TableSkeleton columns={5} rows={5} />
-        ) : (
-          <Table 
-            data={accounts} 
-            columns={columns} 
-            title={t('table.titles.accountList')}
-            showPagination={true}
-            pageSize={pageParams.pageSize}
-            currentPage={pageParams.pageNumber}
-            totalPages={data?.data?.totalPages || 0}
-            totalRecords={data?.data?.totalElements || 0}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            isFirstPage={data?.data?.first}
-            isLastPage={data?.data?.last}
-          />
-        )}
+  <div className="flex-1 flex flex-col min-h-0">
+          {isLoading ? (
+            <TableSkeleton columns={5} rows={5} />
+          ) : (
+            <Table 
+              data={accounts} 
+              columns={columns} 
+              title={t('table.titles.accountList')}
+              showPagination={true}
+              pageSize={pageParams.pageSize}
+              currentPage={pageParams.pageNumber}
+              totalPages={data?.data?.totalPages || 0}
+              totalRecords={data?.data?.totalElements || 0}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              isFirstPage={data?.data?.first}
+              isLastPage={data?.data?.last}
+              className="h-full"
+            />
+          )}
+        </div>
 
         <Modal open={openCreate} onClose={() => setOpenCreate(false)} title="Yeni Hesap"
           footer={(
