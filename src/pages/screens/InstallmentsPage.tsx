@@ -297,8 +297,6 @@ export const InstallmentsPage: React.FC = () => {
     
     setFilterParams(defaultFilters)
     setAppliedFilters(defaultFilters)
-    
-    // URL'yi temizle
     syncFiltersToURL(defaultFilters)
   }
 
@@ -506,11 +504,11 @@ export const InstallmentsPage: React.FC = () => {
     columnHelper.accessor('transaction.name', {
       header: () => (
         <button
-          onClick={() => handleSortClick('transaction.name')}
+          onClick={() => handleSortClick('transactionName')}
           className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
         >
           {t('table.columns.name')}
-          {getSortIndicator('transaction.name')}
+          {getSortIndicator('transactionName')}
         </button>
       ),
       cell: (info) => info.getValue() || '-',
