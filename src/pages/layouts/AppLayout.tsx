@@ -289,7 +289,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             {/* Content area uses full viewport on desktop; on mobile subtract top bar height */}
             <main
-              className={`w-full custom-scrollbar overflow-hidden flex flex-col ${isMobile ? 'h-screen' : 'h-screen'}`}
+              className={`w-full custom-scrollbar overflow-y-auto flex flex-col ${isMobile ? 'h-screen' : 'h-screen'}`}
             >
               {children}
             </main>

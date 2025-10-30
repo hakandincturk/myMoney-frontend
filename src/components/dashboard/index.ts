@@ -1,5 +1,6 @@
 export { default as Dashboard } from './Dashboard'
-export { default as DashboardStats } from './DashboardStats'
 export { default as DashboardCharts } from './DashboardCharts'
+export { default as DashboardStats } from './DashboardStats'
 export { default as DashboardTables } from './DashboardTables'
 export { default as QuickActions } from './QuickActions'
+export { default as DetailedIncomeExpenseCard } from './DetailedIncomeExpenseCard'

@@ -29,8 +29,6 @@ export enum ApiUrl {
   
   // Installment endpoints
   INSTALLMENT_MONTH = '/api/installment/month',
-  // Single-installment pay (kept for backward compatibility)
-  INSTALLMENT_PAY = '/api/installment/pay/{id}',
   // Bulk pay endpoint (new): accepts body { ids: number[], paidDate: string }
   INSTALLMENT_PAY_BULK = '/api/installment/pay',
   

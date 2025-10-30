@@ -2,6 +2,7 @@ export namespace DashboardDTOs {
   export type QuickViewIncomeAndExpenseDetailDto = {
     occured: number
     waiting: number
+    planning: number
     lastMonthChangeRate: number
   }
 

@@ -15,7 +15,7 @@
 - Kişiler: `useListMyActiveContactsQuery`
 - Taksitler: `useListTransactionInstallmentsQuery(transactionId)`
 - İşlemler: `useCreateTransactionMutation()`, `useDeleteTransactionMutation()`
-- Ödeme: `usePayInstallmentMutation()`
+- Ödeme: `usePayInstallmentsMutation()`
 
 ## Kullanılanlar
 - Bileşenler: `Table`, `Modal`, `Input`, `Select`, `DatePicker`, `StatusBadge`, `FilterChips`, `TableSkeleton`

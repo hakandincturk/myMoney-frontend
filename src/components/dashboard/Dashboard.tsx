@@ -5,6 +5,7 @@ import { Suspense, lazy } from 'react'
 const DashboardCharts = lazy(() => import('./DashboardCharts'))
 import DashboardTables from './DashboardTables'
 import QuickActions from './QuickActions'
+import DetailedIncomeExpenseCard from './DetailedIncomeExpenseCard'
 import { useGetQuickViewQuery } from '@/services/dashboardApi'
 
 // Mock veriler - gerçek API entegrasyonu için bu veriler API'den gelecek
@@ -135,36 +136,48 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
   const { data: quickView, isFetching } = useGetQuickViewQuery()
 
   return (
-    <div className={`min-h-screen w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 ${className}`}>
+    <div className={`w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 ${className}`}>
       {/* Hızlı İşlemler - Üst Bölüm */}
       <QuickActions className="mb-6" />
 
       {/* İstatistik Kartları */}
       <DashboardStats 
         data={{
-          totalBalance: quickView?.data.totalBalance ?? MOCK_DASHBOARD_DATA.stats.totalBalance,
-          monthlyIncome: (quickView?.data.income.occured ?? 0) + (quickView?.data.income.waiting ?? 0) || MOCK_DASHBOARD_DATA.stats.monthlyIncome,
-          monthlyExpense: (quickView?.data.expense.waiting ?? 0) || MOCK_DASHBOARD_DATA.stats.monthlyExpense,
-          savingsRate: quickView?.data.savingRate ?? MOCK_DASHBOARD_DATA.stats.savingsRate,
-          pendingPayments: quickView?.data.waitingInstallments ?? MOCK_DASHBOARD_DATA.stats.pendingPayments,
+          totalBalance: quickView?.data.totalBalance ?? 0,
+          monthlyIncome: 0, // Artık kullanılmıyor
+          monthlyExpense: 0, // Artık kullanılmıyor
+          savingsRate: quickView?.data.savingRate ?? 0,
+          pendingPayments: quickView?.data.waitingInstallments ?? 0,
         }}
         changes={{
-          incomeChangeRate: quickView?.data.income.lastMonthChangeRate,
-          expenseChangeRate: quickView?.data.expense.lastMonthChangeRate,
           totalBalanceChangeRate: undefined,
-          savingsRateChangeRate: quickView?.data.savingRate,
-        }}
-        details={{
-          income: {
-            occured: quickView?.data.income.occured ?? undefined as any,
-            waiting: quickView?.data.income.waiting ?? undefined as any,
-          },
-          expense: {
-            occured: quickView?.data.expense.occured ?? undefined as any,
-            waiting: quickView?.data.expense.waiting ?? undefined as any,
-          }
+          savingsRateChangeRate: undefined, // Şimdilik undefined, ileride eklenebilir
         }}
       />
+
+      {/* Detaylı Gelir/Gider Kartları */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <DetailedIncomeExpenseCard
+          type="income"
+          title={t('transaction.monthlyIncome')}
+          data={{
+            occured: quickView?.data?.income?.occured ?? 0,
+            waiting: quickView?.data?.income?.waiting ?? 0,
+            planning: quickView?.data?.income?.planning ?? 0,
+            lastMonthChangeRate: quickView?.data?.income?.lastMonthChangeRate
+          }}
+        />
+        <DetailedIncomeExpenseCard
+          type="expense"
+          title={t('transaction.monthlyExpense')}
+          data={{
+            occured: quickView?.data?.expense?.occured ?? 0,
+            waiting: quickView?.data?.expense?.waiting ?? 0,
+            planning: quickView?.data?.expense?.planning ?? 0,
+            lastMonthChangeRate: quickView?.data?.expense?.lastMonthChangeRate
+          }}
+        />
+      </div>
 
       {/* Grafikler */}
       <Suspense fallback={<div className="h-80 flex items-center justify-center">Grafikler yükleniyor…</div>}>

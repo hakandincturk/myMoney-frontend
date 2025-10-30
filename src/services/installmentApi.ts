@@ -31,17 +31,6 @@ export const installmentApi = createApi({
           : [{ type: 'Installment', id: 'LIST' }],
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.TRANSACTION : 0,
     }),
-    payInstallment: build.mutation<ApiResponse<any>, { installmentId: number; data: InstallmentDTOs.PayRequest }>({
-      query: ({ installmentId, data }) => ({
-        url: ApiUrl.INSTALLMENT_PAY.toString().replace('{id}', installmentId.toString()),
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { installmentId }) => [
-        { type: 'Installment', id: 'LIST' },
-        { type: 'Installment', id: installmentId },
-      ],
-    }),
     // Bulk pay mutation - accepts body with `ids: number[]` and `paidDate`
     payInstallments: build.mutation<ApiResponse<any>, { data: InstallmentDTOs.PayRequest }>({
       query: ({ data }) => ({
@@ -56,6 +45,6 @@ export const installmentApi = createApi({
   }),
 })
 
-export const { useListMonthlyInstallmentsQuery, usePayInstallmentMutation, usePayInstallmentsMutation } = installmentApi
+export const { useListMonthlyInstallmentsQuery, usePayInstallmentsMutation } = installmentApi
 
 

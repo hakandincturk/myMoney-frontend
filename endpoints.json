@@ -1314,6 +1314,9 @@
           "waiting": {
             "type": "number"
           },
+          "planning": {
+            "type": "number"
+          },
           "lastMonthChangeRate": {
             "type": "number",
             "format": "double"

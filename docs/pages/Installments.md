@@ -11,7 +11,7 @@
 
 ## API
 - Liste: `useListMonthlyInstallmentsQuery(filters)`
-- Ödeme: `usePayInstallmentMutation()`
+- Ödeme: `usePayInstallmentsMutation()`
 
 ## Kullanılanlar
 - Bileşenler: `Table`, `Modal`, `Input`, `Select`, `DatePicker`, `FilterChips`, `TableSkeleton`, `StatusBadge`

@@ -9,7 +9,7 @@ import { DatePicker } from '@/components/ui/DatePicker'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
 import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, useListTransactionInstallmentsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
-import { usePayInstallmentMutation } from '@/services/installmentApi'
+import { usePayInstallmentsMutation } from '@/services/installmentApi'
 import { TransactionHelpers, TransactionDTOs, AccountDTOs } from '../../types'
 import type { ListMyContactsResponseDto } from '@/services/contactApi'
 
@@ -262,7 +262,7 @@ export const DebtsOverviewPage: React.FC = () => {
   })
   
   // Ödeme işlemi için mutation hook
-  const [payInstallment] = usePayInstallmentMutation()
+  const [payInstallments] = usePayInstallmentsMutation()
   
   // Taksit verilerini manuel olarak yönet
   type TransactionInstallmentRow = {
@@ -466,9 +466,11 @@ export const DebtsOverviewPage: React.FC = () => {
 		if (!selectedInstallment || !paymentDate) return
 
 		try {
-			await payInstallment({
-				installmentId: selectedInstallment.id,
-				data: { paidDate: paymentDate }
+			await payInstallments({
+				data: { 
+					ids: [selectedInstallment.id], 
+					paidDate: paymentDate 
+				}
 			}).unwrap()
 			
 			// showToast(t('installment.paymentSuccess'), 'success') // Removed useToast

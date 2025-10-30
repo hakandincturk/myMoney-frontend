@@ -1,11 +1,19 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card } from '@/components/ui/Card'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { 
+  faWallet, 
+  faBullseye, 
+  faClock,
+  faCalendarCheck,
+  faChartLine 
+} from '@fortawesome/free-solid-svg-icons'
 
 interface StatCardProps {
   title: string
   value: string
-  icon: string
+  icon: any
   color: 'green' | 'blue' | 'red' | 'amber' | 'purple'
   change?: {
     value: string
@@ -13,9 +21,10 @@ interface StatCardProps {
   }
   subtitle?: string
   subtitleHelp?: string
+  cardType: 'balance' | 'income' | 'expense' | 'savings' | 'pending'
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, subtitle, subtitleHelp }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, subtitle, subtitleHelp, cardType }) => {
   const colorClasses = {
     green: {
       bg: 'bg-emerald-100 dark:bg-emerald-500/20',
@@ -53,7 +62,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, 
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-3">
             <div className={`w-12 h-12 rounded-full ${classes.bg} flex items-center justify-center`}>
-              <span className={`text-xl ${classes.text}`}>{icon}</span>
+              <FontAwesomeIcon icon={icon} className={`text-xl ${classes.text}`} />
             </div>
             <h3 className="text-sm font-medium text-slate-600 dark:text-slate-300">
               {title}
@@ -89,7 +98,11 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, 
           )}
           {change && (
             <div className="mt-2 flex items-center gap-1">
-              <span className={`text-sm ${change.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+              <span className={`text-sm ${
+                cardType === 'expense'
+                  ? (change.isPositive ? 'text-rose-600' : 'text-emerald-600')
+                  : (change.isPositive ? 'text-emerald-600' : 'text-rose-600')
+              }`}>
                 {change.isPositive ? '↗' : '↘'} {change.value}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -106,24 +119,18 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, 
 interface DashboardStatsProps {
   data: {
     totalBalance: number
-    monthlyIncome: number
-    monthlyExpense: number
+    monthlyIncome: number // Geriye uyumluluk için bırakıldı, kullanılmıyor
+    monthlyExpense: number // Geriye uyumluluk için bırakıldı, kullanılmıyor
     savingsRate: number
     pendingPayments: number
   }
   changes?: {
-    incomeChangeRate?: number
-    expenseChangeRate?: number
     totalBalanceChangeRate?: number
     savingsRateChangeRate?: number
   }
-  details?: {
-    income?: { occured: number; waiting: number }
-    expense?: { occured: number; waiting: number }
-  }
 }
 
-export const DashboardStats: React.FC<DashboardStatsProps> = ({ data, changes, details }) => {
+export const DashboardStats: React.FC<DashboardStatsProps> = ({ data, changes }) => {
   const { t } = useTranslation()
 
   const formatCurrency = (amount: number) => {
@@ -135,81 +142,48 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ data, changes, d
   }
 
   const toChange = (rate?: number) => {
-    if (rate === undefined || rate === null) return undefined
+    if (rate === undefined || rate === null || rate === 0) return undefined
     const isPositive = rate >= 0
     const formatted = `%${Math.abs(rate).toFixed(1)}`
     return { value: formatted, isPositive }
   }
 
-  const incomeOccured = details?.income?.occured
-  const incomeWaiting = details?.income?.waiting
-  const incomeTotal =
-    typeof incomeOccured === 'number' && typeof incomeWaiting === 'number'
-      ? incomeOccured + incomeWaiting
-      : undefined
 
-  const expenseOccured = details?.expense?.occured
-  const expenseWaiting = details?.expense?.waiting
-  const expenseTotal =
-    typeof expenseOccured === 'number' && typeof expenseWaiting === 'number'
-      ? expenseOccured + expenseWaiting
-      : undefined
 
   const stats = [
     {
       title: t('account.totalBalance'),
       value: formatCurrency(data.totalBalance),
-      icon: '💰',
+      icon: faWallet,
       color: 'green' as const,
       change: toChange(changes?.totalBalanceChangeRate),
       subtitle: undefined,
-      subtitleHelp: undefined
-    },
-    {
-      title: t('transaction.monthlyIncome'),
-      value: formatCurrency(incomeTotal ?? data.monthlyIncome),
-      icon: '📈',
-      color: 'blue' as const,
-      subtitle:
-        typeof incomeOccured === 'number' && typeof incomeTotal === 'number' && incomeTotal !== incomeOccured
-          ? `${formatCurrency(incomeOccured)} / ${formatCurrency(incomeTotal)}`
-          : undefined,
-			subtitleHelp: 'Gerçekleşen Tutar / Toplam Tutar',
-      change: toChange(changes?.incomeChangeRate)
-    },
-    {
-      title: t('transaction.monthlyExpense'),
-      value: formatCurrency(data.monthlyExpense ?? expenseTotal),
-      icon: '📉',
-      color: 'red' as const,
-      subtitle:
-        typeof expenseOccured === 'number' && typeof expenseTotal === 'number' && expenseTotal !== expenseOccured
-          ? `${formatCurrency(expenseOccured)} / ${formatCurrency(expenseTotal)}`
-          : undefined,
-      subtitleHelp: 'Gerçekleşen Tutar / Toplam Tutar',
-      change: toChange(changes?.expenseChangeRate)
+      subtitleHelp: t('transaction.totalBalanceTooltip'),
+      cardType: 'balance' as const
     },
     {
       title: t('transaction.savingsRate'),
       value: formatPercentage(data.savingsRate),
-      icon: '🎯',
+      icon: faBullseye,
       color: 'amber' as const,
       subtitle: undefined,
-      subtitleHelp: 'Tasarruf oranı = (Gelir - Gider) / Gelir',
-      change: toChange(changes?.savingsRateChangeRate)
+      subtitleHelp: t('transaction.savingsRateTooltip'),
+      change: toChange(changes?.savingsRateChangeRate),
+      cardType: 'savings' as const
     },
     {
-      title: 'Bekleyen Ödemeler',
+      title: t('transaction.pendingPayments'),
       value: data.pendingPayments.toString(),
-      icon: '⏰',
+      icon: faClock,
       color: 'purple' as const,
-      subtitle: undefined,
-      subtitleHelp: 'Bu ay içinde planlanmış ve henüz ödenmemiş taksit/fatura sayısı.'
+      subtitle: 'adet',
+      subtitleHelp: t('transaction.pendingPaymentsTooltip'),
+      cardType: 'pending' as const
     }
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {stats.map((stat, index) => (
         <StatCard
           key={index}
@@ -220,6 +194,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ data, changes, d
           icon={stat.icon}
           color={stat.color}
           change={stat.change}
+          cardType={stat.cardType}
         />
       ))}
     </div>
