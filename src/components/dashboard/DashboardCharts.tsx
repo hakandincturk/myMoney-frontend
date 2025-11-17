@@ -1,7 +1,4 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { Card } from '@/components/ui/Card'
-import { Line, Doughnut } from 'react-chartjs-2'
+import React, { useMemo } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +10,12 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js'
+import { useGetCategorySummaryQuery } from '@/services/dashboardApi'
+import { MonthlyTrendChart } from './MonthlyTrendChart'
+import { CategoryDistributionChart } from './CategoryDistributionChart'
+import { useChartControls } from '../../hooks/useCharts'
+import { ChartDataProcessor, DateUtils } from '../../utils/chartUtils'
+import type { ChartDataPoint } from '../../types/charts'
 
 ChartJS.register(
   CategoryScale,
@@ -25,228 +28,75 @@ ChartJS.register(
   ArcElement,
 )
 
-interface MonthlyData {
-  income: number[]
-  expense: number[]
-  months: string[]
-}
-
-interface ExpenseCategory {
-  name: string
-  amount: number
-  color: string
-  percentage: number
-}
-
 interface DashboardChartsProps {
-  monthlyData: MonthlyData
-  expenseCategories: ExpenseCategory[]
+  monthlyData: ChartDataPoint[]
+  isMonthlyLoading?: boolean
+  hasMonthlyError?: boolean
 }
 
+/**
+ * Ana dashboard charts komponenti - SOLID prensipleri uygulanarak refactor edildi
+ * 
+ * SRP: Her chart tipi için ayrı komponent oluşturuldu
+ * OCP: Yeni chart tipleri eklemek için sadece yeni komponent eklenmesi yeterli
+ * LSP: Tüm chart komponentleri aynı interface'i kullanıyor
+ * ISP: Her chart sadece ihtiyacı olan props'ları alıyor
+ * DIP: Konkret sınıflar yerine abstraction'lar kullanıyor
+ */
 export const DashboardCharts: React.FC<DashboardChartsProps> = ({ 
   monthlyData, 
-  expenseCategories 
+  isMonthlyLoading = false,
+  hasMonthlyError = false 
 }) => {
-  const { t } = useTranslation()
+  const {
+    categoryPeriod,
+    categorySumMode,
+    setCategoryPeriod,
+    setCategorySumMode,
+  } = useChartControls()
 
-  // Tema kontrolü için yardımcı fonksiyon
-  const isDarkMode = () => {
-    return document.documentElement.classList.contains('dark')
-  }
+  // Seçili periode göre tarih aralığını al
+  const { startDate, endDate } = DateUtils.getDateRange(categoryPeriod)
 
-  // Line chart seçenekleri
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: isDarkMode() ? '#E2E8F0' : '#1E293B',
-          font: {
-            size: 12,
-            weight: 500
-          },
-          padding: 20,
-          usePointStyle: true,
-        },
-      },
-      tooltip: {
-        backgroundColor: isDarkMode() ? '#334155' : '#FFFFFF',
-        titleColor: isDarkMode() ? '#E2E8F0' : '#1E293B',
-        bodyColor: isDarkMode() ? '#E2E8F0' : '#1E293B',
-        borderColor: isDarkMode() ? '#475569' : '#E2E8F0',
-        borderWidth: 1,
-        cornerRadius: 8,
-        callbacks: {
-          label: function(context: any) {
-            return `${context.dataset.label}: ₺${context.parsed.y.toLocaleString('tr-TR')}`
-          }
-        }
-      },
-    },
-    scales: {
-      x: {
-        ticks: { 
-          color: isDarkMode() ? '#CBD5E1' : '#475569',
-          font: { size: 11 }
-        },
-        grid: { 
-          color: isDarkMode() ? '#334155' : '#F1F5F9',
-          drawBorder: false
-        },
-      },
-      y: {
-        ticks: { 
-          color: isDarkMode() ? '#CBD5E1' : '#475569',
-          font: { size: 11 },
-          callback: function(value: any) {
-            return '₺' + value.toLocaleString('tr-TR')
-          }
-        },
-        grid: { 
-          color: isDarkMode() ? '#334155' : '#F1F5F9',
-          drawBorder: false
-        },
-      },
-    },
-    elements: {
-      line: {
-        tension: 0.4,
-        borderWidth: 3,
-      },
-      point: {
-        radius: 6,
-        hoverRadius: 8,
-        borderWidth: 2,
-      }
-    }
-  }
+  // Kategori verisi için API çağrısı
+  const {
+    data: categorySummaryData,
+    isLoading: isCategoryLoading,
+    error: categoryError,
+  } = useGetCategorySummaryQuery({
+    startDate,
+    endDate,
+    type: categoryPeriod,
+    sumMode: categorySumMode,
+  }, {
+    refetchOnMountOrArgChange: true
+  })
 
-  // Doughnut chart seçenekleri
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right' as const,
-        labels: {
-          color: isDarkMode() ? '#E2E8F0' : '#1E293B',
-          font: {
-            size: 12,
-            weight: 500
-          },
-          padding: 15,
-          usePointStyle: true,
-          generateLabels: function(chart: any) {
-            const data = chart.data
-            if (data.labels.length && data.datasets.length) {
-              return data.labels.map((label: string, i: number) => {
-                const dataset = data.datasets[0]
-                const value = dataset.data[i]
-                const total = dataset.data.reduce((a: number, b: number) => a + b, 0)
-                const percentage = ((value / total) * 100).toFixed(1)
-                return {
-                  text: `${label} (${percentage}%)`,
-                  fillStyle: dataset.backgroundColor[i],
-                  strokeStyle: dataset.borderColor,
-                  lineWidth: dataset.borderWidth,
-                  hidden: false,
-                  index: i
-                }
-              })
-            }
-            return []
-          }
-        },
-      },
-      tooltip: {
-        backgroundColor: isDarkMode() ? '#334155' : '#FFFFFF',
-        titleColor: isDarkMode() ? '#E2E8F0' : '#1E293B',
-        bodyColor: isDarkMode() ? '#E2E8F0' : '#1E293B',
-        borderColor: isDarkMode() ? '#475569' : '#E2E8F0',
-        borderWidth: 1,
-        cornerRadius: 8,
-        callbacks: {
-          label: function(context: any) {
-            const label = context.label || ''
-            const value = context.parsed
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0)
-            const percentage = ((value / total) * 100).toFixed(1)
-            return `${label}: ₺${value.toLocaleString('tr-TR')} (${percentage}%)`
-          }
-        }
-      },
-    },
-    cutout: '60%',
-    elements: {
-      arc: {
-        borderWidth: 2,
-        borderColor: isDarkMode() ? '#1E293B' : '#FFFFFF',
-      }
-    }
-  }
+  // Kategori verilerini işle - Utility sınıfını kullanarak
+  const expenseCategories = useMemo(() => 
+    ChartDataProcessor.processCategories(categorySummaryData), 
+    [categorySummaryData]
+  )
 
-  // Line chart verisi
-  const lineChartData = {
-    labels: monthlyData.months,
-    datasets: [
-      {
-        label: t('transaction.income'),
-        data: monthlyData.income,
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        fill: true,
-      },
-      {
-        label: t('transaction.expense'),
-        data: monthlyData.expense,
-        borderColor: '#EF4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        fill: true,
-      },
-    ],
-  }
-
-  // Doughnut chart verisi
-  const doughnutData = {
-    labels: expenseCategories.map(cat => cat.name),
-    datasets: [
-      {
-        data: expenseCategories.map(cat => cat.amount),
-        backgroundColor: expenseCategories.map(cat => cat.color),
-        borderColor: expenseCategories.map(cat => cat.color),
-        borderWidth: 0,
-        hoverBorderWidth: 3,
-      },
-    ],
-  }
+  const isCategoryError = !!categoryError
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      {/* Aylık Gelir/Gider Grafiği */}
-      <Card 
-        title="Aylık Gelir/Gider Trendi" 
-        subtitle="Bu grafik, ay bazında gerçekleşen toplam gelir ve giderleri gösterir."
-        subtitleHelp="Yeşil alan gelirleri, kırmızı alan giderleri temsil eder. Değerler Türk Lirası cinsindedir."
-        className="hover:shadow-md transition-all duration-200"
-      >
-        <div className="h-80">
-          <Line data={lineChartData} options={lineChartOptions} />
-        </div>
-      </Card>
-
-      {/* Harcama Kategorileri Dağılımı */}
-      <Card 
-        title="Harcama Kategorileri Dağılımı" 
-        subtitle="Toplam giderin kategori bazında yüzde dağılımı."
-        subtitleHelp="Her dilimde kategoriye ait toplam gider ve yüzde oranı gösterilir."
-        className="hover:shadow-md transition-all duration-200"
-      >
-        <div className="h-80">
-          <Doughnut data={doughnutData} options={doughnutOptions} />
-        </div>
-      </Card>
+      <MonthlyTrendChart 
+        data={monthlyData}
+        isLoading={isMonthlyLoading}
+        hasError={hasMonthlyError}
+      />
+      
+      <CategoryDistributionChart 
+        categories={expenseCategories}
+        isLoading={isCategoryLoading}
+        hasError={isCategoryError}
+        categoryPeriod={categoryPeriod}
+        categorySumMode={categorySumMode}
+        onPeriodChange={setCategoryPeriod}
+        onSumModeChange={setCategorySumMode}
+      />
     </div>
   )
 }

@@ -2,7 +2,6 @@ export namespace DashboardDTOs {
   export type QuickViewIncomeAndExpenseDetailDto = {
     occured: number
     waiting: number
-    planning: number
     lastMonthChangeRate: number
   }
 
@@ -12,6 +11,36 @@ export namespace DashboardDTOs {
     expense: QuickViewIncomeAndExpenseDetailDto
     savingRate: number
     waitingInstallments: number
+  }
+
+  export type MonthlyTrendData = {
+    title: string
+    income: number
+    expense: number
+  }
+
+  export type MonthlyTrend = {
+    monthlyTrendData: MonthlyTrendData[]
+  }
+
+  export type CategorySummaryData = {
+    name: string
+    amount: number
+    percentage: number
+  }
+
+  export type CategorySummary = {
+    categorySummaryDatas: CategorySummaryData[]
+  }
+
+  export type CategorySummaryRequest = {
+    startDate: string
+    endDate: string
+  }
+
+  export type CategorySummaryParams = {
+    type: 'MONTHLY' | 'YEARLY'
+    sumMode: 'DOUBLE_COUNT' | 'DISTRIBUTED'
   }
 }
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons'
 import { Card } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
@@ -17,10 +19,9 @@ import { AccountType, CurrencyType } from '@/services/accountApi'
 interface QuickAction {
   title: string
   description: string
-  icon: string
+  icon: string | React.ReactNode
   color: 'green' | 'red' | 'blue' | 'purple' | 'amber' | 'indigo'
-  actionType: 'income' | 'expense' | 'installment' | 'reports' | 'account' | 'contact'
-  isExternal?: boolean
+  actionType: 'income' | 'expense' | 'installment' | 'budget' | 'account' | 'contact' | 'reports'
 }
 
 interface QuickActionsProps {
@@ -138,7 +139,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     {
       title: 'Taksit Ekle',
       description: 'Taksitli ödeme planı oluştur',
-      icon: '📅',
+      icon: <FontAwesomeIcon icon={faCalendarDays} />,
       color: 'blue',
       actionType: 'installment'
     },
@@ -288,7 +289,11 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
             w-12 h-12 rounded-lg flex items-center justify-center
             ${colors.icon}
           `}>
-            <span className="text-xl">{action.icon}</span>
+            {typeof action.icon === 'string' ? (
+              <span className="text-xl">{action.icon}</span>
+            ) : (
+              <span className="text-xl">{action.icon}</span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg mb-1">

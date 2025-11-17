@@ -250,6 +250,64 @@
         }
       }
     },
+    "/api/dashboard/category-sumamry": {
+      "post": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Category Summary",
+        "description": "Ana sayfada harcamalari kategorisel olarak getirir",
+        "operationId": "categorySummary",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MONTHLY",
+                "YEARLY"
+              ]
+            }
+          },
+          {
+            "name": "sumMode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DOUBLE_COUNT",
+                "DISTRIBUTED"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySummaryRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCategorySummaryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/contact/my": {
       "post": {
         "tags": [
@@ -523,6 +581,28 @@
         }
       }
     },
+    "/api/dashboard/monthly-trend": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Monthly Trend",
+        "description": "Ana sayfa gelir/gider trendi grafigi verilerini getirir",
+        "operationId": "monthlyTrend",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMonthlyTrendResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/contact/my/active": {
       "get": {
         "tags": [
@@ -782,6 +862,67 @@
             },
             "maxItems": 2147483647,
             "minItems": 0
+          }
+        }
+      },
+      "CategorySummaryRequestDto": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "endDate",
+          "startDate"
+        ]
+      },
+      "ApiResponseCategorySummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CategorySummaryResponseDto"
+          }
+        }
+      },
+      "CategorySummaryDataDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CategorySummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "categorySummaryDatas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategorySummaryDataDto"
+            }
           }
         }
       },
@@ -1314,9 +1455,6 @@
           "waiting": {
             "type": "number"
           },
-          "planning": {
-            "type": "number"
-          },
           "lastMonthChangeRate": {
             "type": "number",
             "format": "double"
@@ -1342,6 +1480,49 @@
           "waitingInstallments": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ApiResponseMonthlyTrendResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MonthlyTrendResponseDto"
+          }
+        }
+      },
+      "MonthlyTrendDataDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "income": {
+            "type": "number"
+          },
+          "expense": {
+            "type": "number"
+          }
+        }
+      },
+      "MonthlyTrendResponseDto": {
+        "type": "object",
+        "properties": {
+          "monthlyTrendData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyTrendDataDto"
+            }
           }
         }
       },

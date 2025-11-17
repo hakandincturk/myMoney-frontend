@@ -18,6 +18,7 @@ interface StatCardProps {
   change?: {
     value: string
     isPositive: boolean
+    isZero?: boolean
   }
   subtitle?: string
   subtitleHelp?: string
@@ -99,11 +100,13 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, change, 
           {change && (
             <div className="mt-2 flex items-center gap-1">
               <span className={`text-sm ${
-                cardType === 'expense'
-                  ? (change.isPositive ? 'text-rose-600' : 'text-emerald-600')
-                  : (change.isPositive ? 'text-emerald-600' : 'text-rose-600')
+                change.isZero 
+                  ? 'text-slate-500 dark:text-slate-400'
+                  : cardType === 'expense'
+                    ? (change.isPositive ? 'text-rose-600' : 'text-emerald-600')
+                    : (change.isPositive ? 'text-emerald-600' : 'text-rose-600')
               }`}>
-                {change.isPositive ? '↗' : '↘'} {change.value}
+                {change.isZero ? '→' : (change.isPositive ? '↗' : '↘')} {change.value}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 geçen aya göre
@@ -142,10 +145,11 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ data, changes })
   }
 
   const toChange = (rate?: number) => {
-    if (rate === undefined || rate === null || rate === 0) return undefined
+    if (rate === undefined || rate === null) return undefined
     const isPositive = rate >= 0
     const formatted = `%${Math.abs(rate).toFixed(1)}`
-    return { value: formatted, isPositive }
+    const isZero = rate === 0
+    return { value: formatted, isPositive, isZero }
   }
 
 

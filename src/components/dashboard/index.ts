@@ -1,5 +1,7 @@
 export { default as Dashboard } from './Dashboard'
 export { default as DashboardCharts } from './DashboardCharts'
+export { MonthlyTrendChart } from './MonthlyTrendChart'
+export { CategoryDistributionChart } from './CategoryDistributionChart'  
 export { default as DashboardStats } from './DashboardStats'
 export { default as DashboardTables } from './DashboardTables'
 export { default as QuickActions } from './QuickActions'

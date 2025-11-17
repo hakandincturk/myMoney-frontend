@@ -40,6 +40,8 @@ export enum ApiUrl {
   
   // Dashboard endpoints
   DASHBOARD_QUICK_VIEW = '/api/dashboard/quick-view',
+  DASHBOARD_MONTHLY_TREND = '/api/dashboard/monthly-trend',
+  DASHBOARD_CATEGORY_SUMMARY = '/api/dashboard/category-summary',
 
   // User endpoints
   USER_PROFILE = '/api/user/profile',
