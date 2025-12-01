@@ -27,6 +27,7 @@ type TableProps<T> = {
   sortDirection?: 'asc' | 'desc'
   isFirstPage?: boolean
   isLastPage?: boolean
+  getRowClassName?: (row: T) => string
 }
 
 export const Table = <T extends object>({ 
@@ -45,7 +46,8 @@ export const Table = <T extends object>({
   sortColumn,
   sortDirection = 'desc',
   isFirstPage,
-  isLastPage
+  isLastPage,
+  getRowClassName
 }: TableProps<T>) => {
   const { t } = useTranslation()
   
@@ -114,20 +116,23 @@ export const Table = <T extends object>({
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr 
-                  key={row.id} 
-                  className="relative hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="align-middle">
-                      <div className="px-6 py-4 w-full text-sm text-slate-900 dark:text-mm-text whitespace-nowrap">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {table.getRowModel().rows.map((row) => {
+                const customRowClass = getRowClassName ? getRowClassName(row.original) : ''
+                return (
+                  <tr 
+                    key={row.id} 
+                    className={`relative hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border ${customRowClass}`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="align-middle">
+                        <div className="px-6 py-4 w-full text-sm text-slate-900 dark:text-mm-text whitespace-nowrap">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

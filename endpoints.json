@@ -250,7 +250,7 @@
         }
       }
     },
-    "/api/dashboard/category-sumamry": {
+    "/api/dashboard/category-summary": {
       "post": {
         "tags": [
           "Dashboard"
@@ -1312,14 +1312,6 @@
             "items": {
               "type": "boolean"
             }
-          },
-          "paidStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "paidEndDate": {
-            "type": "string",
-            "format": "date"
           }
         }
       },
@@ -1364,10 +1356,6 @@
           },
           "descripton": {
             "type": "string"
-          },
-          "paidDate": {
-            "type": "string",
-            "format": "date"
           },
           "paid": {
             "type": "boolean"

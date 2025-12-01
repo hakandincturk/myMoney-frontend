@@ -251,10 +251,7 @@ export const DebtsOverviewPage: React.FC = () => {
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 	const [selectedTransaction, setSelectedTransaction] = useState<TransactionListItem | null>(null)
 	
-	// Ödeme modalı için state'ler
-	const [paymentModalOpen, setPaymentModalOpen] = useState(false)
-	const [selectedInstallment, setSelectedInstallment] = useState<TransactionInstallmentRow | null>(null)
-	const [paymentDate, setPaymentDate] = useState('')
+		// Ödeme artık modalsız yapılacak
 	  const selectedTransactionId = selectedTransaction?.id ?? 0
   	const { data: installmentsData, isLoading: installmentsLoading, refetch: refetchInstallments } = useListTransactionInstallmentsQuery(selectedTransactionId, { 
     skip: !selectedTransactionId,
@@ -271,7 +268,6 @@ export const DebtsOverviewPage: React.FC = () => {
     debtDate: string
     installmentNumber: number
     descripton?: string
-    paidDate?: string
     paid: boolean
   }
   const [currentInstallments, setCurrentInstallments] = useState<TransactionInstallmentRow[]>([])
@@ -447,43 +443,21 @@ export const DebtsOverviewPage: React.FC = () => {
 		}
 	}
 
-	// Ödeme modalını aç
-	const openPaymentModal = (installment: TransactionInstallmentRow) => {
-		setSelectedInstallment(installment)
-		setPaymentDate(today)
-		setPaymentModalOpen(true)
-	}
-
-	// Ödeme modalını kapat
-	const closePaymentModal = () => {
-		setPaymentModalOpen(false)
-		setSelectedInstallment(null)
-		setPaymentDate('')
-	}
-
-	// Ödeme işlemi
-	const handlePayment = async () => {
-		if (!selectedInstallment || !paymentDate) return
-
-		try {
-			await payInstallments({
-				data: { 
-					ids: [selectedInstallment.id], 
-					paidDate: paymentDate 
+		// Ödeme işlemi (otomatik bugünün tarihi ile)
+		const payInstallmentNow = async (installmentId: number) => {
+			if (!installmentId) return
+			try {
+				await payInstallments({
+					data: { ids: [installmentId], paidDate: today }
+				}).unwrap()
+				try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.paymentSuccess'), type: 'success' } })) } catch(_) {}
+				if (selectedTransaction) {
+					refetchInstallments()
 				}
-			}).unwrap()
-			
-			// showToast(t('installment.paymentSuccess'), 'success') // Removed useToast
-			closePaymentModal()
-			
-			// Taksit listesini yenile
-			if (selectedTransaction) {
-				refetchInstallments()
+			} catch (error) {
+				try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.operationFailed'), type: 'error' } })) } catch(_) {}
 			}
-		} catch (error) {
-			// showToast(t('messages.operationFailed'), 'error') // Removed useToast
 		}
-	}
 
 	// API'den gelen işlemleri sadece borçlar olarak filtrele
 	const debts: TransactionListItem[] = useMemo(() => {
@@ -1408,11 +1382,7 @@ export const DebtsOverviewPage: React.FC = () => {
 												<th className="text-center px-3 py-2 font-medium text-slate-700 dark:text-mm-text">
 													{t('table.columns.status')}
 												</th>
-												{currentInstallments.some(ins => ins.paid && ins.paidDate) && (
-													<th className="text-left px-3 py-2 font-medium text-slate-700 dark:text-mm-text">
-														{t('table.columns.paidDate')}
-													</th>
-												)}
+												{/* Paid Date column removed */}
 												<th className="text-center px-3 py-2 font-medium text-slate-700 dark:text-mm-text">
 													{t('table.columns.actions')}
 												</th>
@@ -1462,29 +1432,11 @@ export const DebtsOverviewPage: React.FC = () => {
 																{ins.paid ? t('status.paid') : t('status.pending')}
 															</div>
 														</td>
-													{currentInstallments.some(ins => ins.paid && ins.paidDate) && (
-														<td className="px-3 py-2 text-slate-600 dark:text-mm-subtleText">
-															{ins.paid && ins.paidDate ? (
-																<div className="flex items-center gap-1 text-green-600 dark:text-green-500">
-																	<FontAwesomeIcon icon={faCalendarAlt} className="text-xs" />
-																	{new Date(ins.paidDate).toLocaleDateString(
-																		i18n.language === 'tr' ? 'tr-TR' : 'en-US',
-																		{ 
-															year: 'numeric', 
-															month: 'short', 
-															day: 'numeric' 
-														}
-													)}
-												</div>
-											) : (
-												<span className="text-slate-400 dark:text-slate-500">-</span>
-											)}
-										</td>
-									)}
+														{/* Paid Date cell removed */}
 									<td className="px-3 py- text-center">
-										{!ins.paid && (
+										{ !ins.paid && (
 											<Button
-												onClick={() => openPaymentModal(ins)}
+												onClick={() => payInstallmentNow(ins.id)}
 												variant="secondary"
 												className="!px-0.5 !py-0 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50 !min-w-[40px] text-center !h-6"
 											>
@@ -1759,39 +1711,7 @@ export const DebtsOverviewPage: React.FC = () => {
 				</div>
 			</Modal>
 
-			{/* Ödeme Modal */}
-			<Modal
-				open={paymentModalOpen}
-				onClose={closePaymentModal}
-				title={t('modals.payInstallment')}
-				size="sm"
-				zIndex={10001}
-				footer={
-					<div className="flex gap-3 justify-end">
-						<Button variant="secondary" onClick={closePaymentModal}>
-							{t('buttons.cancel')}
-						</Button>
-						<Button variant="primary" onClick={handlePayment}>
-							{t('buttons.save')}
-						</Button>
-					</div>
-				}
-			>
-				<div className="space-y-4">
-					<p className="text-sm text-slate-600 dark:text-mm-subtleText">
-						{t('installment.selectPaymentDate')}
-					</p>
-					<DatePicker
-						id="paymentDate"
-						value={paymentDate}
-						onChange={setPaymentDate}
-						label={t('installment.paymentDate')}
-						required
-						usePortal
-						dropdownZIndex={10050}
-					/>
-				</div>
-			</Modal>
+			{/* Ödeme modalı kaldırıldı: ödeme butonu doğrudan bugünün tarihi ile işlem yapar */}
 
 			{/* Borç Silme Modal */}
 			<Modal 

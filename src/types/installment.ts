@@ -12,7 +12,6 @@ export namespace InstallmentDTOs {
     debtDate: string
     installmentNumber: number
     descripton?: string
-    paidDate?: string
     paid: boolean
   }
 
@@ -56,7 +55,5 @@ export namespace InstallmentDTOs {
     minTotalAmount?: number
     maxTotalAmount?: number
     isPaid?: boolean[]
-    paidStartDate?: string
-    paidEndDate?: string
   }
 }

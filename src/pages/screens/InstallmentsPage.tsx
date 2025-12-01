@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
-import { DatePicker } from '@/components/ui/DatePicker'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { useListMonthlyInstallmentsQuery } from '@/services/installmentApi'
+import { useListMonthlyInstallmentsQuery, usePayInstallmentsMutation } from '@/services/installmentApi'
 import { InstallmentDTOs } from '../../types/installment'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Checkbox from '@/components/ui/Checkbox'
 import { TransactionStatus } from '../../enums'
-import PayInstallmentsModal from '@/components/ui/PayInstallmentsModal'
+// import PayInstallmentsModal from '@/components/ui/PayInstallmentsModal'
 
 // Kısa alias'lar oluştur
 type FilterRequest = InstallmentDTOs.FilterRequest
@@ -60,9 +59,7 @@ export const InstallmentsPage: React.FC = () => {
       description: params.get('description') || '',
       minTotalAmount: params.get('minTotalAmount') ? Number(params.get('minTotalAmount')) || undefined : undefined,
       maxTotalAmount: params.get('maxTotalAmount') ? Number(params.get('maxTotalAmount')) || undefined : undefined,
-      isPaid: params.get('isPaid') ? params.get('isPaid')!.split(',').map(v => v === 'true') : undefined,
-      paidStartDate: params.get('paidStartDate') || '',
-      paidEndDate: params.get('paidEndDate') || ''
+      isPaid: params.get('isPaid') ? params.get('isPaid')!.split(',').map(v => v === 'true') : undefined
     }
     
     return result
@@ -84,8 +81,6 @@ export const InstallmentsPage: React.FC = () => {
     if (filters.minTotalAmount && filters.minTotalAmount > 0) params.set('minTotalAmount', filters.minTotalAmount.toString())
     if (filters.maxTotalAmount && filters.maxTotalAmount > 0) params.set('maxTotalAmount', filters.maxTotalAmount.toString())
     if (filters.isPaid && filters.isPaid.length > 0) params.set('isPaid', filters.isPaid.join(','))
-    if (filters.paidStartDate && filters.paidStartDate.trim()) params.set('paidStartDate', filters.paidStartDate.trim())
-    if (filters.paidEndDate && filters.paidEndDate.trim()) params.set('paidEndDate', filters.paidEndDate.trim())
     
     setSearchParams(params, { replace: true })
   }, [setSearchParams])
@@ -159,10 +154,8 @@ export const InstallmentsPage: React.FC = () => {
     }
   }, [error, t])
 
-  // Modal state'leri
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
-  const [selectedInstallment, setSelectedInstallment] = useState<InstallmentRow | null>(null)
-  const [paymentDate, setPaymentDate] = useState('')
+  // Payment mutation
+  const [payInstallments] = usePayInstallmentsMutation()
   // Selection for bulk operations
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [selectAllOnPage, setSelectAllOnPage] = useState(false)
@@ -175,21 +168,20 @@ export const InstallmentsPage: React.FC = () => {
       String(now.getDate()).padStart(2, '0')
   })()
 
-  // Modal açma fonksiyonları
-  const openPaymentModal = (installment: InstallmentRow) => {
-    // For single payment, set selectedInstallment to null and set selectedIds to the single id
-    setSelectedInstallment(null)
-    setSelectedIds([installment.id])
-    setPaymentDate(today)
-    setPaymentModalOpen(true)
-  }
-
-  // Open payment modal for bulk selection
-  const openBulkPaymentModal = () => {
-    if (selectedIds.length === 0) return
-    setSelectedInstallment(null)
-    setPaymentDate(today)
-    setPaymentModalOpen(true)
+  // Pay helper - auto-assign today's date, no modal
+  const handlePay = async (ids: number[]) => {
+    if (!ids || ids.length === 0) return
+    try {
+      await payInstallments({ data: { ids, paidDate: today } }).unwrap()
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.paymentSuccess'), type: 'success' } })) } catch(_) {}
+      // Clear selection and trigger refetch
+      setSelectedIds([])
+      setSelectAllOnPage(false)
+      setAppliedFilters(prev => ({ ...prev }))
+    } catch (e) {
+      const message = t('messages.operationFailed')
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
+    }
   }
 
   // İşlem tipine göre aksiyon butonu metni
@@ -206,17 +198,7 @@ export const InstallmentsPage: React.FC = () => {
     }
   }
 
-  // Modal kapatma fonksiyonları
-  const closePaymentModal = () => {
-    setPaymentModalOpen(false)
-    setSelectedInstallment(null)
-    setPaymentDate('')
-  }
-
-  // selectedTotal is computed after rows is available below (useMemo placed later)
-
-  // Ödeme işlemi
-  // Payment is handled by the shared PayInstallmentsModal which calls the bulk API with ids: number[]
+  // Ödeme işlemi artık doğrudan handlePay ile yapılıyor (modal yok)
 
   // Sayfalama işlemleri
   const handlePageChange = (newPage: number) => {
@@ -290,9 +272,7 @@ export const InstallmentsPage: React.FC = () => {
       description: '',
       minTotalAmount: undefined,
       maxTotalAmount: undefined,
-      isPaid: undefined,
-      paidStartDate: '',
-      paidEndDate: ''
+      isPaid: undefined
     }
     
     setFilterParams(defaultFilters)
@@ -307,10 +287,8 @@ export const InstallmentsPage: React.FC = () => {
     const hasMinTotalAmount = filterParams.minTotalAmount && filterParams.minTotalAmount > 0
     const hasMaxTotalAmount = filterParams.maxTotalAmount && filterParams.maxTotalAmount > 0
     const hasIsPaid = filterParams.isPaid && filterParams.isPaid.length > 0
-    const hasPaidStartDate = filterParams.paidStartDate && filterParams.paidStartDate.trim() !== ''
-    const hasPaidEndDate = filterParams.paidEndDate && filterParams.paidEndDate.trim() !== ''
-
-    return hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid || hasPaidStartDate || hasPaidEndDate
+    
+    return hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid
   }
 
   // Uygulanan filtrelerde aktif olan var mı?
@@ -320,10 +298,8 @@ export const InstallmentsPage: React.FC = () => {
     const hasMinTotalAmount = typeof appliedFilters.minTotalAmount === 'number' && appliedFilters.minTotalAmount > 0
     const hasMaxTotalAmount = typeof appliedFilters.maxTotalAmount === 'number' && appliedFilters.maxTotalAmount > 0
     const hasIsPaid = appliedFilters.isPaid && appliedFilters.isPaid.length > 0
-    const hasPaidStartDate = appliedFilters.paidStartDate && appliedFilters.paidStartDate.trim() !== ''
-    const hasPaidEndDate = appliedFilters.paidEndDate && appliedFilters.paidEndDate.trim() !== ''
-
-    return hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid || hasPaidStartDate || hasPaidEndDate
+    
+    return hasTransactionName || hasDescription || hasMinTotalAmount || hasMaxTotalAmount || hasIsPaid
   }
 
   // Üst bardan chip kaldırma
@@ -331,7 +307,7 @@ export const InstallmentsPage: React.FC = () => {
     const nextApplied: FilterRequest = { ...appliedFilters }
     const nextFilter: FilterRequest = { ...filterParams }
 
-    if (key === 'transactionName' || key === 'description' || key === 'paidStartDate' || key === 'paidEndDate') {
+    if (key === 'transactionName' || key === 'description') {
       (nextApplied as any)[key] = ''
       ;(nextFilter as any)[key] = ''
     } else {
@@ -453,13 +429,6 @@ export const InstallmentsPage: React.FC = () => {
   // Yeni API response yapısına göre veriyi al
   const rows: InstallmentRow[] = data?.data?.content || []
 
-  // Compute total amount of selected installments (memoized)
-  const selectedTotal = useMemo(() => {
-    return selectedIds.reduce((sum, id) => {
-      const it = rows.find(r => r.id === id)
-      return sum + (it ? Number(it.amount || 0) : 0)
-    }, 0)
-  }, [selectedIds, rows])
 
   const columns = [
     // Selection checkbox column
@@ -587,33 +556,6 @@ export const InstallmentsPage: React.FC = () => {
         className: 'min-w-[100px] text-center'
       }
     }),
-    columnHelper.accessor('paidDate', {
-      header: t('table.columns.paidDate'),
-      cell: (info) => {
-        const installment = info.row.original
-        if (installment.paid && installment.paidDate) {
-          return (
-            <span className="text-green-600 dark:text-green-400 text-sm font-medium">
-              {new Date(installment.paidDate).toLocaleDateString(
-                i18n.language === 'tr' ? 'tr-TR' : 'en-US',
-                { 
-                  year: 'numeric', 
-                  month: 'short', 
-                  day: 'numeric' 
-                }
-              )}
-            </span>
-          )
-        } else {
-          return (
-            <span className="text-gray-400 text-sm">-</span>
-          )
-        }
-      },
-      meta: {
-        className: 'min-w-[120px] text-center'
-      }
-    }),
     columnHelper.display({
       id: 'actions',
       header: t('table.columns.actions'),
@@ -623,7 +565,7 @@ export const InstallmentsPage: React.FC = () => {
           <div className="flex gap-2 justify-end">
             {!installment.paid && (
               <Button
-                onClick={() => openPaymentModal(installment)}
+                onClick={() => handlePay([installment.id])}
                 variant="secondary"
                 className="px-3 py-1 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50 min-w-[64px] text-center"
               >
@@ -663,15 +605,13 @@ export const InstallmentsPage: React.FC = () => {
                     if (filterParams.minTotalAmount && filterParams.minTotalAmount > 0) count++
                     if (filterParams.maxTotalAmount && filterParams.maxTotalAmount > 0) count++
                     if (filterParams.isPaid && filterParams.isPaid.length > 0) count++
-                    if (filterParams.paidStartDate && filterParams.paidStartDate.trim() !== '') count++
-                    if (filterParams.paidEndDate && filterParams.paidEndDate.trim() !== '') count++
                     return count
                   })()}
                 </span>
               )}
             </Button>
             <Button
-              onClick={openBulkPaymentModal}
+              onClick={() => handlePay(selectedIds)}
               variant="primary"
               className="px-3 py-2 text-sm"
               disabled={selectedIds.length === 0}
@@ -774,6 +714,7 @@ export const InstallmentsPage: React.FC = () => {
               isFirstPage={data?.data?.first}
               isLastPage={data?.data?.last}
               className="h-full"
+              getRowClassName={(row) => row.paid ? 'bg-green-50/50 dark:bg-green-900/10 hover:!bg-green-100/50 dark:hover:!bg-green-900/20' : ''}
             />
           )}
         </div>
@@ -798,8 +739,6 @@ export const InstallmentsPage: React.FC = () => {
                     if (filterParams.minTotalAmount && filterParams.minTotalAmount > 0) count++
                     if (filterParams.maxTotalAmount && filterParams.maxTotalAmount > 0) count++
                     if (filterParams.isPaid && filterParams.isPaid.length > 0) count++
-                    if (filterParams.paidStartDate && filterParams.paidStartDate.trim() !== '') count++
-                    if (filterParams.paidEndDate && filterParams.paidEndDate.trim() !== '') count++
                     return count
                   })()}
                 </span>
@@ -884,50 +823,9 @@ export const InstallmentsPage: React.FC = () => {
               </div>
       </div>
 
-            {/* Date Filters Section */}
-            <div className="bg-slate-50 dark:bg-gray-800/50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <h3 className="font-semibold text-slate-800 dark:text-slate-200">
-                  {t('filters.paidDateFilters')}
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DatePicker
-                  id="filterPaidStartDate"
-                  label={t('filters.paidStartDate')}
-                  value={filterParams.paidStartDate || ''}
-                  onChange={(value) => handleFilterChange('paidStartDate', value)}
-                  placeholder={t('placeholders.selectPaidStartDate')}
-                />
-                
-                <DatePicker
-                  id="filterPaidEndDate"
-                  label={t('filters.paidEndDate')}
-                  value={filterParams.paidEndDate || ''}
-                  onChange={(value) => handleFilterChange('paidEndDate', value)}
-                  placeholder={t('placeholders.selectPaidEndDate')}
-                />
-              </div>
-            </div>
           </div>
         </Modal>
 
-      {/* Ödeme Modal */}
-      <PayInstallmentsModal
-        open={paymentModalOpen}
-        onClose={closePaymentModal}
-        ids={selectedIds}
-        initialDate={paymentDate}
-        selectedTotal={selectedTotal}
-        onSuccess={() => {
-          // Clear selection and uncheck selectAllOnPage after successful payment
-          setSelectedIds([])
-          setSelectAllOnPage(false)
-          // Trigger refetch by updating appliedFilters pageNumber (keeps current filters)
-          setAppliedFilters(prev => ({ ...prev }))
-        }}
-      />
         </div>
     </div>
   )
