@@ -1,49 +1,49 @@
 export enum ApiUrl {
   // Transaction endpoints
-  TRANSACTION = '/api/transaction/',
-  TRANSACTION_MY = '/api/transaction/my',
-  TRANSACTION_MY_BY_ID = '/api/transaction/my/{id}',
-  TRANSACTION_BY_ID = '/api/transaction/{id}',
-  TRANSACTION_INSTALLMENTS = '/api/transaction/{id}/installments/',
+  TRANSACTION = '/transaction/',
+  TRANSACTION_MY = '/transaction/my',
+  TRANSACTION_MY_BY_ID = '/transaction/my/{id}',
+  TRANSACTION_BY_ID = '/transaction/{id}',
+  TRANSACTION_INSTALLMENTS = '/transaction/{id}/installments/',
   
   // Account endpoints
-  ACCOUNT = '/api/account/',
-  ACCOUNT_MY = '/api/account/my',
-  ACCOUNT_MY_ACTIVE = '/api/account/my/active',
-  ACCOUNT_MY_BY_ID = '/api/account/my/{id}',
-  ACCOUNT_BY_ID = '/api/account/{id}',
+  ACCOUNT = '/account/',
+  ACCOUNT_MY = '/account/my',
+  ACCOUNT_MY_ACTIVE = '/account/my/active',
+  ACCOUNT_MY_BY_ID = '/account/my/{id}',
+  ACCOUNT_BY_ID = '/account/{id}',
   
   // Contact endpoints
-  CONTACT = '/api/contact/',
-  CONTACT_MY = '/api/contact/my',
-  CONTACT_MY_ACTIVE = '/api/contact/my/active',
-  CONTACT_MY_BY_ID = '/api/contact/my/{id}',
-  CONTACT_BY_ID = '/api/contact/{id}',
+  CONTACT = '/contact/',
+  CONTACT_MY = '/contact/my',
+  CONTACT_MY_ACTIVE = '/contact/my/active',
+  CONTACT_MY_BY_ID = '/contact/my/{id}',
+  CONTACT_BY_ID = '/contact/{id}',
   
   // Category endpoints (tahmini isimlendirme backend ile aynı pattern)
-  CATEGORY = '/api/category/',
-  CATEGORY_MY = '/api/category/my',
-  CATEGORY_MY_ACTIVE = '/api/category/my/active',
-  CATEGORY_MY_BY_ID = '/api/category/my/{id}',
-  CATEGORY_BY_ID = '/api/category/{id}',
+  CATEGORY = '/category/',
+  CATEGORY_MY = '/category/my',
+  CATEGORY_MY_ACTIVE = '/category/my/active',
+  CATEGORY_MY_BY_ID = '/category/my/{id}',
+  CATEGORY_BY_ID = '/category/{id}',
   
   // Installment endpoints
-  INSTALLMENT_MONTH = '/api/installment/month',
+  INSTALLMENT_MONTH = '/installment/month',
   // Bulk pay endpoint (new): accepts body { ids: number[], paidDate: string }
-  INSTALLMENT_PAY_BULK = '/api/installment/pay',
+  INSTALLMENT_PAY_BULK = '/installment/pay',
   
   // Auth endpoints
-  AUTH_LOGIN = '/api/auth/login',
-  AUTH_REGISTER = '/api/auth/register',
-  AUTH_REFRESH = '/api/auth/refresh',
-  AUTH_LOGOUT = '/api/auth/logout',
+  AUTH_LOGIN = '/auth/login',
+  AUTH_REGISTER = '/auth/register',
+  AUTH_REFRESH = '/auth/refresh',
+  AUTH_LOGOUT = '/auth/logout',
   
   // Dashboard endpoints
-  DASHBOARD_QUICK_VIEW = '/api/dashboard/quick-view',
-  DASHBOARD_MONTHLY_TREND = '/api/dashboard/monthly-trend',
-  DASHBOARD_CATEGORY_SUMMARY = '/api/dashboard/category-summary',
+  DASHBOARD_QUICK_VIEW = '/dashboard/quick-view',
+  DASHBOARD_MONTHLY_TREND = '/dashboard/monthly-trend',
+  DASHBOARD_CATEGORY_SUMMARY = '/dashboard/category-summary',
 
   // User endpoints
-  USER_PROFILE = '/api/user/profile',
-  USER_UPDATE = '/api/user/update',
+  USER_PROFILE = '/user/profile',
+  USER_UPDATE = '/user/update',
 }
