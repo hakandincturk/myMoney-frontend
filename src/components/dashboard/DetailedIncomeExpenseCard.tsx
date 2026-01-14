@@ -61,7 +61,8 @@ export const DetailedIncomeExpenseCard: React.FC<DetailedIncomeExpenseCardProps>
             <div>
               <h3 className="font-semibold text-slate-800 dark:text-slate-200">{title}</h3>
               <p className={`text-2xl font-bold ${colorClasses.primary}`}>
-                {formatCurrency(type === 'income' ? data.waiting + data.occured : data.waiting)}
+                {formatCurrency(data.waiting + data.occured)}
+                {/* {formatCurrency(type === 'income' ? data.waiting + data.occured : data.waiting)} */}
               </p>
             </div>
           </div>

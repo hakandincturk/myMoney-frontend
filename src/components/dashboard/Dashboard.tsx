@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import DashboardStats from './DashboardStats'
 import { Suspense, lazy } from 'react'
@@ -6,8 +6,9 @@ const DashboardCharts = lazy(() => import('./DashboardCharts'))
 import DashboardTables from './DashboardTables'
 import QuickActions from './QuickActions'
 import DetailedIncomeExpenseCard from './DetailedIncomeExpenseCard'
-import { useGetQuickViewQuery, useGetMonthlyTrendQuery } from '@/services/dashboardApi'
+import { useGetQuickViewQuery, useGetMonthlyTrendQuery, useGetLastTransactionsQuery, useGetIncomingTransactionsQuery } from '@/services/dashboardApi'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { DateUtils } from '../../utils/chartUtils'
 
 interface DashboardProps {
   className?: string
@@ -27,9 +28,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
     error: monthlyTrendError 
   } = useGetMonthlyTrendQuery()
 
+  const {
+    data: lastTransactions,
+    isFetching: isFetchingLastTransactions,
+    error: lastTransactionsError
+  } = useGetLastTransactionsQuery()
+
+  const {
+    data: incomingTransactions,
+    isFetching: isFetchingIncomingTransactions,
+    error: incomingTransactionsError
+  } = useGetIncomingTransactionsQuery()
+
   // API response'larının başarılı olup olmadığını kontrol et
   const isQuickViewSuccess = quickView?.type === true
   const isMonthlyTrendSuccess = monthlyTrend?.type === true
+
+  // Monthly trend verilerini ay isimlerini çevirerek transform et
+  const translatedMonthlyData = useMemo(() => {
+    if (!isMonthlyTrendSuccess || !monthlyTrend?.data?.monthlyTrendData) {
+      return []
+    }
+    
+    return monthlyTrend.data.monthlyTrendData.map(item => ({
+      ...item,
+      title: DateUtils.translateMonthName(item.title, t)
+    }))
+  }, [monthlyTrend, isMonthlyTrendSuccess, t])
+
+  // Son işlemleri transform et
+  const transformedRecentTransactions = useMemo(() => {
+    if (!lastTransactions?.data?.lastTransactionData) {
+      return []
+    }
+
+    return lastTransactions.data.lastTransactionData.map((item, index) => {
+      // DEBT ve PAYMENT -> expense, CREDIT ve COLLECTION -> income
+      const isIncome = item.type === 'CREDIT' || item.type === 'COLLECTION'
+      
+      return {
+        id: index,
+        type: isIncome ? 'income' as const : 'expense' as const,
+        amount: item.totalAmount,
+        date: item.createdAt,
+        description: item.name,
+        category: item.description,
+      }
+    })
+  }, [lastTransactions])
+
+  // Yaklaşan ödemeleri transform et
+  const transformedPendingPayments = useMemo(() => {
+    if (!incomingTransactions?.data?.incomingInstallmentsDatas) {
+      return []
+    }
+
+    return incomingTransactions.data.incomingInstallmentsDatas.map((item, index) => ({
+      id: index,
+      title: item.transaction.name,
+      amount: item.amount,
+      dueDate: item.debtDate,
+      type: 'installment' as const,
+      contact: item.transaction.description,
+      status: 'pending' as const
+    }))
+  }, [incomingTransactions])
 
   return (
     <div className={`w-full bg-slate-50 dark:bg-mm-bg px-4 sm:px-6 md:px-8 py-6 ${className}`}>
@@ -152,7 +215,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
       {/* Grafikler */}
       <Suspense fallback={<div className="h-80 flex items-center justify-center">Grafikler yükleniyor…</div>}>
         <DashboardCharts 
-          monthlyData={isMonthlyTrendSuccess ? monthlyTrend?.data?.monthlyTrendData ?? [] : []}
+          monthlyData={translatedMonthlyData}
           isMonthlyLoading={isFetchingMonthlyTrend}
           hasMonthlyError={!!monthlyTrendError || !isMonthlyTrendSuccess}
         />
@@ -160,8 +223,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
 
       {/* Tablolar - Bunlar da ayrı API'lerden gelecek */}
       <DashboardTables 
-        recentTransactions={[]}
-        pendingPayments={[]}
+        recentTransactions={transformedRecentTransactions}
+        pendingPayments={transformedPendingPayments}
       />
 
     </div>

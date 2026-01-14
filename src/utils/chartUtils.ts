@@ -429,4 +429,15 @@ export class DateUtils {
       return `${moment().year()}`
     }
   }
+
+  /**
+   * Backend'den gelen İngilizce ay isimlerini mevcut dile çevirir
+   * @param monthName Backend'den gelen ay ismi (örn: "JANUARY", "FEBRUARY")
+   * @param t i18n translate fonksiyonu
+   * @returns Çevrilmiş ay ismi
+   */
+  static translateMonthName(monthName: string, t: (key: string) => string): string {
+    const monthKey = `months.${monthName}`
+    return t(monthKey)
+  }
 }

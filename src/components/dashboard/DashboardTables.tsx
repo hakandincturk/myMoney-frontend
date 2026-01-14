@@ -2,6 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card } from '@/components/ui/Card'
 import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowUpLong, faArrowDownLong, faCreditCard, faFileInvoice, faMoneyBill1Wave, faClipboard, faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 
 interface Transaction {
   id: number
@@ -9,7 +11,7 @@ interface Transaction {
   amount: number
   date: string
   description: string
-  category?: string
+  category?: string | null
   contact?: string
 }
 
@@ -19,7 +21,7 @@ interface PendingPayment {
   amount: number
   dueDate: string
   type: 'installment' | 'bill' | 'debt'
-  contact?: string
+  contact?: string | null
   status: 'pending' | 'overdue' | 'upcoming'
 }
 
@@ -48,7 +50,7 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
   }
 
   const getTransactionIcon = (type: string) => {
-    return type === 'income' ? '📈' : '📉'
+    return type === 'income' ? faArrowUpLong : faArrowDownLong
   }
 
   const getTransactionColor = (type: string) => {
@@ -82,13 +84,13 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
   const getPaymentTypeIcon = (type: string) => {
     switch (type) {
       case 'installment':
-        return '💳'
+        return faCreditCard
       case 'bill':
-        return '🧾'
+        return faFileInvoice
       case 'debt':
-        return '💰'
+        return faMoneyBill1Wave
       default:
-        return '📋'
+        return faClipboard
     }
   }
 
@@ -115,9 +117,14 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
                         ? 'bg-emerald-100 dark:bg-emerald-900/30' 
                         : 'bg-rose-100 dark:bg-rose-900/30'
                     }`}>
-                      <span className="text-lg">
-                        {getTransactionIcon(transaction.type)}
-                      </span>
+                      <FontAwesomeIcon 
+                        icon={getTransactionIcon(transaction.type)}
+                        className={`text-lg ${
+                          transaction.type === 'income'
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-rose-600 dark:text-rose-400'
+                        }`}
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-slate-900 dark:text-slate-100">
@@ -149,7 +156,7 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
               ))}
               <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
                 <Link 
-                  to="/transactions" 
+                  to="/debts/overview" 
                   className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                 >
                   Tüm işlemleri görüntüle →
@@ -158,7 +165,9 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
             </>
           ) : (
             <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-              <div className="text-4xl mb-2">📊</div>
+              <div className="text-4xl mb-2">
+                <FontAwesomeIcon icon={faArrowDownLong} className="text-slate-400" />
+              </div>
               <p>Henüz işlem bulunmuyor</p>
             </div>
           )}
@@ -182,9 +191,10 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                      <span className="text-lg">
-                        {getPaymentTypeIcon(payment.type)}
-                      </span>
+                      <FontAwesomeIcon 
+                        icon={getPaymentTypeIcon(payment.type)}
+                        className="text-lg text-blue-600 dark:text-blue-400"
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-slate-900 dark:text-slate-100">
@@ -222,7 +232,9 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
             </>
           ) : (
             <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-              <div className="text-4xl mb-2">✅</div>
+              <div className="text-4xl mb-2">
+                <FontAwesomeIcon icon={faCheckCircle} className="text-emerald-500" />
+              </div>
               <p>Yaklaşan ödeme bulunmuyor</p>
             </div>
           )}

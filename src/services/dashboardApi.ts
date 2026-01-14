@@ -38,13 +38,25 @@ export const dashboardApi = createApi({
       ],
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
+    getLastTransactions: build.query<ApiResponse<DashboardDTOs.LastTransactions>, void>({
+      query: () => ({ url: ApiUrl.DASHBOARD_LAST_TRANSACTIONS.toString() }),
+      providesTags: [{ type: 'Dashboard', id: 'LAST_TRANSACTIONS' }],
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
+    }),
+    getIncomingTransactions: build.query<ApiResponse<DashboardDTOs.IncomingInstallments>, void>({
+      query: () => ({ url: ApiUrl.DASHBOARD_INCOMING_TRANSACTIONS.toString() }),
+      providesTags: [{ type: 'Dashboard', id: 'INCOMING_TRANSACTIONS' }],
+      keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
+    }),
   }),
 })
 
 export const { 
   useGetQuickViewQuery, 
   useGetMonthlyTrendQuery, 
-  useGetCategorySummaryQuery 
+  useGetCategorySummaryQuery,
+  useGetLastTransactionsQuery,
+  useGetIncomingTransactionsQuery
 } = dashboardApi
 
 

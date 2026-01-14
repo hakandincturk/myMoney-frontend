@@ -51,7 +51,7 @@
     }
   ],
   "paths": {
-    "/api/contact/my/{contactId}": {
+    "/contact/my/{contactId}": {
       "put": {
         "tags": [
           "Contact"
@@ -121,7 +121,7 @@
         }
       }
     },
-    "/api/account/my/{accountId}": {
+    "/account/my/{accountId}": {
       "put": {
         "tags": [
           "Account"
@@ -164,7 +164,7 @@
         }
       }
     },
-    "/api/transaction/": {
+    "/transaction/": {
       "post": {
         "tags": [
           "Transaction"
@@ -196,7 +196,7 @@
         }
       }
     },
-    "/api/monthly-summery/backfill/specific-users": {
+    "/monthly-summery/backfill/specific-users": {
       "post": {
         "tags": [
           "monthly-summary-controller-impl"
@@ -228,7 +228,7 @@
         }
       }
     },
-    "/api/monthly-summery/backfill/all-users": {
+    "/monthly-summery/backfill/all-users": {
       "post": {
         "tags": [
           "monthly-summary-controller-impl"
@@ -250,7 +250,7 @@
         }
       }
     },
-    "/api/dashboard/category-summary": {
+    "/dashboard/category-summary": {
       "post": {
         "tags": [
           "Dashboard"
@@ -308,7 +308,7 @@
         }
       }
     },
-    "/api/contact/my": {
+    "/contact/my": {
       "post": {
         "tags": [
           "Contact"
@@ -340,7 +340,7 @@
         }
       }
     },
-    "/api/auth/register": {
+    "/auth/register": {
       "post": {
         "tags": [
           "Auth"
@@ -370,7 +370,7 @@
         }
       }
     },
-    "/api/auth/login": {
+    "/auth/login": {
       "post": {
         "tags": [
           "Auth"
@@ -402,7 +402,7 @@
         }
       }
     },
-    "/api/account/my": {
+    "/account/my": {
       "post": {
         "tags": [
           "Account"
@@ -434,7 +434,7 @@
         }
       }
     },
-    "/api/installment/pay": {
+    "/installment/pay": {
       "patch": {
         "tags": [
           "Installment"
@@ -464,7 +464,7 @@
         }
       }
     },
-    "/api/transaction/{transactionId}/installments/": {
+    "/transaction/{transactionId}/installments/": {
       "get": {
         "tags": [
           "Transaction"
@@ -495,7 +495,7 @@
         }
       }
     },
-    "/api/transaction/my": {
+    "/transaction/my": {
       "get": {
         "tags": [
           "Transaction"
@@ -527,7 +527,7 @@
         }
       }
     },
-    "/api/installment/month": {
+    "/installment/month": {
       "get": {
         "tags": [
           "Installment"
@@ -559,7 +559,7 @@
         }
       }
     },
-    "/api/dashboard/quick-view": {
+    "/dashboard/quick-view": {
       "get": {
         "tags": [
           "Dashboard"
@@ -581,7 +581,7 @@
         }
       }
     },
-    "/api/dashboard/monthly-trend": {
+    "/dashboard/monthly-trend": {
       "get": {
         "tags": [
           "Dashboard"
@@ -603,7 +603,51 @@
         }
       }
     },
-    "/api/contact/my/active": {
+    "/dashboard/last-transactions": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Last 10 Transactions",
+        "description": "En son kaydedilen gelir ve gider hareketleri",
+        "operationId": "lastTransactions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLastTransactionsResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/incoming-transactions": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Get the nearest installments",
+        "description": "Yaklaşan ödemeler getirildi",
+        "operationId": "incomingInstallments",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseIncomingInstallmentsResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/my/active": {
       "get": {
         "tags": [
           "Contact"
@@ -633,7 +677,7 @@
         }
       }
     },
-    "/api/category/my/active": {
+    "/category/my/active": {
       "get": {
         "tags": [
           "Category"
@@ -663,7 +707,7 @@
         }
       }
     },
-    "/api/account/my/active": {
+    "/account/my/active": {
       "get": {
         "tags": [
           "Account"
@@ -695,7 +739,7 @@
         }
       }
     },
-    "/api/transaction/my/{transactionId}": {
+    "/transaction/my/{transactionId}": {
       "delete": {
         "tags": [
           "Transaction"
@@ -1094,10 +1138,6 @@
           },
           "descripton": {
             "type": "string"
-          },
-          "paidDate": {
-            "type": "string",
-            "format": "date"
           },
           "paid": {
             "type": "boolean"
@@ -1510,6 +1550,113 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MonthlyTrendDataDto"
+            }
+          }
+        }
+      },
+      "ApiResponseLastTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LastTransactionsResponseDto"
+          }
+        }
+      },
+      "LastTransactionDataDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DEBT",
+              "CREDIT",
+              "PAYMENT",
+              "COLLECTION"
+            ]
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LastTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "lastTransactionData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LastTransactionDataDto"
+            }
+          }
+        }
+      },
+      "ApiResponseIncomingInstallmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IncomingInstallmentsResponseDto"
+          }
+        }
+      },
+      "IncomingInstallmentsDataDto": {
+        "type": "object",
+        "properties": {
+          "transactionName": {
+            "type": "string"
+          },
+          "transactionDescription": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "debtDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "installmentNumber": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "IncomingInstallmentsResponseDto": {
+        "type": "object",
+        "properties": {
+          "incomingInstallmentsDatas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IncomingInstallmentsDataDto"
             }
           }
         }

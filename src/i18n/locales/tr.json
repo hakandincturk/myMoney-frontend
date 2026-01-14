@@ -1,4 +1,18 @@
 {
+  "months": {
+    "JANUARY": "Ocak",
+    "FEBRUARY": "Şubat",
+    "MARCH": "Mart",
+    "APRIL": "Nisan",
+    "MAY": "Mayıs",
+    "JUNE": "Haziran",
+    "JULY": "Temmuz",
+    "AUGUST": "Ağustos",
+    "SEPTEMBER": "Eylül",
+    "OCTOBER": "Ekim",
+    "NOVEMBER": "Kasım",
+    "DECEMBER": "Aralık"
+  },
   "dashboard": {
     "netIncome": "Net Gelir",
     "netExpense": "Net Gider",

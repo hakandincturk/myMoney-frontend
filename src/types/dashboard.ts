@@ -42,6 +42,33 @@ export namespace DashboardDTOs {
     type: 'MONTHLY' | 'YEARLY'
     sumMode: 'DOUBLE_COUNT' | 'DISTRIBUTED'
   }
+
+  export type LastTransactionData = {
+    type: 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION'
+    totalAmount: number
+    name: string
+    description: string | null
+    createdAt: string
+  }
+
+  export type LastTransactions = {
+    lastTransactionData: LastTransactionData[]
+  }
+
+  export type IncomingInstallmentsData = {
+    transaction: {
+      name: string
+      description: string | null
+      type: 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION'
+    }
+    amount: number
+    debtDate: string
+    installmentNumber: number
+  }
+
+  export type IncomingInstallments = {
+    incomingInstallmentsDatas: IncomingInstallmentsData[]
+  }
 }
 
 
