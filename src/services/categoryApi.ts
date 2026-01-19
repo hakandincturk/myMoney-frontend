@@ -11,6 +11,19 @@ export const categoryApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Category'],
   endpoints: (build) => ({
+    listMyCategories: build.query<ApiResponse<PagedResponse<CategoryDTOs.ListItemWithMeta>>, CategoryDTOs.FilterRequest>({
+      query: (filterData) => ({
+        url: ApiUrl.CATEGORY_MY.toString(),
+        params: filterData,
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.content.map(({ id }) => ({ type: 'Category' as const, id })),
+              { type: 'Category', id: 'LIST' }
+            ]
+          : [{ type: 'Category', id: 'LIST' }],
+    }),
     listMyActiveCategories: build.query<ApiResponse<PagedResponse<CategoryDTOs.ListItem>>, CategoryDTOs.FilterRequest>({
       query: (filterData) => ({
         url: ApiUrl.CATEGORY_MY_ACTIVE.toString(),
@@ -27,6 +40,6 @@ export const categoryApi = createApi({
   }),
 })
 
-export const { useListMyActiveCategoriesQuery } = categoryApi
+export const { useListMyCategoriesQuery, useListMyActiveCategoriesQuery } = categoryApi
 
 

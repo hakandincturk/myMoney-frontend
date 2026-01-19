@@ -23,6 +23,8 @@ interface PendingPayment {
   type: 'installment' | 'bill' | 'debt'
   contact?: string | null
   status: 'pending' | 'overdue' | 'upcoming'
+  installmentNumber?: number
+  totalInstallment?: number
 }
 
 interface DashboardTablesProps {
@@ -215,9 +217,16 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
                     <span className="font-semibold text-slate-900 dark:text-slate-100">
                       {formatCurrency(payment.amount)}
                     </span>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPaymentStatusColor(payment.status)}`}>
-                      {getPaymentStatusText(payment.status)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPaymentStatusColor(payment.status)}`}>
+                        {getPaymentStatusText(payment.status)}
+                      </span>
+                      {payment.totalInstallment && payment.installmentNumber && (
+                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                          {payment.installmentNumber}/{payment.totalInstallment}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

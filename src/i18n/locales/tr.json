@@ -61,7 +61,12 @@
     "overspending": "Fazla Harcama",
     "successfulMonth": "Bu ay başarılı bir performans!",
     "beMoreCareful": "Gelecek ay daha dikkatli olalım",
-    "balancedBudget": "Gelir-gider dengesi sağlandı"
+    "balancedBudget": "Gelir-gider dengesi sağlandı",
+    "quickActions": {
+      "income": "Gelir Ekle",
+      "expense": "Gider Ekle",
+      "installment": "Taksit Ekle"
+    }
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -89,7 +94,16 @@
     "view": "Görüntüle",
     "quickAccess": "Hızlı Erişim",
     "clear": "Temizle",
-    "today": "Bugün"
+    "refresh": "Yenile",
+    "retry": "Tekrar Dene",
+    "today": "Bugün",
+    "saving": "Kaydediliyor...",
+    "genericError": "Bir hata oluştu",
+    "actions": {
+      "view": "İncele",
+      "rename": "Yeniden Adlandır",
+      "delete": "Sil"
+    }
   },
   "navigation": {
     "home": "Ana Sayfa",
@@ -107,7 +121,9 @@
     "contacts": "Kişiler",
     "accounts": "Hesaplar",
     "debts": "Gelir/Gider",
-    "installments": "Taksitler"
+    "installments": "Taksitler",
+    "categories": "Kategoriler",
+    "categoryManagement": "Kategori Yönetimi"
   },
   "pages": {
     "accounts": "Hesaplar",
@@ -116,6 +132,41 @@
     "installments": {
       "monthly": "Aylık Taksitler",
       "thisMonth": "Bu Ay"
+    },
+    "categories": "Kategoriler"
+  },
+  "category": {
+    "management": {
+      "title": "Kategori Yönetimi",
+      "subtitle": "Kategorilerinizi yönetin ve inceleyin.",
+      "subtitleHelp": "Bu ekran /category/my endpoint'ini kullanır ve arama/sıralamayı destekler. İleride oluşturma/düzenleme/silme ile genişletilebilir.",
+      "errorHint": "Bağlantınızı kontrol edip tekrar deneyin."
+    },
+    "search": {
+      "label": "Arama",
+      "placeholder": "Kategori adına göre ara"
+    },
+    "kpis": {
+      "total": "Toplam",
+      "filteredBy": "Filtre"
+    },
+    "actions": {
+      "view": "İncele",
+      "rename": "Yeniden Adlandır",
+      "delete": "Sil",
+      "viewTitle": "Kategori Detayları",
+      "renameTitle": "Kategoriyi Yeniden Adlandır",
+      "renameDescription": "Kategori adını aşağıdan güncelleyebilirsiniz.",
+      "deleteTitle": "Kategoriyi Sil",
+      "deleteConfirmationTitle": "Emin misiniz?",
+      "deleteConfirmationBody": "kategorisini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "hasTransactionsWarning": "Bu kategoriye bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
+    },
+    "fields": {
+      "name": "Kategori Adı",
+      "namePlaceholder": "Kategori adı giriniz",
+      "transactionCount": "İşlem Sayısı",
+      "createdAt": "Oluşturulma Tarihi"
     }
   },
   "auth": {
@@ -159,11 +210,14 @@
     "newDebt": "Yeni Borç",
     "newTransaction": "Yeni İşlem",
     "transactionType": "İşlem Türü",
+    "name": "İşlem Adı",
     "amount": "Tutar",
     "description": "Açıklama",
     "contact": "Kişi",
     "account": "Hesap",
     "installments": "Taksit Sayısı",
+    "totalInstallment": "Taksit Sayısı",
+    "selectType": "İşlem türü seçiniz",
     "debtDate": "Borç Tarihi",
     "totalAmount": "Toplam Tutar",
     "paidAmount": "Ödenen Tutar",
@@ -198,7 +252,8 @@
     },
     "installmentsDetail": "Taksit Detayları",
     "categories": "Kategoriler",
-    "categoryPlaceholder": "Kategori seçiniz veya yazıp Enter'a basın"
+    "categoryPlaceholder": "Kategori seçiniz veya yazıp Enter'a basın",
+    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)"
   },
   "account": {
     "types": {
@@ -262,13 +317,17 @@
       "note": "Not",
       "edit": "Düzenle",
       "paid": "Ödendi",
-      "delete": "Sil"
+      "delete": "Sil",
+      "categoryName": "Kategori Adı",
+      "createdAt": "Oluşturma",
+      "transactionCount": "İşlem Sayısı"
     },
     "titles": {
       "accountList": "Hesap Listesi",
       "contactList": "Kişi Listesi",
       "debtList": "Gelir/Gider Listesi",
-      "installmentList": "Taksit Listesi"
+      "installmentList": "Taksit Listesi",
+      "categoryList": "Kategori Listesi"
     }
   },
   "buttons": {
@@ -314,6 +373,8 @@
     "selectAccount": "Hesap seçiniz",
     "selectContact": "Kişi seçiniz",
     "selectType": "Tür seçiniz",
+    "transactionName": "Örn: Elektrik Faturası",
+    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)",
   "selectStatus": "Durum seçiniz",
     "selectStartDate": "Başlangıç tarihi seçiniz",
     "selectEndDate": "Bitiş tarihi seçiniz",

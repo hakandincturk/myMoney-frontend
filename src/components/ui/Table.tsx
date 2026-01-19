@@ -116,23 +116,33 @@ export const Table = <T extends object>({
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row) => {
-                const customRowClass = getRowClassName ? getRowClassName(row.original) : ''
-                return (
-                  <tr 
-                    key={row.id} 
-                    className={`relative hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border ${customRowClass}`}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="align-middle">
-                        <div className="px-6 py-4 w-full text-sm text-slate-900 dark:text-mm-text whitespace-nowrap">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                )
-              })}
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => {
+                  const customRowClass = getRowClassName ? getRowClassName(row.original) : ''
+                  return (
+                    <tr 
+                      key={row.id} 
+                      className={`relative hover:bg-slate-50 dark:hover:bg-mm-cardHover transition-colors after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border ${customRowClass}`}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="align-middle">
+                          <div className="px-6 py-4 w-full text-sm text-slate-900 dark:text-mm-text whitespace-nowrap">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                })
+              ) : (
+                <tr className="relative after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-slate-200 dark:after:bg-mm-border">
+                  <td colSpan={table.getAllLeafColumns().length}>
+                    <div className="px-6 py-10 text-center text-sm text-slate-500 dark:text-mm-subtleText">
+                      {t('table.noData')}
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

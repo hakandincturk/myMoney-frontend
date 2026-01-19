@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons'
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { DatePicker } from '@/components/ui/DatePicker'
+import TransactionFormModal, { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
 import { useCreateTransactionMutation } from '@/services/transactionApi'
 import { useCreateContactMutation } from '@/services/contactApi'
 import { useCreateAccountMutation } from '@/services/accountApi'
@@ -15,6 +16,8 @@ import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { useListMyActiveContactsQuery } from '@/services/contactApi'
 import { TransactionType } from '@/services/transactionApi'
 import { AccountType, CurrencyType } from '@/services/accountApi'
+import { useListMyActiveCategoriesQuery } from '@/services/categoryApi'
+import { TransactionHelpers } from '../../types'
 
 interface QuickAction {
   title: string
@@ -35,39 +38,42 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
   const [activeModal, setActiveModal] = useState<string | null>(null)
   
   // API hooks
-  const [createTransaction] = useCreateTransactionMutation()
+  const [createTransaction, { isLoading: createLoading }] = useCreateTransactionMutation()
   const [createContact] = useCreateContactMutation()
   const [createAccount] = useCreateAccountMutation()
   
   // Data hooks
-  const { data: accountsData } = useListMyActiveAccountsQuery({
+  const { data: accountsData, isLoading: accountsLoading } = useListMyActiveAccountsQuery({
     pageNumber: 0,
     pageSize: 50,
     columnName: 'id',
     asc: false
   })
   
-  const { data: contactsData } = useListMyActiveContactsQuery({
+  const { data: contactsData, isLoading: contactsLoading } = useListMyActiveContactsQuery({
     pageNumber: 0,
     pageSize: 50,
     columnName: 'id',
     asc: false
   })
+
+  const { data: categoriesData } = useListMyActiveCategoriesQuery({ pageNumber: 0, pageSize: 50 })
   
   // Form state'leri
-  const [transactionForm, setTransactionForm] = useState({
-    accountId: undefined as number | undefined,
-    contactId: undefined as number | undefined,
-    type: TransactionType.DEBT as TransactionType,
+  const [transactionForm, setTransactionForm] = useState<TransactionFormValues>({
+    accountId: undefined,
+    contactId: undefined,
+    type: TransactionType.DEBT,
     totalAmount: '0',
     totalInstallment: 1,
     name: '',
     description: '',
     debtDate: new Date().toISOString().split('T')[0],
     equalSharingBetweenInstallments: true,
-    categoryIds: [] as number[],
-    newCategories: [] as string[],
+    categoryIds: [],
+    newCategories: [],
   })
+  const [transactionErrors, setTransactionErrors] = useState<Record<string, string | undefined>>({})
   
   const [contactForm, setContactForm] = useState({
     fullName: '',
@@ -80,10 +86,18 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     currency: CurrencyType.TL as CurrencyType,
     balance: '0',
   })
+
+  const [categoryOptions, setCategoryOptions] = useState<Array<{ value: number | string; label: string }>>([])
   
   // Helper functions
   const accounts = accountsData?.data?.content || []
   const contacts = contactsData?.data?.content || []
+
+  useEffect(() => {
+    if (categoriesData?.data?.content) {
+      setCategoryOptions(categoriesData.data.content.map((c) => ({ value: c.id, label: c.name })))
+    }
+  }, [categoriesData])
 
   const getColorClasses = (color: string) => {
     const colorMap = {
@@ -120,6 +134,48 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     }
     return colorMap[color as keyof typeof colorMap] || colorMap.blue
   }
+
+    const parseCurrencyToNumber = (input: any): number | undefined => {
+      if (input === undefined || input === null) return undefined
+      if (typeof input === 'number') return input
+      if (typeof input === 'string') {
+        const normalized = input.replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.\-]/g, '')
+        const num = Number(normalized)
+        return isNaN(num) ? undefined : num
+      }
+      return undefined
+    }
+
+    const selectedAccount = useMemo(() => accounts.find((a) => a.id === transactionForm.accountId), [accounts, transactionForm.accountId])
+    const isCreditCardAccount = selectedAccount?.type === AccountType.CREDIT_CARD
+
+    const baseTypeOptions = useMemo(() => TransactionHelpers.getTypeOptions(t), [t])
+    const variantTypeOptions = useMemo(() => {
+      let opts = baseTypeOptions
+      if (activeModal === 'income') {
+        opts = opts.filter((opt) => opt.value === TransactionType.CREDIT || opt.value === TransactionType.COLLECTION)
+      } else if (activeModal === 'expense') {
+        opts = opts.filter((opt) => opt.value === TransactionType.DEBT || opt.value === TransactionType.PAYMENT)
+      } else if (activeModal === 'installment') {
+        opts = opts.filter((opt) => opt.value === TransactionType.DEBT)
+      }
+      if (isCreditCardAccount) {
+        opts = opts.filter((opt) => opt.value === TransactionType.DEBT || opt.value === TransactionType.PAYMENT || opt.value === TransactionType.CREDIT)
+      }
+      return opts
+    }, [activeModal, baseTypeOptions, isCreditCardAccount])
+
+    const handleAccountChange = (value: unknown) => {
+      const newAccountId = value as number
+      const acc = accounts.find((a) => a.id === newAccountId)
+      setTransactionForm((prev) => {
+        let nextType = prev.type
+        if (acc?.type === AccountType.CREDIT_CARD && nextType !== TransactionType.DEBT && nextType !== TransactionType.PAYMENT && nextType !== TransactionType.CREDIT) {
+          nextType = TransactionType.DEBT
+        }
+        return { ...prev, accountId: newAccountId, type: nextType }
+      })
+    }
 
   const quickActions: QuickAction[] = [
     {
@@ -169,13 +225,15 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
   // Modal açma fonksiyonları
   const openModal = (actionType: string) => {
     setActiveModal(actionType)
+    setTransactionErrors({})
     
     // Form'ları temizle ve varsayılan değerleri ayarla
     if (actionType === 'income' || actionType === 'expense' || actionType === 'installment') {
+      const baseType = actionType === 'income' ? TransactionType.CREDIT : TransactionType.DEBT
       setTransactionForm({
         accountId: undefined,
         contactId: undefined,
-        type: actionType === 'income' ? TransactionType.CREDIT : TransactionType.DEBT,
+        type: baseType,
         totalAmount: '0',
         totalInstallment: actionType === 'installment' ? 3 : 1,
         name: '',
@@ -198,14 +256,22 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
   }
 
   // Form submit fonksiyonları
-  const handleTransactionSubmit = async () => {
-    if (!transactionForm.accountId || !transactionForm.name || transactionForm.totalAmount === '0') return
+  const handleTransactionSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    const newErrors: Record<string, string | undefined> = {}
+    if (!transactionForm.accountId) newErrors.accountId = t('validation.required')
+    if (!transactionForm.name || !transactionForm.name.trim()) newErrors.name = t('validation.required')
+    if (!transactionForm.totalAmount || transactionForm.totalAmount === '0') newErrors.totalAmount = t('validation.required')
+    if (!transactionForm.debtDate) newErrors.debtDate = t('validation.required')
+    if (transactionForm.totalInstallment !== undefined && Number(transactionForm.totalInstallment) < 1) newErrors.totalInstallment = t('validation.required')
+    setTransactionErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    const totalAmountNumber = parseCurrencyToNumber(transactionForm.totalAmount) || 0
 
     try {
-      const totalAmountNumber = parseFloat(transactionForm.totalAmount.replace(/\./g, '').replace(',', '.')) || 0
-      
       await createTransaction({
-        accountId: transactionForm.accountId,
+        accountId: transactionForm.accountId as number,
         contactId: transactionForm.contactId || undefined,
         name: transactionForm.name || undefined,
         description: transactionForm.description || undefined,
@@ -219,13 +285,43 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
           newCategories: transactionForm.newCategories,
         },
       }).unwrap()
-      
+
+      setTransactionErrors({})
       setActiveModal(null)
-      // Toast göster
-      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: 'İşlem başarıyla oluşturuldu', type: 'success' } })) } catch(_) {}
+      setTransactionForm({
+        accountId: undefined,
+        contactId: undefined,
+        type: TransactionType.DEBT,
+        totalAmount: '0',
+        totalInstallment: 1,
+        name: '',
+        description: '',
+        debtDate: new Date().toISOString().split('T')[0],
+        equalSharingBetweenInstallments: true,
+        categoryIds: [],
+        newCategories: [],
+      })
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.transactionCreated') || 'İşlem başarıyla oluşturuldu', type: 'success' } })) } catch(_) {}
     } catch (error) {
       console.error('Transaction creation failed:', error)
-      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: 'İşlem oluşturulamadı', type: 'error' } })) } catch(_) {}
+      const errData = (error as any)?.data
+      const fieldErrors = errData?.data
+      if (fieldErrors && typeof fieldErrors === 'object') {
+        const mapped: Record<string, string> = {}
+        Object.entries(fieldErrors).forEach(([key, messages]) => {
+          const firstMessage = Array.isArray(messages) ? String(messages[0]) : String(messages)
+          let formKey = key
+          if (key === 'totalInstallment') formKey = 'totalInstallment'
+          if (key === 'debtDate') formKey = 'debtDate'
+          if (key === 'accountId') formKey = 'accountId'
+          if (key === 'name') formKey = 'name'
+          if (key === 'totalAmount') formKey = 'totalAmount'
+          if (key === 'type') formKey = 'type'
+          mapped[formKey] = firstMessage
+        })
+        setTransactionErrors(mapped)
+      }
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.operationFailed'), type: 'error' } })) } catch(_) {}
     }
   }
 
@@ -338,94 +434,31 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
       </div>
 
       {/* İşlem Modal'ları */}
-      {/* Gelir/Gider/Taksit Modal */}
-      <Modal
+      <TransactionFormModal
         open={activeModal === 'income' || activeModal === 'expense' || activeModal === 'installment'}
         onClose={() => setActiveModal(null)}
-        title={activeModal === 'income' ? 'Gelir Ekle' : activeModal === 'expense' ? 'Gider Ekle' : 'Taksit Ekle'}
+        title={activeModal === 'income' ? t('dashboard.quickActions.income') || 'Gelir Ekle' : activeModal === 'expense' ? t('dashboard.quickActions.expense') || 'Gider Ekle' : t('dashboard.quickActions.installment') || 'Taksit Ekle'}
         size="lg"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button onClick={() => setActiveModal(null)} variant="secondary">
-              İptal
-            </Button>
-            <Button onClick={handleTransactionSubmit} variant="primary">
-              Kaydet
-            </Button>
-          </div>
-        }
-      >
-        <div className="grid grid-cols-1 gap-4">
-          <Select 
-            id="contactId"
-            label="Kişi"
-            value={transactionForm.contactId ?? ''}
-            onChange={(value) => setTransactionForm((p) => ({ ...p, contactId: value as number }))}
-            options={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-            placeholder="Kişi seçiniz (opsiyonel)"
-          />
-          
-          <Select 
-            id="accountId"
-            label="Hesap *"
-            value={transactionForm.accountId ?? ''}
-            onChange={(value) => setTransactionForm((p) => ({ ...p, accountId: value as number }))}
-            options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-            placeholder="Hesap seçiniz"
-            required
-          />
-          
-          <Input 
-            id="name"
-            label="İşlem Adı *"
-            value={transactionForm.name}
-            onChange={(value) => setTransactionForm((p) => ({ ...p, name: value as string }))}
-            placeholder="Örn: Elektrik Faturası"
-            required
-          />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Input 
-              id="totalAmount"
-              label="Tutar *"
-              value={transactionForm.totalAmount}
-              onChange={(value) => setTransactionForm((p) => ({ ...p, totalAmount: value as string }))}
-              placeholder="0,00"
-              formatCurrency
-              currencySymbol="₺"
-              required
-            />
-            {(activeModal === 'installment') && (
-              <Input 
-                id="totalInstallment"
-                label="Taksit Sayısı"
-                value={transactionForm.totalInstallment}
-                onChange={(value) => setTransactionForm((p) => ({ ...p, totalInstallment: value as number }))}
-                placeholder="3"
-                type="number"
-                min={1}
-                step={1}
-              />
-            )}
-          </div>
-
-          <DatePicker
-            id="debtDate"
-            label="Tarih"
-            value={transactionForm.debtDate}
-            onChange={(value) => setTransactionForm((p) => ({ ...p, debtDate: value as string }))}
-            required
-          />
-          
-          <Input 
-            id="description"
-            label="Açıklama"
-            value={transactionForm.description}
-            onChange={(value) => setTransactionForm((p) => ({ ...p, description: value as string }))}
-            placeholder="Açıklama ekleyiniz (opsiyonel)"
-          />
-        </div>
-      </Modal>
+        form={transactionForm}
+        errors={transactionErrors}
+        accounts={accounts.map((a) => ({ value: a.id, label: a.name }))}
+        contacts={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
+        categoryOptions={categoryOptions}
+        typeOptions={variantTypeOptions}
+        accountsLoading={accountsLoading}
+        contactsLoading={contactsLoading}
+        createLoading={createLoading}
+        onSubmit={handleTransactionSubmit}
+        onChange={(updater) => setTransactionForm((prev) => updater(prev))}
+        onAccountChange={handleAccountChange}
+        onCreateCategory={(label) => {
+          setTransactionForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
+          setCategoryOptions((opts) => {
+            if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
+            return [...opts, { value: label, label }]
+          })
+        }}
+      />
 
       {/* Kişi Ekleme Modal */}
       <Modal

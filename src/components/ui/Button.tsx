@@ -1,12 +1,7 @@
 import React from 'react'
 
-type ButtonProps = {
-  children: React.ReactNode
-  type?: 'button' | 'submit' | 'reset'
+export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary'
-  disabled?: boolean
-  className?: string
-  onClick?: () => void
   fullWidth?: boolean
 }
 
@@ -16,8 +11,8 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   disabled = false,
   className = '',
-  onClick,
   fullWidth = false,
+  ...rest
 }) => {
   const base = 'relative inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden group'
 
@@ -36,7 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
       type={type}
       className={`${base} ${variants[variant]} ${size} ${width} ${className}`}
       disabled={disabled}
-      onClick={onClick}
+      {...rest}
     >
       {children}
     </button>

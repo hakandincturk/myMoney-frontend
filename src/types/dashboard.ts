@@ -64,6 +64,7 @@ export namespace DashboardDTOs {
     amount: number
     debtDate: string
     installmentNumber: number
+    totalInstallment: number
   }
 
   export type IncomingInstallments = {

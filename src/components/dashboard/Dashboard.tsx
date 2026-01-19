@@ -90,7 +90,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
       dueDate: item.debtDate,
       type: 'installment' as const,
       contact: item.transaction.description,
-      status: 'pending' as const
+      status: 'pending' as const,
+      installmentNumber: item.installmentNumber,
+      totalInstallment: item.totalInstallment
     }))
   }, [incomingTransactions])
 

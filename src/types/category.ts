@@ -4,6 +4,14 @@ export namespace CategoryDTOs {
     name: string
   }
 
+  // /category/my gibi yönetim ekranlarında kullanılan geniş liste öğesi
+  export type ListItemWithMeta = {
+    id: number
+    name: string
+    createdAt?: string
+    transactionCount?: number
+  }
+
   export type SortablePageRequest = {
     pageNumber?: number
     pageSize?: number

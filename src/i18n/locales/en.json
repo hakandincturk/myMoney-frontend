@@ -61,7 +61,12 @@
     "overspending": "Overspending",
     "successfulMonth": "Great performance this month!",
     "beMoreCareful": "Let's be more careful next month",
-    "balancedBudget": "Income-expense balance achieved"
+    "balancedBudget": "Income-expense balance achieved",
+    "quickActions": {
+      "income": "Add Income",
+      "expense": "Add Expense",
+      "installment": "Add Installment"
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -71,6 +76,7 @@
     "delete": "Delete",
     "update": "Update",
     "create": "Create",
+    "categories": "Categories",
     "search": "Search",
     "close": "Close",
     "back": "Back",
@@ -89,6 +95,8 @@
     "view": "View",
     "quickAccess": "Quick Access",
     "clear": "Clear",
+    "refresh": "Refresh",
+    "retry": "Retry",
     "today": "Today"
   },
   "navigation": {
@@ -107,7 +115,9 @@
     "contacts": "Contacts",
     "accounts": "Accounts",
     "debts": "Income/Expense",
-    "installments": "Installments"
+    "installments": "Installments",
+    "categories": "Categories",
+    "categoryManagement": "Category Management"
   },
   "pages": {
     "accounts": "Accounts",
@@ -116,6 +126,23 @@
     "installments": {
       "monthly": "Monthly Installments",
       "thisMonth": "This Month"
+    },
+    "categories": "Categories"
+  },
+  "category": {
+    "management": {
+      "title": "Category Management",
+      "subtitle": "Manage and review your categories.",
+      "subtitleHelp": "This screen uses the /category/my endpoint and supports search and sorting. It is designed to be extended later with create/edit/delete.",
+      "errorHint": "Please check your connection and try again."
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Search by category name"
+    },
+    "kpis": {
+      "total": "Total",
+      "filteredBy": "Filtered"
     }
   },
   "table": {
@@ -150,13 +177,17 @@
       "note": "Note",
       "edit": "Edit",
       "paid": "Paid",
-      "delete": "Delete"
+      "delete": "Delete",
+      "categoryName": "Category Name",
+      "createdAt": "Created",
+      "transactionCount": "Transactions"
     },
     "titles": {
       "accountList": "Account List",
       "contactList": "Contact List",
       "debtList": "Debt List",
-      "installmentList": "Installment List"
+      "installmentList": "Installment List",
+      "categoryList": "Category List"
     }
   },
   "buttons": {
@@ -192,6 +223,8 @@
     "selectAccount": "Select account",
     "selectContact": "Select contact",
     "selectType": "Select type",
+    "transactionName": "E.g. Electricity Bill",
+    "descriptionPlaceholder": "Add description (optional)",
   "selectStatus": "Select status",
     "selectStartDate": "Select start date",
     "selectEndDate": "Select end date",
@@ -242,11 +275,14 @@
     "newDebt": "New Debt",
     "newTransaction": "New Transaction",
     "transactionType": "Transaction Type",
+    "name": "Transaction Name",
     "amount": "Amount",
     "description": "Description",
     "contact": "Contact",
     "account": "Account",
     "installments": "Number of Installments",
+    "totalInstallment": "Number of Installments",
+    "selectType": "Select transaction type",
     "debtDate": "Debt Date",
     "totalAmount": "Total Amount",
     "paidAmount": "Paid Amount",
@@ -273,6 +309,7 @@
     "planningAmountTooltip": "Total planned money based on debt date",
     "expenseOccurredTooltip": "Total money spent based on payment date",
     "expenseWaitingTooltip": "Expected money to spend based on debt date",
+    "descriptionPlaceholder": "Add description (optional)",
     "expensePlanningTooltip": "Total planned money to spend based on debt date",
     "equalSharingBetweenInstallments": {
       "label": "Split equally across installments",

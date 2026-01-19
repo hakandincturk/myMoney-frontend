@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 const HomePage = lazy(() => import('@/pages/screens/HomePage'))
 const ContactsPage = lazy(() => import('../screens/ContactsPage'))
 const AccountsPage = lazy(() => import('../screens/AccountsPage'))
+const CategoriesPage = lazy(() => import('../screens/CategoriesPage'))
 const DebtsOverviewPage = lazy(() => import('../screens/DebtsOverviewPage'))
 const InstallmentsPage = lazy(() => import('../screens/InstallmentsPage'))
 const LoginPage = lazy(() => import('@/pages/screens/auth/LoginPage'))
@@ -43,6 +44,18 @@ export const AppRoutes: React.FC = () => {
           <ProtectedRoute requireAuth={true}>
             <Suspense fallback={<div>Yükleniyor…</div>}>
               <AccountsPage />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Kategoriler */}
+      <Route
+        path="/categories"
+        element={
+          <ProtectedRoute requireAuth={true}>
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <CategoriesPage />
             </Suspense>
           </ProtectedRoute>
         }

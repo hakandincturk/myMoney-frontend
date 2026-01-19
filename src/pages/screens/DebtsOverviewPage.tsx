@@ -7,7 +7,8 @@ import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { TableSkeleton, FormFieldSkeleton } from '@/components/ui/Skeleton'
+import { TableSkeleton } from '@/components/ui/Skeleton'
+import TransactionFormModal, { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
 import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, useListTransactionInstallmentsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
 import { usePayInstallmentsMutation } from '@/services/installmentApi'
 import { TransactionHelpers, TransactionDTOs, AccountDTOs } from '../../types'
@@ -272,10 +273,10 @@ export const DebtsOverviewPage: React.FC = () => {
   }
   const [currentInstallments, setCurrentInstallments] = useState<TransactionInstallmentRow[]>([])
   const [currentInstallmentsLoading, setCurrentInstallmentsLoading] = useState(false)
-	const [form, setForm] = useState({
-		accountId: undefined as number | undefined,
-		contactId: undefined as number | undefined,
-		type: TransactionType.DEBT as TransactionType,
+	const [form, setForm] = useState<TransactionFormValues>({
+		accountId: undefined,
+		contactId: undefined,
+		type: TransactionType.DEBT,
 		totalAmount: '0',
 		totalInstallment: 1,
 		name: '',
@@ -283,8 +284,8 @@ export const DebtsOverviewPage: React.FC = () => {
 		debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
 		equalSharingBetweenInstallments: true,
 		// Kategori form state'i: mevcut kategori id'leri ve yeni isimler
-		categoryIds: [] as number[],
-		newCategories: [] as string[],
+		categoryIds: [],
+		newCategories: [],
 	})
 
 	// Kategori seçenekleri (mevcut backend endpoint'i gelene kadar local yönetim)
@@ -921,8 +922,8 @@ export const DebtsOverviewPage: React.FC = () => {
 	})
 	]
 
-	const handleSubmit = async (e: React.FormEvent) => {
-	e.preventDefault()
+	const handleSubmit = async (e?: React.FormEvent) => {
+	if (e) e.preventDefault()
 	const newErrors: { [k: string]: string | undefined } = {}
 	if (!form.accountId) newErrors.accountId = t('validation.required')
 	if (!form.name || !form.name.trim()) newErrors.name = t('validation.required')
@@ -1073,198 +1074,39 @@ export const DebtsOverviewPage: React.FC = () => {
 				</div>
 
 			{/* Borç Girişi Modal */}
-			<Modal 
-				open={modalOpen} 
-				onClose={() => setModalOpen(false)} 
+			<TransactionFormModal
+				open={modalOpen}
+				onClose={() => setModalOpen(false)}
 				title={t('modals.newDebt')}
 				size="lg"
 				zIndex={10003}
-				footer={(
-					<div className="flex justify-end gap-2">
-						<Button 
-							onClick={() => setModalOpen(false)} 
-							variant="secondary"
-						>
-							{t('buttons.cancel')}
-						</Button>
-						<Button 
-							onClick={handleSubmit as unknown as () => void} 
-							disabled={createLoading}
-							variant="primary"
-						>
-							{createLoading ? t('common.loading') : t('buttons.save')}
-						</Button>
-					</div>
-				)}
-			>
-				<form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-					{accountsLoading || contactsLoading ? (
-						<>
-							<FormFieldSkeleton />
-							<div className="grid grid-cols-2 gap-4">
-								<FormFieldSkeleton />
-								<FormFieldSkeleton />
-							</div>
-							<FormFieldSkeleton />
-							<FormFieldSkeleton />
-							<FormFieldSkeleton />
-						</>
-					) : (
-						<>
-							<Select 
-								id="contactId"
-								label={t('table.columns.contact')}
-								value={form.contactId ?? ''}
-								onChange={(value) => setForm((p) => ({ ...p, contactId: value as number }))}
-								options={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-								placeholder="Kişi seçiniz (opsiyonel)"
-								onLoadMore={loadMoreContacts}
-								hasMore={hasMoreContacts}
-								isLoadingMore={contactsLoading}
-							/>
-							<Select 
-								id="accountId"
-								label="Hesap *"
-								value={form.accountId ?? ''}
-								onChange={handleAccountChange}
-								options={accounts.map((a) => ({ value: a.id, label: a.name }))}
-								placeholder="Hesap seçiniz"
-								required
-								error={errors.accountId}
-								ref={accountSelectRef}
-								onLoadMore={loadMoreAccounts}
-								hasMore={hasMoreAccounts}
-								isLoadingMore={accountsLoading}
-							/>
-							
-
-							
-							<Input 
-								id="name"
-								label="İşlem Adı *"
-								value={form.name}
-								onChange={(value) => setForm((p) => ({ ...p, name: value as string }))}
-								placeholder="Örn: Elektrik Faturası"
-								required
-								error={errors.name}
-							/>
-							<div className="grid grid-cols-2 gap-4">
-								<Input 
-									id="totalAmount"
-									label="Tutar *"
-									value={form.totalAmount}
-									onChange={(value) => setForm((p) => ({ ...p, totalAmount: value as string }))}
-									placeholder="0,00"
-									formatCurrency
-									currencySymbol="₺"
-									required
-									error={errors.totalAmount}
-								/>
-								<Input 
-									id="totalInstallment"
-									label="Taksit Sayısı"
-									value={form.totalInstallment}
-									onChange={(value) => setForm((p) => ({ ...p, totalInstallment: value as number }))}
-									placeholder="1"
-									type="number"
-									min={1}
-									step={1}
-									error={errors.totalInstallment}
-								/>
-							</div>
-
-							{/* Eşit bölüşüm seçeneği ve bilgi butonu */}
-							<div className="flex items-start gap-3">
-								<label className="inline-flex items-center gap-2 select-none cursor-pointer">
-									<input
-										id="equalSharingBetweenInstallments"
-										type="checkbox"
-										checked={!!form.equalSharingBetweenInstallments}
-										onChange={(e) => setForm((p) => ({ ...p, equalSharingBetweenInstallments: e.target.checked }))}
-										className="h-4 w-4 rounded border-slate-300 text-mm-primary focus:ring-mm-primary"
-									/>
-									<span className="text-base font-medium text-slate-900 dark:text-mm-text">
-										{t('transaction.equalSharingBetweenInstallments.label')}
-									</span>
-								</label>
-								<div className="relative">
-									<button
-										type="button"
-										aria-label="Info"
-										className="h-5 w-5 rounded-full border border-slate-300 text-slate-600 hover:text-slate-900 hover:border-slate-400 flex items-center justify-center text-xs"
-										onClick={(e) => {
-											const target = e.currentTarget.nextElementSibling as HTMLDivElement | null
-											if (target) {
-												target.classList.toggle('hidden')
-											}
-										}}
-									>
-										?
-									</button>
-									<div className="hidden absolute z-50 mt-2 w-80 p-3 rounded-lg border border-slate-200 dark:border-mm-border bg-white dark:bg-mm-card shadow-xl text-sm text-slate-700 dark:text-mm-text">
-										<div className="font-medium mb-1">{t('transaction.equalSharingBetweenInstallments.title')}</div>
-										<p className="leading-relaxed">{t('transaction.equalSharingBetweenInstallments.help')}</p>
-									</div>
-								</div>
-							</div>
-							
-							<Select 
-								id="type"
-								label={"İşlem Türü"}
-								value={form.type}
-								onChange={(value) => setForm((p) => ({ ...p, type: value as TransactionType }))}
-								options={typeOptions}
-								placeholder={"İşlem türü seçiniz"}
-								required
-								error={errors.type}
-							/>
-							
-							{/* Kategoriler: Çoklu seçim + Enter ile yeni kategori oluşturma */}
-							<Select
-								id="categories"
-								label={t('transaction.categories')}
-								value={[...form.categoryIds, ...form.newCategories]}
-								onChange={(value) => {
-									const arr = Array.isArray(value) ? value : [value]
-									const ids = arr.filter(v => typeof v === 'number') as number[]
-									const news = arr.filter(v => typeof v === 'string') as string[]
-									setForm((p) => ({ ...p, categoryIds: ids, newCategories: news }))
-								}}
-								options={categoryOptions}
-								placeholder={t('transaction.categoryPlaceholder')}
-								isMulti
-								closeMenuOnSelect={false}
-								creatable
-								onCreateOption={(label) => {
-									setForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
-									setCategoryOptions((opts) => {
-										if (opts.some(o => o.label.toLowerCase() === label.toLowerCase())) return opts
-										return [...opts, { value: label, label }]
-									})
-								}}
-								createOptionText={(lbl) => `${t('common.create')}: \"${lbl}\"`}
-							/>
-							
-							<DatePicker
-								id="debtDate"
-								label={t('transaction.debtDate')}
-								value={form.debtDate}
-								onChange={(value) => setForm((p) => ({ ...p, debtDate: value as string }))}
-								required
-								error={errors.debtDate}
-							/>
-							
-							<Input 
-								id="description"
-								label="Açıklama"
-								value={form.description}
-								onChange={(value) => setForm((p) => ({ ...p, description: value as string }))}
-								placeholder="Açıklama ekleyiniz (opsiyonel)"
-							/>
-						</>
-					)}
-				</form>
-			</Modal>
+				form={form}
+				errors={errors}
+				accounts={accounts.map((a) => ({ value: a.id, label: a.name }))}
+				contacts={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
+				categoryOptions={categoryOptions}
+				typeOptions={typeOptions}
+				accountsLoading={accountsLoading}
+				contactsLoading={contactsLoading}
+				hasMoreAccounts={hasMoreAccounts}
+				hasMoreContacts={hasMoreContacts}
+				isLoadingMoreAccounts={accountsLoading}
+				isLoadingMoreContacts={contactsLoading}
+				loadMoreAccounts={loadMoreAccounts}
+				loadMoreContacts={loadMoreContacts}
+				createLoading={createLoading}
+				onSubmit={handleSubmit}
+				onChange={(updater) => setForm((prev) => updater(prev))}
+				onAccountChange={handleAccountChange}
+				onCreateCategory={(label) => {
+					setForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
+					setCategoryOptions((opts) => {
+						if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
+						return [...opts, { value: label, label }]
+					})
+				}}
+				accountSelectRef={accountSelectRef}
+			/>
 			
 			{/* İşlem Detay Modal */}
 			<Modal 

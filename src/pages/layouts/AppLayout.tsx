@@ -5,6 +5,7 @@ import {
   faHome, 
   faUsers, 
   faCreditCard, 
+  faTags,
   faMoneyBillWave, 
   faCalendarAlt,
   faBars,
@@ -164,45 +165,138 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
             )}
             <nav className="p-4 pb-24 space-y-2 bg-slate-50 dark:bg-mm-card">
-              {[
-                { to: '/', label: t('sidebar.home'), icon: faHome, end: true },
-                { to: '/contacts', label: t('sidebar.contacts'), icon: faUsers },
-                { to: '/accounts', label: t('sidebar.accounts'), icon: faCreditCard },
-                { to: '/debts/overview', label: t('sidebar.debts'), icon: faMoneyBillWave },
-                { to: '/installments', label: t('sidebar.installments'), icon: faCalendarAlt },
-              ].map((i, index) => (
-                <NavLink
-                  key={i.to}
-                  to={i.to}
-                  end={i.end as boolean | undefined}
-                  className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
-                    isActive
-                      ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
-                      : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
-                  }`}
-                  onClick={() => {
-                    // Sadece mobilde sidebar'ı kapat
-                    if (isMobile) {
-                      hideSidebar()
-                    }
-                  }}
-                  title={i.label}
-                >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />
-                      )}
-                      <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
-                        <FontAwesomeIcon icon={i.icon} className="text-lg" />
-                      </span>
-                      {(!isMobile && !sidebarOpen) ? null : (
-                        <span>{i.label}</span>
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              ))}
+              {/* Home */}
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.home')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faHome} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.home')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Contacts */}
+              <NavLink
+                to="/contacts"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.contacts')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faUsers} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.contacts')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Accounts */}
+              <NavLink
+                to="/accounts"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.accounts')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faCreditCard} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.accounts')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Categories */}
+              <NavLink
+                to="/categories"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.categories')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faTags} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.categories')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Debts */}
+              <NavLink
+                to="/debts/overview"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.debts')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faMoneyBillWave} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.debts')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Installments */}
+              <NavLink
+                to="/installments"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.installments')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faCalendarAlt} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.installments')}</span>}
+                  </>
+                )}
+              </NavLink>
             </nav>
             {(!isMobile && !sidebarOpen) ? null : (
               <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card">

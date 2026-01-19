@@ -19,6 +19,21 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
     return () => setMounted(false)
   }, [])
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    if (open) {
+      window.addEventListener('keydown', handleEsc)
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      window.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = 'unset'
+    }
+  }, [open, onClose])
+
   if (!open || !mounted) return null
 
   // Portal kullanarak body'ye direkt mount et
