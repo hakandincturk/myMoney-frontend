@@ -1058,7 +1058,6 @@ export const DebtsOverviewPage: React.FC = () => {
 						<Table 
 							data={debts} 
 							columns={columns} 
-							title={t('table.titles.debtList')}
 							showPagination={true}
 							pageSize={pageParams.pageSize}
 							currentPage={pageParams.pageNumber}

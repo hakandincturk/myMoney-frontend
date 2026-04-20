@@ -5,15 +5,25 @@ type CardProps = React.PropsWithChildren<{
   title?: string;
   subtitle?: string;
   subtitleHelp?: string;
+  headerClassName?: string;
+  contentClassName?: string;
 }>
 
-export const Card: React.FC<CardProps> = ({ className = '', title, subtitle, subtitleHelp, children }) => {
+export const Card: React.FC<CardProps> = ({
+  className = '',
+  title,
+  subtitle,
+  subtitleHelp,
+  headerClassName = '',
+  contentClassName = '',
+  children,
+}) => {
   const [showHelp, setShowHelp] = React.useState(false)
 
   return (
     <div className={`rounded-xl border border-slate-200 dark:border-mm-border bg-white dark:bg-mm-card ${className}`}>
       {(title || subtitle) && (
-        <div className="px-4 py-3 border-b border-slate-100 dark:border-mm-border">
+        <div className={`px-4 py-3 border-b border-slate-100 dark:border-mm-border ${headerClassName}`}>
           <div className="flex items-start justify-between gap-3">
             {title && (
               <div className="font-semibold text-slate-900 dark:text-mm-text">{title}</div>
@@ -48,7 +58,7 @@ export const Card: React.FC<CardProps> = ({ className = '', title, subtitle, sub
           )}
         </div>
       )}
-      <div className="p-4">{children}</div>
+      <div className={`p-4 ${contentClassName}`}>{children}</div>
     </div>
   )
 }

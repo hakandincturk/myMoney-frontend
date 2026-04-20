@@ -159,7 +159,6 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
       <Table
         data={data}
         columns={columns}
-        title={t('table.titles.categoryList')}
         showPagination={true}
         pageSize={pageParams.pageSize}
         currentPage={pageParams.pageNumber}

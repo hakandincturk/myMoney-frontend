@@ -32,6 +32,24 @@ export namespace CategoryDTOs {
     first: boolean
     last: boolean
   }
+
+  // Kategori işlemleri (gelir/gider) tablosunda gösterilecek veriler
+  export type Transaction = {
+    id: number
+    name: string
+    accountName: string
+    type: 'DEBT' | 'INCOME' | 'EXPENSE' | 'PAYMENT' | 'CREDIT'
+    status: 'PENDING' | 'PARTIAL' | 'PAID'
+    totalAmount: number
+    paidAmount: number
+    totalInstallment: number
+  }
+
+  export type TransactionFilterRequest = SortablePageRequest & {
+    // Filtre alanları eklenebilir
+  }
+
+  export type TransactionPagedResponse = PagedResponse<Transaction>
 }
 
 

@@ -9,7 +9,7 @@ type PagedResponse<T> = CategoryDTOs.PagedResponse<T>
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Category'],
+  tagTypes: ['Category', 'CategoryTransaction'],
   endpoints: (build) => ({
     listMyCategories: build.query<ApiResponse<PagedResponse<CategoryDTOs.ListItemWithMeta>>, CategoryDTOs.FilterRequest>({
       query: (filterData) => ({
@@ -37,9 +37,29 @@ export const categoryApi = createApi({
             ]
           : [{ type: 'Category', id: 'LIST' }],
     }),
+    getTransactionsByCategory: build.query<
+      ApiResponse<CategoryDTOs.TransactionPagedResponse>,
+      { categoryId: number; pageData?: CategoryDTOs.TransactionFilterRequest }
+    >({
+      query: ({ categoryId, pageData = { pageNumber: 0, pageSize: 10 } }) => ({
+        url: `${ApiUrl.TRANSACTION_CATEGORY_ID}`.toString().replace('{id}', categoryId.toString()),
+        method: 'POST',
+        body: pageData,
+      }),
+      providesTags: (result, _error, { categoryId }) =>
+        result
+          ? [
+              ...result.data.content.map(({ id }) => ({
+                type: 'CategoryTransaction' as const,
+                id,
+              })),
+              { type: 'CategoryTransaction', id: `CATEGORY_${categoryId}` },
+            ]
+          : [{ type: 'CategoryTransaction', id: `CATEGORY_${categoryId}` }],
+    }),
   }),
 })
 
-export const { useListMyCategoriesQuery, useListMyActiveCategoriesQuery } = categoryApi
+export const { useListMyCategoriesQuery, useListMyActiveCategoriesQuery, useGetTransactionsByCategoryQuery } = categoryApi
 
 

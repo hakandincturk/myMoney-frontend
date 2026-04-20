@@ -703,7 +703,6 @@ export const InstallmentsPage: React.FC = () => {
             <Table 
               data={rows} 
               columns={columns} 
-              title={t('table.titles.installmentList')}
               showPagination={true}
               pageSize={appliedFilters.pageSize || 10}
               currentPage={appliedFilters.pageNumber || 0}

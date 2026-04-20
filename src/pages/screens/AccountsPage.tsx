@@ -313,7 +313,6 @@ export const AccountsPage: React.FC = () => {
             <Table 
               data={accounts} 
               columns={columns} 
-              title={t('table.titles.accountList')}
               showPagination={true}
               pageSize={pageParams.pageSize}
               currentPage={pageParams.pageNumber}

@@ -88,22 +88,12 @@ export const CategoriesPage: React.FC = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-mm-light-text dark:text-mm-text">
             {t('pages.categories')}
           </h2>
-
-          <Button
-            variant="secondary"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            title={t('common.refresh')}
-          >
-            {t('common.refresh')}
-          </Button>
         </div>
 
         <CategoryToolbar
           searchValue={search}
           onSearchChange={setSearch}
           onClearSearch={() => setSearch('')}
-          totalRecords={page?.totalElements}
           isLoading={isFetching}
           onRefresh={() => refetch()}
         />

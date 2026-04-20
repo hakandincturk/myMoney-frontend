@@ -16,6 +16,8 @@ type InputProps = {
   step?: number
   formatCurrency?: boolean
   currencySymbol?: string
+  autoFocus?: boolean
+  size?: 'sm' | 'md'
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({
@@ -34,8 +36,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   step,
   formatCurrency = false,
   currencySymbol = '₺',
+  autoFocus = false,
+  size = 'md',
 }, ref) => {
-  const baseClasses = 'w-full px-4 py-3 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary placeholder-slate-400 dark:placeholder-mm-placeholder'
+  const sizeClasses = size === 'sm' ? 'px-3 py-2 rounded-lg' : 'px-4 py-3 rounded-xl'
+  const baseClasses = `w-full ${sizeClasses} transition-all duration-300 bg-white dark:bg-gray-800 text-slate-900 dark:text-mm-text border-2 outline-none focus:ring-2 focus:ring-mm-primary/50 focus:border-mm-primary placeholder-slate-400 dark:placeholder-mm-placeholder`
   const borderClasses = error 
     ? 'border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
     : 'border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500'
@@ -115,7 +120,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
+        <label htmlFor={id} className={`block text-sm font-medium text-slate-700 dark:text-mm-text ${size === 'sm' ? 'mb-1' : 'mb-2'}`}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -140,6 +145,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           min={min}
           max={max}
           step={step}
+          autoFocus={autoFocus}
         />
       </div>
       {error && (

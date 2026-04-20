@@ -7,11 +7,23 @@ type ModalProps = {
   title?: string
   children: React.ReactNode
   footer?: React.ReactNode
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
   zIndex?: number
+  containerClassName?: string
+  bodyClassName?: string
 }
 
-export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, footer, size = 'md', zIndex = 10000 }) => {
+export const Modal: React.FC<ModalProps> = ({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  size = 'md',
+  zIndex = 10000,
+  containerClassName = '',
+  bodyClassName = '',
+}) => {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -55,8 +67,10 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
           size === 'sm' ? 'max-w-sm' :
           size === 'md' ? 'max-w-md' :
           size === 'lg' ? 'max-w-lg' :
-          size === 'xl' ? 'max-w-4xl' : 'max-w-md'
-        }`}>
+          size === 'xl' ? 'max-w-4xl' :
+          size === 'xxl' ? 'max-w-6xl' :
+          'max-w-md'
+        } ${containerClassName}`}>
           {/* Header */}
           {title && (
             <div className="px-6 py-4 border-b border-slate-100 dark:border-mm-border">
@@ -67,7 +81,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, fo
           )}
           
           {/* Body - İçerik taşarsa modal içinde scroll */}
-          <div className="p-6 overflow-y-auto flex-1 min-h-0 modal-scrollbar">
+          <div className={`p-6 overflow-y-auto flex-1 min-h-0 modal-scrollbar ${bodyClassName}`}>
             {children}
           </div>
           

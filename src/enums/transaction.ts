@@ -3,7 +3,9 @@ export enum TransactionType {
   DEBT = 'DEBT',           // Borç oluşturma
   CREDIT = 'CREDIT',       // Alacak oluşturma
   PAYMENT = 'PAYMENT',     // Ödeme yapma
-  COLLECTION = 'COLLECTION' // Tahsilat yapma
+  COLLECTION = 'COLLECTION', // Tahsilat yapma
+  INCOME = 'INCOME',       // Gelir
+  EXPENSE = 'EXPENSE'      // Gider
 }
 
 // Transaction Status - İşlem Durumları

@@ -4,6 +4,7 @@ export enum ApiUrl {
   TRANSACTION_MY = '/transaction/my',
   TRANSACTION_MY_BY_ID = '/transaction/my/{id}',
   TRANSACTION_BY_ID = '/transaction/{id}',
+  TRANSACTION_CATEGORY_ID = '/transaction/category/{id}',
   TRANSACTION_INSTALLMENTS = '/transaction/{id}/installments/',
   
   // Account endpoints

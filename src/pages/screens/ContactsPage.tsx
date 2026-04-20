@@ -447,7 +447,6 @@ export const ContactsPage: React.FC = () => {
             <Table 
               data={contacts} 
               columns={columns} 
-              title={t('table.titles.contactList')}
               showPagination={true}
               pageSize={pageParams.pageSize}
               currentPage={pageParams.pageNumber}
