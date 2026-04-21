@@ -127,9 +127,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       const gap = 4
       const dir = autoDirection || dropdownDirection
       if (dir === 'up') {
-        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.top - gap, transform: 'translateY(-100%)', zIndex: 9999 })
+        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.top - gap, transform: 'translateY(-100%)', zIndex: 10050 })
       } else {
-        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.bottom + gap, zIndex: 9999 })
+        setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.bottom + gap, zIndex: 10050 })
       }
     }
     updatePosition()
@@ -401,7 +401,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         )}
 
         {isOpen && usePortal && createPortal(
-          <div ref={portalMenuRef} style={portalStyle} className={`z-[9999]`}> 
+          <div ref={portalMenuRef} style={portalStyle} className={`z-[10050]`}>
             <div className={`w-full bg-white dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-600 rounded-xl shadow-lg max-h-80 overflow-hidden`}>
               {searchable && (
                 <div className="p-2 border-b border-slate-100 dark:border-gray-600">

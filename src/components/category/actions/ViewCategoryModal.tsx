@@ -3,9 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { FilterChips } from '@/components/ui/FilterChips'
 import { CategoryDTOs } from '@/types/category'
 import { useGetTransactionsByCategoryQuery } from '@/services/categoryApi'
+import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { CategoryTransactionTable } from '../CategoryTransactionTable'
+import {
+  CategoryTransactionFilterPanel,
+  CategoryTransactionFilters,
+} from '../CategoryTransactionFilterPanel'
 
 type ViewCategoryModalProps = {
   isOpen: boolean
@@ -25,6 +31,22 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     pageSize: 10,
   })
 
+  const [appliedFilters, setAppliedFilters] = useState<CategoryTransactionFilters>({})
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (appliedFilters.transactionName) count += 1
+    if (appliedFilters.accountIds && appliedFilters.accountIds.length > 0) count += 1
+    if (appliedFilters.types && appliedFilters.types.length > 0) count += 1
+    if (appliedFilters.statuses && appliedFilters.statuses.length > 0) count += 1
+    if (typeof appliedFilters.minAmount === 'number') count += 1
+    if (typeof appliedFilters.maxAmount === 'number') count += 1
+    if (typeof appliedFilters.minInstallmentCount === 'number') count += 1
+    if (typeof appliedFilters.maxInstallmentCount === 'number') count += 1
+    return count
+  }, [appliedFilters])
+
   const {
     data: transactionsData,
     isLoading: transactionsLoading,
@@ -35,6 +57,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
       pageData: {
         pageNumber: pageParams.pageNumber,
         pageSize: pageParams.pageSize,
+        ...appliedFilters,
       },
     },
     { skip: !isOpen || !category?.id }
@@ -50,6 +73,61 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
   const handlePageSizeChange = (newPageSize: number) => {
     setPageParams((prev) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
   }
+
+  const handleApplyFilters = (filters: CategoryTransactionFilters) => {
+    setAppliedFilters(filters)
+    setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
+    setIsFilterPanelOpen(false)
+  }
+
+  const handleClearFilters = () => {
+    setAppliedFilters({})
+    setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
+  }
+
+  const handleRemoveFilterKey = (key: keyof CategoryTransactionFilters) => {
+    setAppliedFilters((prev) => {
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+    setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
+  }
+
+  const handleRemoveFilterItem = (key: string, value: unknown) => {
+    setAppliedFilters((prev) => {
+      const arrayKey = key as 'accountIds' | 'types' | 'statuses'
+      const current = prev[arrayKey] as unknown[] | undefined
+      if (!current) return prev
+      const filtered = current.filter((v) => v !== value)
+      const next = { ...prev }
+      if (filtered.length > 0) {
+        ;(next as Record<string, unknown>)[arrayKey] = filtered
+      } else {
+        delete next[arrayKey]
+      }
+      return next
+    })
+    setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
+  }
+
+  // Account names are needed for chip labels; loaded at modal level so
+  // the cache is shared with the filter panel's account-select query.
+  const { data: accountsData } = useListMyActiveAccountsQuery(
+    { pageNumber: 0, pageSize: 100, columnName: 'name', asc: true },
+    { skip: !isOpen }
+  )
+
+  const accountIdToName = useMemo(() => {
+    const map: Record<number, string> = {}
+    for (const account of accountsData?.data?.content ?? []) {
+      map[account.id] = account.name
+    }
+    return map
+  }, [accountsData])
+
+  const getTypeLabel = (value: unknown) =>
+    t(`transaction.types.${String(value).toLowerCase()}`)
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '—'
@@ -131,8 +209,27 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
           </div>
         </div>
 
+        {/* Filtre Paneli */}
+        <CategoryTransactionFilterPanel
+          isOpen={isFilterPanelOpen}
+          onToggle={() => setIsFilterPanelOpen((prev) => !prev)}
+          appliedFilters={appliedFilters}
+          activeCount={activeFilterCount}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
+
+        {/* Aktif Filtre Chip'leri */}
+        <FilterChips
+          appliedFilters={appliedFilters}
+          onRemoveKey={(key) => handleRemoveFilterKey(key as keyof CategoryTransactionFilters)}
+          onRemoveItem={handleRemoveFilterItem}
+          accountIdToName={accountIdToName}
+          getTypeLabel={getTypeLabel}
+        />
+
         {/* İşlemler Tablosu */}
-        {(transactionsLoading || transactionsFetching || transactions.length > 0) && (
+        {(transactionsLoading || transactionsFetching || transactions.length > 0 || activeFilterCount > 0) && (
           <Card
             className="border-slate-200 dark:border-mm-border"
             contentClassName="p-0"
@@ -204,7 +301,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
         )}
 
         {/* Boş Durum */}
-        {!transactionsLoading && transactions.length === 0 && (
+        {!transactionsLoading && transactions.length === 0 && activeFilterCount === 0 && (
           <Card
             className="border-slate-200 dark:border-mm-border bg-slate-50/50 dark:bg-slate-800/30"
             contentClassName="py-8 text-center"

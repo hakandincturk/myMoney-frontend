@@ -164,7 +164,7 @@
         }
       }
     },
-    "/transaction/{categoryId}": {
+    "/transaction/category/{categoryId}": {
       "post": {
         "tags": [
           "Transaction"

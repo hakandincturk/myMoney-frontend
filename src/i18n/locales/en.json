@@ -356,7 +356,9 @@
     "minLength": "Must be at least {{min}} characters",
     "maxLength": "Must be at most {{max}} characters",
     "passwordMismatch": "Passwords do not match",
-    "invalidPhone": "Please enter a valid phone number"
+    "invalidPhone": "Please enter a valid phone number",
+    "minGreaterThanMax": "Minimum cannot exceed maximum",
+    "invalidNumber": "Please enter a valid number"
   },
   "messages": {
     "createSuccess": "Successfully created",
@@ -421,7 +423,18 @@
     "paymentStatus": "Payment Status",
     "paidDateFilters": "Payment Date Filters",
     "paidStartDate": "Payment Start Date",
-    "paidEndDate": "Payment End Date"
+    "paidEndDate": "Payment End Date",
+    "accounts": "Accounts",
+    "types": "Transaction Type",
+    "statuses": "Status",
+    "transactionFilters": "Transaction Filters",
+    "showFilters": "Show Filters",
+    "hideFilters": "Hide Filters",
+    "amountRange": "Amount Range",
+    "installmentRange": "Installment Range",
+    "selectAccounts": "Select account",
+    "selectTypes": "Select type",
+    "selectStatuses": "Select status"
   },
   "date": {
     "months": {

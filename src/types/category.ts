@@ -45,8 +45,18 @@ export namespace CategoryDTOs {
     totalInstallment: number
   }
 
+  export type TransactionFilterType = 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION'
+  export type TransactionFilterStatus = 'PENDING' | 'PARTIAL' | 'PAID'
+
   export type TransactionFilterRequest = SortablePageRequest & {
-    // Filtre alanları eklenebilir
+    transactionName?: string
+    accountIds?: number[]
+    types?: TransactionFilterType[]
+    statuses?: TransactionFilterStatus[]
+    minAmount?: number
+    maxAmount?: number
+    minInstallmentCount?: number
+    maxInstallmentCount?: number
   }
 
   export type TransactionPagedResponse = PagedResponse<Transaction>

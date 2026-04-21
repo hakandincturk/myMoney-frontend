@@ -390,7 +390,9 @@
     "minLength": "En az {{min}} karakter olmalıdır",
     "maxLength": "En fazla {{max}} karakter olmalıdır",
     "passwordMismatch": "Şifreler eşleşmiyor",
-    "invalidPhone": "Geçerli bir telefon numarası giriniz"
+    "invalidPhone": "Geçerli bir telefon numarası giriniz",
+    "minGreaterThanMax": "Minimum değer maksimumdan büyük olamaz",
+    "invalidNumber": "Geçerli bir sayı giriniz"
   },
   "messages": {
     "createSuccess": "Başarıyla oluşturuldu",
@@ -455,7 +457,18 @@
     "paymentStatus": "Ödeme Durumu",
     "paidDateFilters": "Ödeme Tarihi Filtreleri",
     "paidStartDate": "Ödeme Başlangıç Tarihi",
-    "paidEndDate": "Ödeme Bitiş Tarihi"
+    "paidEndDate": "Ödeme Bitiş Tarihi",
+    "accounts": "Hesaplar",
+    "types": "İşlem Türü",
+    "statuses": "Durum",
+    "transactionFilters": "İşlem Filtreleri",
+    "showFilters": "Filtreleri Göster",
+    "hideFilters": "Filtreleri Gizle",
+    "amountRange": "Tutar Aralığı",
+    "installmentRange": "Taksit Aralığı",
+    "selectAccounts": "Hesap seçiniz",
+    "selectTypes": "Tür seçiniz",
+    "selectStatuses": "Durum seçiniz"
   },
   "date": {
     "months": {
