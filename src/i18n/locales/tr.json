@@ -66,6 +66,131 @@
       "income": "Gelir Ekle",
       "expense": "Gider Ekle",
       "installment": "Taksit Ekle"
+    },
+    "v2": {
+      "greeting": {
+        "morning": "Günaydın",
+        "afternoon": "İyi günler",
+        "evening": "İyi akşamlar",
+        "night": "İyi geceler"
+      },
+      "hero": {
+        "welcome": "Hoşgeldin",
+        "netBalance": "Toplam Net Bakiye",
+        "balanceHint": "Tüm hesaplarınızdaki güncel toplam bakiye",
+        "monthInBrief": "Bu ayın özeti",
+        "viewOld": "Eski sürüm",
+        "healthyMonth": "Harcamaların kontrol altında, devam et.",
+        "overspending": "Giderlerin gelirini aşıyor, dikkat.",
+        "breakEven": "Gelir ve giderlerin başa baş gidiyor.",
+        "surplus": "Bu ay gelirin giderinden {{amount}} fazla.",
+        "deficit": "Bu ay giderin gelirinden {{amount}} fazla.",
+        "noData": "Bu ay henüz işlem kaydedilmemiş.",
+        "lastMonth": "geçen aya göre",
+        "progress": "Ay ilerlemesi"
+      },
+      "flow": {
+        "income": "Gelir Akışı",
+        "expense": "Gider Akışı",
+        "incomeSubtitle": "Bu ay beklenen ve gerçekleşen gelir dağılımı",
+        "expenseSubtitle": "Bu ay beklenen ve gerçekleşen gider dağılımı",
+        "realized": "Gerçekleşen",
+        "expected": "Beklenen",
+        "total": "Toplam",
+        "completion": "Tamamlanma",
+        "noFlow": "Bu kategori için bu ay hareket yok"
+      },
+      "insights": {
+        "savingsRate": "Tasarruf Oranı",
+        "savingsRateHint": "Gelirden ne kadarını biriktirdin",
+        "pendingInstallments": "Bekleyen Taksit",
+        "pendingInstallmentsHint": "Yakın dönemde ödenecek taksit sayısı",
+        "netFlow": "Net Akış",
+        "netFlowHint": "Gerçekleşen gelir ile gider farkı",
+        "count": "adet"
+      },
+      "activity": {
+        "title": "Son Hareketler",
+        "subtitle": "En son kaydedilen gelir ve gider işlemleri",
+        "empty": "Henüz işlem yok",
+        "emptyHint": "Yeni bir işlem ekleyerek başlayabilirsin.",
+        "viewAll": "Tümünü gör",
+        "today": "Bugün",
+        "yesterday": "Dün",
+        "earlier": "Daha önce"
+      },
+      "upcoming": {
+        "title": "Yaklaşan Ödemeler",
+        "subtitle": "Yakın tarihte ödenmesi gereken taksitler",
+        "empty": "Yaklaşan ödeme yok",
+        "emptyHint": "Bekleyen taksit bulunmuyor. Rahat nefes al.",
+        "viewAll": "Taksitlere git",
+        "dueToday": "Bugün",
+        "dueTomorrow": "Yarın",
+        "daysLeft": "{{count}} gün kaldı",
+        "daysOverdue": "{{count}} gün gecikti",
+        "overdue": "Gecikmiş",
+        "soon": "Yaklaşan",
+        "scheduled": "Planlı"
+      },
+      "command": {
+        "title": "Hızlı İşlemler",
+        "subtitle": "Sık kullanılan aksiyonlara tek tıkla eriş",
+        "addIncome": "Gelir",
+        "addExpense": "Gider",
+        "addInstallment": "Taksit",
+        "addAccount": "Hesap",
+        "addContact": "Kişi",
+        "reports": "Raporlar"
+      },
+      "modals": {
+        "contactTitle": "Kişi Ekle",
+        "accountTitle": "Hesap Ekle",
+        "contactFullNameLabel": "Ad Soyad",
+        "contactNoteLabel": "Not",
+        "contactNotePlaceholder": "Not ekleyiniz (opsiyonel)",
+        "accountNameLabel": "Hesap Adı",
+        "accountNamePlaceholder": "Hesap adını giriniz",
+        "accountTypeLabel": "Hesap Türü",
+        "accountCurrencyLabel": "Para Birimi",
+        "accountBalanceLabel": "Başlangıç Bakiyesi",
+        "messages": {
+          "contactCreated": "Kişi başarıyla oluşturuldu",
+          "contactFailed": "Kişi oluşturulamadı",
+          "accountCreated": "Hesap başarıyla oluşturuldu",
+          "accountFailed": "Hesap oluşturulamadı"
+        }
+      },
+      "trend": {
+        "title": "Aylık Gelir/Gider Trendi",
+        "subtitle": "Son aylardaki gerçekleşen gelir ve giderlerin seyri",
+        "totalIncome": "Toplam Gelir",
+        "totalExpense": "Toplam Gider",
+        "net": "Net Fark",
+        "income": "Gelir",
+        "expense": "Gider",
+        "empty": "Henüz trend verisi yok",
+        "emptyHint": "İlk işlemlerini kaydettikten sonra aylık trend grafiği burada görünecek."
+      },
+      "category": {
+        "title": "Harcama Kategorileri",
+        "subtitle": "Seçili dönemde kategori bazında gider dağılımı",
+        "totalSpent": "Toplam Harcama",
+        "empty": "Bu dönem için harcama yok",
+        "emptyHint": "Farklı bir dönem seç ya da yeni bir gider ekle.",
+        "period": {
+          "monthly": "Aylık",
+          "yearly": "Yıllık"
+        },
+        "sumMode": {
+          "distributed": "Dağıtılmış",
+          "doubleCount": "Tekrar Eden"
+        }
+      },
+      "errors": {
+        "loadFailed": "Veriler yüklenemedi",
+        "retry": "Tekrar dene"
+      }
     }
   },
   "common": {

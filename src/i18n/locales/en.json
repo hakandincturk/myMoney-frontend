@@ -66,6 +66,131 @@
       "income": "Add Income",
       "expense": "Add Expense",
       "installment": "Add Installment"
+    },
+    "v2": {
+      "greeting": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening",
+        "night": "Good night"
+      },
+      "hero": {
+        "welcome": "Welcome",
+        "netBalance": "Total Net Balance",
+        "balanceHint": "Current combined balance across all your accounts",
+        "monthInBrief": "Month in brief",
+        "viewOld": "Legacy view",
+        "healthyMonth": "Your spending is under control — keep it up.",
+        "overspending": "Your expenses are exceeding your income, watch out.",
+        "breakEven": "Your income and expenses are roughly even.",
+        "surplus": "Your income exceeds your expenses by {{amount}} this month.",
+        "deficit": "Your expenses exceed your income by {{amount}} this month.",
+        "noData": "No transactions recorded yet this month.",
+        "lastMonth": "vs last month",
+        "progress": "Month progress"
+      },
+      "flow": {
+        "income": "Income Flow",
+        "expense": "Expense Flow",
+        "incomeSubtitle": "Realized and expected income for this month",
+        "expenseSubtitle": "Realized and expected expenses for this month",
+        "realized": "Realized",
+        "expected": "Expected",
+        "total": "Total",
+        "completion": "Completion",
+        "noFlow": "No movement in this category this month"
+      },
+      "insights": {
+        "savingsRate": "Savings Rate",
+        "savingsRateHint": "How much of your income you saved",
+        "pendingInstallments": "Pending Installments",
+        "pendingInstallmentsHint": "Installments coming due soon",
+        "netFlow": "Net Flow",
+        "netFlowHint": "Difference between realized income and expenses",
+        "count": "items"
+      },
+      "activity": {
+        "title": "Recent Activity",
+        "subtitle": "Latest recorded income and expense transactions",
+        "empty": "No transactions yet",
+        "emptyHint": "Get started by adding a new transaction.",
+        "viewAll": "View all",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "earlier": "Earlier"
+      },
+      "upcoming": {
+        "title": "Upcoming Payments",
+        "subtitle": "Installments due in the near future",
+        "empty": "No upcoming payments",
+        "emptyHint": "No pending installments. You can breathe easy.",
+        "viewAll": "Go to installments",
+        "dueToday": "Today",
+        "dueTomorrow": "Tomorrow",
+        "daysLeft": "{{count}} days left",
+        "daysOverdue": "{{count}} days overdue",
+        "overdue": "Overdue",
+        "soon": "Soon",
+        "scheduled": "Scheduled"
+      },
+      "command": {
+        "title": "Quick Actions",
+        "subtitle": "One-click access to frequently used actions",
+        "addIncome": "Income",
+        "addExpense": "Expense",
+        "addInstallment": "Installment",
+        "addAccount": "Account",
+        "addContact": "Contact",
+        "reports": "Reports"
+      },
+      "modals": {
+        "contactTitle": "Add Contact",
+        "accountTitle": "Add Account",
+        "contactFullNameLabel": "Full Name",
+        "contactNoteLabel": "Note",
+        "contactNotePlaceholder": "Add a note (optional)",
+        "accountNameLabel": "Account Name",
+        "accountNamePlaceholder": "Enter account name",
+        "accountTypeLabel": "Account Type",
+        "accountCurrencyLabel": "Currency",
+        "accountBalanceLabel": "Initial Balance",
+        "messages": {
+          "contactCreated": "Contact created successfully",
+          "contactFailed": "Failed to create contact",
+          "accountCreated": "Account created successfully",
+          "accountFailed": "Failed to create account"
+        }
+      },
+      "trend": {
+        "title": "Monthly Income/Expense Trend",
+        "subtitle": "Realized income and expenses over recent months",
+        "totalIncome": "Total Income",
+        "totalExpense": "Total Expense",
+        "net": "Net Difference",
+        "income": "Income",
+        "expense": "Expense",
+        "empty": "No trend data yet",
+        "emptyHint": "Your monthly trend will appear here after recording your first transactions."
+      },
+      "category": {
+        "title": "Spending Categories",
+        "subtitle": "Category-level expense breakdown for the selected period",
+        "totalSpent": "Total Spent",
+        "empty": "No spending in this period",
+        "emptyHint": "Try a different period or add a new expense.",
+        "period": {
+          "monthly": "Monthly",
+          "yearly": "Yearly"
+        },
+        "sumMode": {
+          "distributed": "Distributed",
+          "doubleCount": "Double Count"
+        }
+      },
+      "errors": {
+        "loadFailed": "Failed to load data",
+        "retry": "Retry"
+      }
     }
   },
   "common": {
