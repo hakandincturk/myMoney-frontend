@@ -1,8 +1,8 @@
 import React from 'react'
-import Dashboard from '@/components/dashboard/Dashboard'
+import { ModernDashboard } from '@/components/dashboard/v2'
 
 export const HomePage: React.FC = () => {
-  return <Dashboard />
+  return <ModernDashboard />
 }
 
 export default HomePage

@@ -83,7 +83,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               </h1>
             </div>
             <Link
-              to="/"
+              to="/old/dashboard"
               className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 backdrop-blur hover:bg-white hover:text-slate-900 dark:bg-mm-bg/50 dark:text-slate-300 dark:ring-mm-border dark:hover:bg-mm-bg dark:hover:text-mm-text"
               title={t('dashboard.v2.hero.viewOld')}
             >

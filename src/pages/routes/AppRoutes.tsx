@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 const HomePage = lazy(() => import('@/pages/screens/HomePage'))
-const NewDashboardPage = lazy(() => import('@/pages/screens/NewDashboardPage'))
+const OldDashboardPage = lazy(() => import('@/pages/screens/OldDashboardPage'))
 const ContactsPage = lazy(() => import('../screens/ContactsPage'))
 const AccountsPage = lazy(() => import('../screens/AccountsPage'))
 const CategoriesPage = lazy(() => import('../screens/CategoriesPage'))
@@ -26,13 +26,13 @@ export const AppRoutes: React.FC = () => {
         } 
       />
 
-      {/* Modern dashboard — preview at /new; root still serves the legacy dashboard */}
+      {/* Eski dashboard — arşiv olarak saklanıyor, yavaş yavaş geçiş sürecinde referans */}
       <Route
-        path="/dashboard/new"
+        path="/old/dashboard"
         element={
           <ProtectedRoute requireAuth={true}>
             <Suspense fallback={<div>Yükleniyor…</div>}>
-              <NewDashboardPage />
+              <OldDashboardPage />
             </Suspense>
           </ProtectedRoute>
         }
