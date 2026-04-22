@@ -1534,6 +1534,12 @@
           "totalInstallment": {
             "type": "integer",
             "format": "int32"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionTagInfoDto"
+            }
           }
         }
       },
@@ -1567,6 +1573,18 @@
           },
           "last": {
             "type": "boolean"
+          }
+        }
+      },
+      "TransactionTagInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },

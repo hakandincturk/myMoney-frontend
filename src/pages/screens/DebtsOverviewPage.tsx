@@ -1185,6 +1185,25 @@ export const DebtsOverviewPage: React.FC = () => {
 							</div>
 						)}
 
+						{/* Etiketler */}
+						{selectedTransaction.tags && selectedTransaction.tags.length > 0 && (
+							<div>
+								<label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
+									{t('transaction.tags')}
+								</label>
+								<div className="flex flex-wrap gap-2">
+									{selectedTransaction.tags.map((tag) => (
+										<span
+											key={tag.id}
+											className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/40"
+										>
+											{tag.name}
+										</span>
+									))}
+								</div>
+							</div>
+						)}
+
 						{/* Taksitler */}
 						{currentInstallmentsLoading ? (
 							<div className="mt-4 pt-3 border-t border-slate-200 dark:border-mm-border">

@@ -19,7 +19,11 @@ export namespace TransactionDTOs {
     }
   }
 
-  // İşlem listesi öğesi (yeni API response yapısına uygun)
+  export type TagInfo = {
+    id: number
+    name: string
+  }
+
   export type ListItem = {
     id: number
     name?: string
@@ -30,6 +34,7 @@ export namespace TransactionDTOs {
     totalAmount: number
     paidAmount: number
     totalInstallment: number
+    tags?: TagInfo[]
   }
 
   // Sayfalama parametreleri
