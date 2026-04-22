@@ -57,9 +57,19 @@ export const categoryApi = createApi({
             ]
           : [{ type: 'CategoryTransaction', id: `CATEGORY_${categoryId}` }],
     }),
+    deleteMyCategory: build.mutation<ApiResponse<{ id: number }>, number>({
+      query: (id) => ({
+        url: ApiUrl.CATEGORY_MY_BY_ID.toString().replace('{id}', id.toString()),
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Category', id },
+        { type: 'Category', id: 'LIST' },
+      ],
+    }),
   }),
 })
 
-export const { useListMyCategoriesQuery, useListMyActiveCategoriesQuery, useGetTransactionsByCategoryQuery } = categoryApi
+export const { useListMyCategoriesQuery, useListMyActiveCategoriesQuery, useGetTransactionsByCategoryQuery, useDeleteMyCategoryMutation } = categoryApi
 
 

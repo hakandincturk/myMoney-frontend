@@ -222,7 +222,15 @@
     "clear": "Clear",
     "refresh": "Refresh",
     "retry": "Retry",
-    "today": "Today"
+    "today": "Today",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "genericError": "An error occurred",
+    "actions": {
+      "view": "View",
+      "rename": "Rename",
+      "delete": "Delete"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -268,6 +276,25 @@
     "kpis": {
       "total": "Total",
       "filteredBy": "Filtered"
+    },
+    "actions": {
+      "view": "View",
+      "rename": "Rename",
+      "delete": "Delete",
+      "viewTitle": "Category Details",
+      "renameTitle": "Rename Category",
+      "renameDescription": "You can update the category name below.",
+      "deleteTitle": "Delete Category",
+      "deleteConfirmationTitle": "Are you sure?",
+      "deleteConfirmationBody": "are you sure you want to delete this category? Income/expense associations will be removed, but your income/expenses will not be deleted.",
+      "deleteSuccess": "Category deleted successfully",
+      "hasTransactionsWarning": "This category has {{count}} associated transactions. Deleting may affect these transactions."
+    },
+    "fields": {
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "transactionCount": "Transaction Count",
+      "createdAt": "Created At"
     }
   },
   "table": {

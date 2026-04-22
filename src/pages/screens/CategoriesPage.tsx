@@ -4,7 +4,7 @@ import { CategoryToolbar } from '@/components/category/CategoryToolbar'
 import { CategoryTable } from '@/components/category/CategoryTable'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { useListMyCategoriesQuery } from '@/services/categoryApi'
+import { useListMyCategoriesQuery, useDeleteMyCategoryMutation } from '@/services/categoryApi'
 import { CategoryDTOs } from '@/types/index'
 
 type SortablePageRequest = Required<Pick<CategoryDTOs.SortablePageRequest, 'pageNumber' | 'pageSize' | 'columnName' | 'asc'>>
@@ -49,6 +49,19 @@ export const CategoriesPage: React.FC = () => {
     refetch,
     error,
   } = useListMyCategoriesQuery(queryParams)
+
+  const [deleteMyCategory] = useDeleteMyCategoryMutation()
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteMyCategory(id).unwrap()
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('category.actions.deleteSuccess'), type: 'success' } })) } catch(_) {}
+    } catch (err) {
+      const message = (err as { data?: { message?: string } })?.data?.message || t('messages.operationFailed')
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
+      throw err
+    }
+  }
 
   const page = categoriesData?.data
   const categories = page?.content ?? []
@@ -126,6 +139,7 @@ export const CategoriesPage: React.FC = () => {
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
               onSortClick={handleSortClick}
+              onDelete={handleDelete}
             />
           )}
         </div>

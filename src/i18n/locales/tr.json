@@ -223,6 +223,7 @@
     "retry": "Tekrar Dene",
     "today": "Bugün",
     "saving": "Kaydediliyor...",
+    "deleting": "Siliniyor...",
     "genericError": "Bir hata oluştu",
     "actions": {
       "view": "İncele",
@@ -284,7 +285,8 @@
       "renameDescription": "Kategori adını aşağıdan güncelleyebilirsiniz.",
       "deleteTitle": "Kategoriyi Sil",
       "deleteConfirmationTitle": "Emin misiniz?",
-      "deleteConfirmationBody": "kategorisini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "deleteConfirmationBody": "kategorisini silmek istediğinize emin misiniz? Kategoriye ait gelir/gider bağlantıları kaldırılacak, ancak gelir/giderleriniz silinmeyecektir.",
+      "deleteSuccess": "Kategori başarıyla silindi",
       "hasTransactionsWarning": "Bu kategoriye bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
     },
     "fields": {
