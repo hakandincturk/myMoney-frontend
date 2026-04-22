@@ -6,7 +6,7 @@ import { authApi } from '@/services/authApi'
 import { accountApi } from '@/services/accountApi'
 import { contactApi } from '@/services/contactApi'
 import { transactionApi } from '@/services/transactionApi'
-import { categoryApi } from '@/services/categoryApi'
+import { tagApi } from '@/services/tagApi'
 import { installmentApi } from '@/services/installmentApi'
 import { CACHE_CONFIG } from '../config/cache'
 import { dashboardApi } from '@/services/dashboardApi'
@@ -19,7 +19,7 @@ const rootReducer = combineReducers({
   [contactApi.reducerPath]: contactApi.reducer,
   [transactionApi.reducerPath]: transactionApi.reducer,
   [installmentApi.reducerPath]: installmentApi.reducer,
-  [categoryApi.reducerPath]: categoryApi.reducer,
+  [tagApi.reducerPath]: tagApi.reducer,
   [dashboardApi.reducerPath]: dashboardApi.reducer,
 })
 
@@ -28,7 +28,7 @@ const persistConfig = {
   key: 'root-v2',
   storage,
   whitelist: CACHE_CONFIG.isEnabled() 
-    ? ['auth', 'authApi', 'accountApi', 'contactApi', 'transactionApi', 'installmentApi', 'categoryApi', 'dashboardApi']
+    ? ['auth', 'authApi', 'accountApi', 'contactApi', 'transactionApi', 'installmentApi', 'tagApi', 'dashboardApi']
     : ['auth'],
   serialize: true,
   deserialize: true,
@@ -44,7 +44,7 @@ export const store = configureStore({
       // Serializable check'i devre dışı bırak (RTK Query için)
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredPaths: ['authApi', 'accountApi', 'contactApi', 'transactionApi', 'categoryApi', 'dashboardApi'],
+        ignoredPaths: ['authApi', 'accountApi', 'contactApi', 'transactionApi', 'tagApi', 'dashboardApi'],
       },
     }).concat(
       authApi.middleware,
@@ -52,7 +52,7 @@ export const store = configureStore({
       contactApi.middleware,
       transactionApi.middleware,
       installmentApi.middleware,
-      categoryApi.middleware,
+      tagApi.middleware,
       dashboardApi.middleware,
     ),
   // Development'ta devtools'u etkinleştir

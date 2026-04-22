@@ -12,7 +12,7 @@ import {
   ArcElement,
 } from 'chart.js'
 import TrendsPanel from './TrendsPanel'
-import CategoryPanel from './CategoryPanel'
+import TagPanel from './TagPanel'
 import type { ChartDataPoint } from '../../../types/charts'
 
 // Register chart.js building blocks once for the v2 dashboard. Idempotent — safe if
@@ -47,7 +47,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
         isLoading={isMonthlyLoading}
         hasError={hasMonthlyError}
       />
-      <CategoryPanel />
+      <TagPanel />
     </div>
   )
 }

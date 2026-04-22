@@ -2,13 +2,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 
-type CategoryActionsProps = {
+type TagActionsProps = {
   onView: () => void
   onRename: () => void
   onDelete: () => void
 }
 
-export const CategoryActions: React.FC<CategoryActionsProps> = ({
+export const TagActions: React.FC<TagActionsProps> = ({
   onView,
   onRename,
   onDelete,
@@ -24,7 +24,7 @@ export const CategoryActions: React.FC<CategoryActionsProps> = ({
       >
         {t('common.actions.view', 'İncele')}
       </Button>
-      
+
       <Button
         onClick={onRename}
         variant="secondary"
@@ -32,7 +32,7 @@ export const CategoryActions: React.FC<CategoryActionsProps> = ({
       >
         {t('common.actions.rename', 'Yeniden Adlandır')}
       </Button>
-      
+
       <Button
         onClick={onDelete}
         variant="primary"
@@ -44,5 +44,4 @@ export const CategoryActions: React.FC<CategoryActionsProps> = ({
   )
 }
 
-export default CategoryActions
-
+export default TagActions

@@ -18,8 +18,8 @@ export type TransactionFormValues = {
 	description?: string
 	debtDate: string
 	equalSharingBetweenInstallments: boolean
-	categoryIds: number[]
-	newCategories: string[]
+	tagIds: number[]
+	newTags: string[]
 }
 
 type Option = { value: number | string; label: string }
@@ -35,7 +35,7 @@ type TransactionFormModalProps = {
 	errors?: Record<string, string | undefined>
 	accounts: Option[]
 	contacts: Option[]
-	categoryOptions: Option[]
+	tagOptions: Option[]
 	typeOptions: Option[]
 	accountsLoading?: boolean
 	contactsLoading?: boolean
@@ -49,7 +49,7 @@ type TransactionFormModalProps = {
 	onClose: () => void
 	onSubmit: (e?: React.FormEvent) => void
 	onChange: (updater: (prev: TransactionFormValues) => TransactionFormValues) => void
-	onCreateCategory?: (label: string) => void
+	onCreateTag?: (label: string) => void
 	onAccountChange?: (value: unknown) => void
 	accountSelectRef?: React.RefObject<HTMLDivElement>
 }
@@ -65,7 +65,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 	errors,
 	accounts,
 	contacts,
-	categoryOptions,
+	tagOptions,
 	typeOptions,
 	accountsLoading,
 	contactsLoading,
@@ -79,7 +79,7 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 	onClose,
 	onSubmit,
 	onChange,
-	onCreateCategory,
+	onCreateTag,
 	onAccountChange,
 	accountSelectRef,
 }) => {
@@ -229,21 +229,21 @@ export const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 						/>
 
 						<Select
-							id="categories"
-							label={t('transaction.categories')}
-							value={[...form.categoryIds, ...form.newCategories]}
+							id="tags"
+							label={t('transaction.tags')}
+							value={[...form.tagIds, ...form.newTags]}
 							onChange={(value) => {
 								const arr = Array.isArray(value) ? value : [value]
 								const ids = arr.filter((v) => typeof v === 'number') as number[]
 								const news = arr.filter((v) => typeof v === 'string') as string[]
-								onChange((prev) => ({ ...prev, categoryIds: ids, newCategories: news }))
+								onChange((prev) => ({ ...prev, tagIds: ids, newTags: news }))
 							}}
-							options={categoryOptions}
-							placeholder={t('transaction.categoryPlaceholder')}
+							options={tagOptions}
+							placeholder={t('transaction.tagPlaceholder')}
 							isMulti
 							closeMenuOnSelect={false}
 							creatable
-							onCreateOption={(label) => onCreateCategory?.(label)}
+							onCreateOption={(label) => onCreateTag?.(label)}
 							createOptionText={(lbl) => `${t('common.create')}: "${lbl}"`}
 						/>
 

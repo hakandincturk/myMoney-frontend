@@ -13,9 +13,9 @@ export namespace TransactionDTOs {
     description?: string
     debtDate?: string
     equalSharingBetweenInstallments?: boolean
-    category?: {
-      categoryIds: number[]
-      newCategories: string[]
+    tag?: {
+      tagIds: number[]
+      newTags: string[]
     }
   }
 

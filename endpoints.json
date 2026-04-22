@@ -30,12 +30,12 @@
       "description": "Kullanıcı işlemleri"
     },
     {
-      "name": "Account",
-      "description": "Hesap işlemleri"
+      "name": "Tag",
+      "description": "Etiket işlemleri"
     },
     {
-      "name": "Category",
-      "description": "Kategori işlemleri"
+      "name": "Account",
+      "description": "Hesap işlemleri"
     },
     {
       "name": "Transaction",
@@ -164,17 +164,17 @@
         }
       }
     },
-    "/transaction/category/{categoryId}": {
+    "/transaction/tag/{tagId}": {
       "post": {
         "tags": [
           "Transaction"
         ],
-        "summary": "List Category Transactions",
-        "description": "Bir kategorinin Gelir/Giderlerini listeler",
-        "operationId": "listCategoryTransactions",
+        "summary": "List Tag Transactions",
+        "description": "Bir etiketin Gelir/Giderlerini listeler",
+        "operationId": "listTagTransactions",
         "parameters": [
           {
-            "name": "categoryId",
+            "name": "tagId",
             "in": "path",
             "required": true,
             "schema": {
@@ -187,7 +187,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CategoryTransactionsFilterRequestDto"
+                "$ref": "#/components/schemas/TagTransactionsFilterRequestDto"
               }
             }
           },
@@ -199,7 +199,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponsePagedResponseListCategoryTransactionsResponseDto"
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListTagTransactionsResponseDto"
                 }
               }
             }
@@ -293,14 +293,14 @@
         }
       }
     },
-    "/dashboard/category-summary": {
+    "/dashboard/tag-summary": {
       "post": {
         "tags": [
           "Dashboard"
         ],
-        "summary": "Category Summary",
-        "description": "Ana sayfada harcamalari kategorisel olarak getirir",
-        "operationId": "categorySummary",
+        "summary": "Tag Summary",
+        "description": "Ana sayfada harcamalari etiket bazında getirir",
+        "operationId": "tagSummary",
         "parameters": [
           {
             "name": "type",
@@ -331,7 +331,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CategorySummaryRequestDto"
+                "$ref": "#/components/schemas/TagSummaryRequestDto"
               }
             }
           },
@@ -343,7 +343,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseCategorySummaryResponseDto"
+                  "$ref": "#/components/schemas/ApiResponseTagSummaryResponseDto"
                 }
               }
             }
@@ -572,6 +572,70 @@
         }
       }
     },
+    "/tag/my": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Get user tags with transaction count",
+        "description": "Kullanıcıya ait etiketleri gelir/gider sayıları ile beraber getirir",
+        "operationId": "listUserTagsWithTransactionCount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FilterListUserTags"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListUserTagsWithTransactionCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/my/active": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Get user tags",
+        "description": "Kullanıcıya ait etiketleri getirir",
+        "operationId": "listUserTags",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FilterListUserTags"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePagedResponseListUserTagsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/installment/month": {
       "get": {
         "tags": [
@@ -722,70 +786,6 @@
         }
       }
     },
-    "/category/my": {
-      "get": {
-        "tags": [
-          "Category"
-        ],
-        "summary": "Get user categories with transaction count",
-        "description": "Kullanıcıya ait kategorileri gelir/gider sayıları ile beraber getirir",
-        "operationId": "listUserCategoriesWithTransactionCount",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/FilterListUserCategories"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponsePagedResponseListUserCategoriesWithTransactionCountDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/category/my/active": {
-      "get": {
-        "tags": [
-          "Category"
-        ],
-        "summary": "Get user categories",
-        "description": "Kullanıcıya ait kategorileri getirir",
-        "operationId": "listUserCategories",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/FilterListUserCategories"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponsePagedResponseListUserCategoriesDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/account/my/active": {
       "get": {
         "tags": [
@@ -829,6 +829,39 @@
         "parameters": [
           {
             "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag/my/{tagId}": {
+      "delete": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Delete tag",
+        "description": "Kullanıcıya ait etiketi siler",
+        "operationId": "deleteTag",
+        "parameters": [
+          {
+            "name": "tagId",
             "in": "path",
             "required": true,
             "schema": {
@@ -901,7 +934,7 @@
           "totalBalance"
         ]
       },
-      "CategoryTransactionsFilterRequestDto": {
+      "TagTransactionsFilterRequestDto": {
         "type": "object",
         "properties": {
           "pageNumber": {
@@ -967,7 +1000,7 @@
           }
         }
       },
-      "ApiResponsePagedResponseListCategoryTransactionsResponseDto": {
+      "ApiResponsePagedResponseListTagTransactionsResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -981,11 +1014,11 @@
             "format": "date-time"
           },
           "data": {
-            "$ref": "#/components/schemas/PagedResponseListCategoryTransactionsResponseDto"
+            "$ref": "#/components/schemas/PagedResponseListTagTransactionsResponseDto"
           }
         }
       },
-      "ListCategoryTransactionsResponseDto": {
+      "ListTagTransactionsResponseDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -1016,13 +1049,13 @@
           }
         }
       },
-      "PagedResponseListCategoryTransactionsResponseDto": {
+      "PagedResponseListTagTransactionsResponseDto": {
         "type": "object",
         "properties": {
           "content": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ListCategoryTransactionsResponseDto"
+              "$ref": "#/components/schemas/ListTagTransactionsResponseDto"
             }
           },
           "pageNumber": {
@@ -1046,24 +1079,6 @@
           },
           "last": {
             "type": "boolean"
-          }
-        }
-      },
-      "CreateTransactionCategoryDetail": {
-        "type": "object",
-        "properties": {
-          "categoryIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          "newCategories": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -1110,8 +1125,8 @@
           "equalSharingBetweenInstallments": {
             "type": "boolean"
           },
-          "category": {
-            "$ref": "#/components/schemas/CreateTransactionCategoryDetail"
+          "tag": {
+            "$ref": "#/components/schemas/CreateTransactionTagDetail"
           }
         },
         "required": [
@@ -1121,6 +1136,24 @@
           "totalAmount",
           "type"
         ]
+      },
+      "CreateTransactionTagDetail": {
+        "type": "object",
+        "properties": {
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "newTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "BackFillMonthlySummeriesRequest": {
         "type": "object",
@@ -1136,7 +1169,7 @@
           }
         }
       },
-      "CategorySummaryRequestDto": {
+      "TagSummaryRequestDto": {
         "type": "object",
         "properties": {
           "startDate": {
@@ -1153,7 +1186,7 @@
           "startDate"
         ]
       },
-      "ApiResponseCategorySummaryResponseDto": {
+      "ApiResponseTagSummaryResponseDto": {
         "type": "object",
         "properties": {
           "type": {
@@ -1167,11 +1200,11 @@
             "format": "date-time"
           },
           "data": {
-            "$ref": "#/components/schemas/CategorySummaryResponseDto"
+            "$ref": "#/components/schemas/TagSummaryResponseDto"
           }
         }
       },
-      "CategorySummaryDataDto": {
+      "TagSummaryDataDto": {
         "type": "object",
         "properties": {
           "name": {
@@ -1186,13 +1219,13 @@
           }
         }
       },
-      "CategorySummaryResponseDto": {
+      "TagSummaryResponseDto": {
         "type": "object",
         "properties": {
-          "categorySummaryDatas": {
+          "tagSummaryDatas": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CategorySummaryDataDto"
+              "$ref": "#/components/schemas/TagSummaryDataDto"
             }
           }
         }
@@ -1511,6 +1544,174 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ListMyTransactionsResponseDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FilterListUserTags": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "columnName": {
+            "type": "string"
+          },
+          "asc": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "createdEndDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListUserTagsWithTransactionCountDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PagedResponseListUserTagsWithTransactionCountDto"
+          }
+        }
+      },
+      "ListUserTagsWithTransactionCountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagedResponseListUserTagsWithTransactionCountDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListUserTagsWithTransactionCountDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePagedResponseListUserTagsDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PagedResponseListUserTagsDto"
+          }
+        }
+      },
+      "ListUserTagsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PagedResponseListUserTagsDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListUserTagsDto"
             }
           },
           "pageNumber": {
@@ -1974,174 +2175,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ListMyContactsResponseDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalElements": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "first": {
-            "type": "boolean"
-          },
-          "last": {
-            "type": "boolean"
-          }
-        }
-      },
-      "FilterListUserCategories": {
-        "type": "object",
-        "properties": {
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "columnName": {
-            "type": "string"
-          },
-          "asc": {
-            "type": "boolean"
-          },
-          "name": {
-            "type": "string"
-          },
-          "createdStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "createdEndDate": {
-            "type": "string",
-            "format": "date"
-          }
-        }
-      },
-      "ApiResponsePagedResponseListUserCategoriesWithTransactionCountDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "data": {
-            "$ref": "#/components/schemas/PagedResponseListUserCategoriesWithTransactionCountDto"
-          }
-        }
-      },
-      "ListUserCategoriesWithTransactionCountDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "transactionCount": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "PagedResponseListUserCategoriesWithTransactionCountDto": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListUserCategoriesWithTransactionCountDto"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalElements": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "first": {
-            "type": "boolean"
-          },
-          "last": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ApiResponsePagedResponseListUserCategoriesDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "data": {
-            "$ref": "#/components/schemas/PagedResponseListUserCategoriesDto"
-          }
-        }
-      },
-      "ListUserCategoriesDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "PagedResponseListUserCategoriesDto": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ListUserCategoriesDto"
             }
           },
           "pageNumber": {

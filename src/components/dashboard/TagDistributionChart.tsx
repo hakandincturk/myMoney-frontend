@@ -7,24 +7,24 @@ import { Skeleton } from '../ui/Skeleton'
 import { ChartConfigFactory, ChartDataProcessor, DateUtils } from '../../utils/chartUtils'
 import { useChartTheme, useChartRef } from '../../hooks/useCharts'
 import { CHART_DIMENSIONS } from '../../constants/charts'
-import type { CategoryData, PeriodType, SumModeType } from '../../types/charts'
+import type { TagData, PeriodType, SumModeType } from '../../types/charts'
 
-interface CategoryDistributionChartProps {
-  categories: CategoryData[]
+interface TagDistributionChartProps {
+  tags: TagData[]
   isLoading?: boolean
   hasError?: boolean
-  categoryPeriod: PeriodType
-  categorySumMode: SumModeType
+  tagPeriod: PeriodType
+  tagSumMode: SumModeType
   onPeriodChange: (period: PeriodType) => void
   onSumModeChange: (mode: SumModeType) => void
 }
 
-export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps> = ({
-  categories,
+export const TagDistributionChart: React.FC<TagDistributionChartProps> = ({
+  tags,
   isLoading = false,
   hasError = false,
-  categoryPeriod,
-  categorySumMode,
+  tagPeriod,
+  tagSumMode,
   onPeriodChange,
   onSumModeChange,
 }) => {
@@ -38,7 +38,7 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
 
   const configFactory = new ChartConfigFactory(theme, t)
   const chartConfig = configFactory.createDoughnutChartConfig()
-  const chartData = ChartDataProcessor.createDoughnutChartData(categories, theme.isDark)
+  const chartData = ChartDataProcessor.createDoughnutChartData(tags, theme.isDark)
 
   const periodOptions = [
     { value: 'MONTHLY', label: t('dashboard.thisMonth') },
@@ -50,13 +50,13 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
     { value: 'DOUBLE_COUNT', label: t('dashboard.doubleCount') },
   ]
 
-  const dateRangeDisplay = DateUtils.getDateRangeDisplay(categoryPeriod, t)
+  const dateRangeDisplay = DateUtils.getDateRangeDisplay(tagPeriod, t)
 
   if (isLoading) {
     return (
-      <Card 
-        title={t('dashboard.categoryDistribution')} 
-        subtitle={t('dashboard.categoryDataLoading')}
+      <Card
+        title={t('dashboard.tagDistribution')}
+        subtitle={t('dashboard.tagDataLoading')}
         className="hover:shadow-md transition-all duration-200 relative [&>div:first-child]:pr-72"
       >
         <div className="absolute top-3 right-4 flex gap-2 z-10">
@@ -105,15 +105,15 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
 
   if (hasError) {
     return (
-      <Card 
-        title={t('dashboard.categoryDistribution')} 
-        subtitle={t('dashboard.categoryChartsLoadError')}
+      <Card
+        title={t('dashboard.tagDistribution')}
+        subtitle={t('dashboard.tagChartsLoadError')}
         className="hover:shadow-md transition-all duration-200 relative [&>div:first-child]:pr-72"
       >
         <div className="absolute top-3 right-4 flex gap-2 z-10">
           <Select
-            id="category-period-select-error"
-            value={categoryPeriod}
+            id="tag-period-select-error"
+            value={tagPeriod}
             onChange={(value) => onPeriodChange(value as PeriodType)}
             options={periodOptions}
             placeholder={t('dashboard.period')}
@@ -122,8 +122,8 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
             className="text-xs w-24"
           />
           <Select
-            id="category-summode-select-error"
-            value={categorySumMode}
+            id="tag-summode-select-error"
+            value={tagSumMode}
             onChange={(value) => onSumModeChange(value as SumModeType)}
             options={sumModeOptions}
             placeholder={t('dashboard.sumMode')}
@@ -136,14 +136,14 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
           <div className="text-6xl animate-pulse">📊</div>
           <div className="text-center space-y-3">
             <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
-              {t('dashboard.categoryLoadError')}
+              {t('dashboard.tagLoadError')}
             </h3>
             <p className="text-sm leading-relaxed max-w-sm">
-              {t('dashboard.categoryDataLoadError')}<br />
+              {t('dashboard.tagDataLoadError')}<br />
               {t('dashboard.pleaseTryAgain')}
             </p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
             >
               🔄 {t('dashboard.tryAgain')}
@@ -154,19 +154,18 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
     )
   }
 
-  const hasData = categories && categories.length > 0
+  const hasData = tags && tags.length > 0
 
   return (
-    <Card 
-      title={t('dashboard.categoryDistribution')} 
-      subtitle={`${dateRangeDisplay} ${t('dashboard.categoryDistributionPeriod')}`}
-      subtitleHelp="Her dilimde kategoriye ait toplam gider ve yüzde oranı gösterilir. Dilimlere tıklayarak detay görüntüleyebilirsiniz."
+    <Card
+      title={t('dashboard.tagDistribution')}
+      subtitle={`${dateRangeDisplay} ${t('dashboard.tagDistributionPeriod')}`}
       className="hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-700 relative [&>div:first-child]:pr-72"
     >
       <div className="absolute top-3 right-4 flex gap-2 z-10">
         <Select
-          id="category-period-select"
-          value={categoryPeriod}
+          id="tag-period-select"
+          value={tagPeriod}
           onChange={(value) => onPeriodChange(value as PeriodType)}
           options={periodOptions}
           placeholder={t('dashboard.period')}
@@ -175,8 +174,8 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
           className="text-xs w-24"
         />
         <Select
-          id="category-summode-select"
-          value={categorySumMode}
+          id="tag-summode-select"
+          value={tagSumMode}
           onChange={(value) => onSumModeChange(value as SumModeType)}
           options={sumModeOptions}
           placeholder={t('dashboard.sumMode')}
@@ -199,8 +198,8 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
             </div>
             <div className="text-center space-y-3 max-w-sm">
               <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
-                {t('dashboard.noDataThisMonth', { 
-                  period: categoryPeriod === 'MONTHLY' ? t('dashboard.thisMonth') : t('dashboard.thisYear')
+                {t('dashboard.noDataThisMonth', {
+                  period: tagPeriod === 'MONTHLY' ? t('dashboard.thisMonth') : t('dashboard.thisYear')
                 })}
               </h3>
               <p className="text-sm leading-relaxed">

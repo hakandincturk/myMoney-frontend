@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { CHART_COLORS, THEME_COLORS, CHART_STYLES, CHART_ANIMATIONS } from '../constants/charts'
-import type { ChartConfig, ChartTheme, CategoryData, ChartDataPoint, DateRange, PeriodType } from '../types/charts'
+import type { ChartConfig, ChartTheme, TagData, ChartDataPoint, DateRange, PeriodType } from '../types/charts'
 
 export class ChartConfigFactory {
   private theme: ChartTheme
@@ -363,7 +363,7 @@ export class ChartDataProcessor {
     }
   }
 
-  static createDoughnutChartData(categories: CategoryData[], isDark: boolean) {
+  static createDoughnutChartData(categories: TagData[], isDark: boolean) {
     return {
       labels: categories.map(cat => cat.name),
       datasets: [
@@ -392,13 +392,13 @@ export class ChartDataProcessor {
     }
   }
 
-  static processCategories(categorySummaryData: any): CategoryData[] {
-    if (!categorySummaryData?.data?.categorySummaryDatas) return []
-    
-    return categorySummaryData.data.categorySummaryDatas.map((category: any, index: number) => ({
-      name: category.name,
-      amount: category.amount,
-      percentage: category.percentage,
+  static processTags(tagSummaryData: any): TagData[] {
+    if (!tagSummaryData?.data?.tagSummaryDatas) return []
+
+    return tagSummaryData.data.tagSummaryDatas.map((tag: any, index: number) => ({
+      name: tag.name,
+      amount: tag.amount,
+      percentage: tag.percentage,
       color: CHART_COLORS[index % CHART_COLORS.length],
     }))
   }

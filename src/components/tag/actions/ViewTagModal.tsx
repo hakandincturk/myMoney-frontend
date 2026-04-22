@@ -4,25 +4,25 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { CategoryDTOs } from '@/types/category'
-import { useGetTransactionsByCategoryQuery } from '@/services/categoryApi'
+import { TagDTOs } from '@/types/tag'
+import { useGetTransactionsByTagQuery } from '@/services/tagApi'
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
-import { CategoryTransactionTable } from '../CategoryTransactionTable'
+import { TagTransactionTable } from '../TagTransactionTable'
 import {
-  CategoryTransactionFilterPanel,
-  CategoryTransactionFilters,
-} from '../CategoryTransactionFilterPanel'
+  TagTransactionFilterPanel,
+  TagTransactionFilters,
+} from '../TagTransactionFilterPanel'
 
-type ViewCategoryModalProps = {
+type ViewTagModalProps = {
   isOpen: boolean
   onClose: () => void
-  category: CategoryDTOs.ListItemWithMeta | null
+  tag: TagDTOs.ListItemWithMeta | null
 }
 
-export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
+export const ViewTagModal: React.FC<ViewTagModalProps> = ({
   isOpen,
   onClose,
-  category,
+  tag,
 }) => {
   const { t, i18n } = useTranslation()
 
@@ -31,7 +31,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     pageSize: 10,
   })
 
-  const [appliedFilters, setAppliedFilters] = useState<CategoryTransactionFilters>({})
+  const [appliedFilters, setAppliedFilters] = useState<TagTransactionFilters>({})
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
 
   const activeFilterCount = useMemo(() => {
@@ -51,16 +51,16 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     data: transactionsData,
     isLoading: transactionsLoading,
     isFetching: transactionsFetching,
-  } = useGetTransactionsByCategoryQuery(
+  } = useGetTransactionsByTagQuery(
     {
-      categoryId: category?.id ?? 0,
+      tagId: tag?.id ?? 0,
       pageData: {
         pageNumber: pageParams.pageNumber,
         pageSize: pageParams.pageSize,
         ...appliedFilters,
       },
     },
-    { skip: !isOpen || !category?.id }
+    { skip: !isOpen || !tag?.id }
   )
 
   const transactions = transactionsData?.data?.content ?? []
@@ -74,7 +74,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     setPageParams((prev) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
   }
 
-  const handleApplyFilters = (filters: CategoryTransactionFilters) => {
+  const handleApplyFilters = (filters: TagTransactionFilters) => {
     setAppliedFilters(filters)
     setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
     setIsFilterPanelOpen(false)
@@ -85,7 +85,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
   }
 
-  const handleRemoveFilterKey = (key: keyof CategoryTransactionFilters) => {
+  const handleRemoveFilterKey = (key: keyof TagTransactionFilters) => {
     setAppliedFilters((prev) => {
       const next = { ...prev }
       delete next[key]
@@ -111,8 +111,6 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     setPageParams((prev) => ({ ...prev, pageNumber: 0 }))
   }
 
-  // Account names are needed for chip labels; loaded at modal level so
-  // the cache is shared with the filter panel's account-select query.
   const { data: accountsData } = useListMyActiveAccountsQuery(
     { pageNumber: 0, pageSize: 100, columnName: 'name', asc: true },
     { skip: !isOpen }
@@ -150,57 +148,56 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
     return transactions.reduce((sum, t) => sum + t.paidAmount, 0)
   }, [transactions])
 
-  if (!category) return null
+  if (!tag) return null
 
   return (
     <Modal
       open={isOpen}
       onClose={onClose}
-      title={t('category.actions.viewTitle', 'Kategori Detayları')}
+      title={t('tag.actions.viewTitle')}
       size="xxl"
       containerClassName="h-[85vh]"
       footer={
         <div className="flex justify-end w-full">
           <Button variant="secondary" onClick={onClose}>
-            {t('common.close', 'Kapat')}
+            {t('common.close')}
           </Button>
         </div>
       }
     >
       <div className="space-y-6">
-        {/* Kategori Bilgileri */}
         <div className="space-y-3">
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-mm-border">
             <h4 className="text-sm font-medium text-slate-500 dark:text-mm-subtleText mb-1">
-              {t('category.fields.name', 'Kategori Adı')}
+              {t('tag.fields.name')}
             </h4>
             <div className="text-lg font-semibold text-slate-900 dark:text-mm-text">
-              {category.name}
+              {tag.name}
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-mm-border">
               <h4 className="text-xs font-medium text-slate-500 dark:text-mm-subtleText mb-2 uppercase tracking-wide">
-                {t('category.fields.transactionCount', 'İşlem Sayısı')}
+                {t('tag.fields.transactionCount')}
               </h4>
               <div className="text-2xl font-bold text-mm-secondary">
-                {category.transactionCount || 0}
+                {tag.transactionCount || 0}
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-mm-border">
               <h4 className="text-xs font-medium text-slate-500 dark:text-mm-subtleText mb-2 uppercase tracking-wide">
-                {t('category.fields.createdAt', 'Oluşturulma')}
+                {t('tag.fields.createdAt')}
               </h4>
               <div className="text-sm font-medium text-slate-900 dark:text-mm-text">
-                {formatDate(category.createdAt)}
+                {formatDate(tag.createdAt)}
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/40">
               <h4 className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-2 uppercase tracking-wide">
-                {t('transaction.types.debt', 'İşlem Sayısı')}
+                {t('transaction.types.debt')}
               </h4>
               <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                 {transactions.length}
@@ -209,8 +206,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
           </div>
         </div>
 
-        {/* Filtre Paneli */}
-        <CategoryTransactionFilterPanel
+        <TagTransactionFilterPanel
           isOpen={isFilterPanelOpen}
           onToggle={() => setIsFilterPanelOpen((prev) => !prev)}
           appliedFilters={appliedFilters}
@@ -219,16 +215,14 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
           onClear={handleClearFilters}
         />
 
-        {/* Aktif Filtre Chip'leri */}
         <FilterChips
           appliedFilters={appliedFilters}
-          onRemoveKey={(key) => handleRemoveFilterKey(key as keyof CategoryTransactionFilters)}
+          onRemoveKey={(key) => handleRemoveFilterKey(key as keyof TagTransactionFilters)}
           onRemoveItem={handleRemoveFilterItem}
           accountIdToName={accountIdToName}
           getTypeLabel={getTypeLabel}
         />
 
-        {/* İşlemler Tablosu */}
         {(transactionsLoading || transactionsFetching || transactions.length > 0 || activeFilterCount > 0) && (
           <Card
             className="border-slate-200 dark:border-mm-border"
@@ -236,7 +230,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
           >
             <div className="h-[45vh] min-h-[320px] overflow-hidden">
               <div className="h-full">
-                <CategoryTransactionTable
+                <TagTransactionTable
                   data={transactions}
                   isLoading={transactionsLoading || transactionsFetching}
                   pageParams={pageParams}
@@ -250,12 +244,11 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
               </div>
             </div>
 
-            {/* İşlem Özeti */}
             {pageData && (
               <div className="p-4 border-t border-slate-100 dark:border-mm-border bg-slate-50/50 dark:bg-slate-800/30 grid grid-cols-3 gap-3">
                 <div>
                   <h5 className="text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase mb-1">
-                    {t('transaction.totalAmount', 'Toplam İşlem')}
+                    {t('transaction.totalAmount')}
                   </h5>
                   <p className="text-lg font-bold text-slate-900 dark:text-mm-text">
                     ₺{totalAmount.toLocaleString('tr-TR', {
@@ -267,7 +260,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
 
                 <div>
                   <h5 className="text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase mb-1">
-                    {t('transaction.paidAmount', 'Ödenen Toplam')}
+                    {t('transaction.paidAmount')}
                   </h5>
                   <p className="text-lg font-bold text-green-600 dark:text-green-400">
                     ₺{totalPaid.toLocaleString('tr-TR', {
@@ -279,7 +272,7 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
 
                 <div>
                   <h5 className="text-xs font-medium text-slate-500 dark:text-mm-subtleText uppercase mb-1">
-                    {t('transaction.remainingAmount', 'Kalan Tutar')}
+                    {t('transaction.remainingAmount')}
                   </h5>
                   <p
                     className={`text-lg font-bold ${
@@ -300,14 +293,13 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
           </Card>
         )}
 
-        {/* Boş Durum */}
         {!transactionsLoading && transactions.length === 0 && activeFilterCount === 0 && (
           <Card
             className="border-slate-200 dark:border-mm-border bg-slate-50/50 dark:bg-slate-800/30"
             contentClassName="py-8 text-center"
           >
             <p className="text-slate-500 dark:text-mm-subtleText">
-              {t('messages.noTransactions', 'Bu kategoriye ait işlem bulunamadı.')}
+              {t('messages.noTransactions')}
             </p>
           </Card>
         )}
@@ -316,5 +308,4 @@ export const ViewCategoryModal: React.FC<ViewCategoryModalProps> = ({
   )
 }
 
-export default ViewCategoryModal
-
+export default ViewTagModal

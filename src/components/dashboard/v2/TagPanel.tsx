@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { Doughnut } from 'react-chartjs-2'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartPie, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
-import { useGetCategorySummaryQuery } from '@/services/dashboardApi'
+import { useGetTagSummaryQuery } from '@/services/dashboardApi'
 import { useChartControls, useChartTheme } from '../../../hooks/useCharts'
 import { ChartDataProcessor, DateUtils } from '../../../utils/chartUtils'
-import type { CategoryData, PeriodType, SumModeType } from '../../../types/charts'
+import type { TagData, PeriodType, SumModeType } from '../../../types/charts'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { formatTRY, formatCompactTRY, formatPercent } from './formatters'
 
@@ -22,7 +22,6 @@ type SegmentedToggleProps<T extends string> = {
   ariaLabel: string
 }
 
-// Small reusable segmented toggle replacing the previous <Select> dropdowns.
 function SegmentedToggle<T extends string>({
   options,
   value,
@@ -79,7 +78,7 @@ const buildDoughnutOptions = (isDark: boolean, t: (key: string) => string) => ({
         label: (ctx: { parsed: number; dataset: { data: number[] } }) => {
           const total = ctx.dataset.data.reduce((a: number, b: number) => a + b, 0)
           const pct = total > 0 ? (ctx.parsed / total) * 100 : 0
-          return `  ₺${ctx.parsed.toLocaleString('tr-TR')} · %${pct.toFixed(1)}`
+          return `  ₺${ctx.parsed.toLocaleString('tr-TR')} �� %${pct.toFixed(1)}`
         },
       },
     },
@@ -95,31 +94,31 @@ const buildDoughnutOptions = (isDark: boolean, t: (key: string) => string) => ({
   animation: { animateRotate: true, animateScale: false, duration: 600 },
 })
 
-type CategoryLegendItemProps = {
-  category: CategoryData
+type TagLegendItemProps = {
+  tag: TagData
   total: number
 }
 
-const CategoryLegendItem: React.FC<CategoryLegendItemProps> = ({ category, total }) => {
-  const pct = total > 0 ? (category.amount / total) * 100 : 0
+const TagLegendItem: React.FC<TagLegendItemProps> = ({ tag, total }) => {
+  const pct = total > 0 ? (tag.amount / total) * 100 : 0
   return (
     <li className="group flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-mm-bg/60">
       <span
         className="h-2.5 w-2.5 flex-shrink-0 rounded-full ring-2 ring-white dark:ring-mm-card"
-        style={{ backgroundColor: category.color }}
+        style={{ backgroundColor: tag.color }}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-slate-800 dark:text-slate-200">{category.name}</p>
+        <p className="truncate text-sm text-slate-800 dark:text-slate-200">{tag.name}</p>
         <div className="mt-1 h-1 overflow-hidden rounded-full bg-slate-100 dark:bg-mm-bg">
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, backgroundColor: category.color }}
+            style={{ width: `${pct}%`, backgroundColor: tag.color }}
           />
         </div>
       </div>
       <div className="flex flex-col items-end">
         <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-mm-text">
-          {formatCompactTRY(category.amount)}
+          {formatCompactTRY(tag.amount)}
         </span>
         <span className="text-[11px] text-slate-500 dark:text-slate-400">
           {formatPercent(pct)}
@@ -129,53 +128,53 @@ const CategoryLegendItem: React.FC<CategoryLegendItemProps> = ({ category, total
   )
 }
 
-export const CategoryPanel: React.FC = () => {
+export const TagPanel: React.FC = () => {
   const { t } = useTranslation()
   const theme = useChartTheme()
-  const { categoryPeriod, categorySumMode, setCategoryPeriod, setCategorySumMode } =
+  const { tagPeriod, tagSumMode, setTagPeriod, setTagSumMode } =
     useChartControls()
 
-  const { startDate, endDate } = DateUtils.getDateRange(categoryPeriod)
+  const { startDate, endDate } = DateUtils.getDateRange(tagPeriod)
 
   const {
-    data: categorySummaryData,
+    data: tagSummaryData,
     isFetching,
     error,
-  } = useGetCategorySummaryQuery(
-    { startDate, endDate, type: categoryPeriod, sumMode: categorySumMode },
+  } = useGetTagSummaryQuery(
+    { startDate, endDate, type: tagPeriod, sumMode: tagSumMode },
     { refetchOnMountOrArgChange: true },
   )
 
-  const categories = useMemo(
-    () => ChartDataProcessor.processCategories(categorySummaryData),
-    [categorySummaryData],
+  const tags = useMemo(
+    () => ChartDataProcessor.processTags(tagSummaryData),
+    [tagSummaryData],
   )
 
   const totalSpent = useMemo(
-    () => categories.reduce((acc, c) => acc + c.amount, 0),
-    [categories],
+    () => tags.reduce((acc, c) => acc + c.amount, 0),
+    [tags],
   )
 
   const chartData = useMemo(
-    () => ChartDataProcessor.createDoughnutChartData(categories, theme.isDark),
-    [categories, theme.isDark],
+    () => ChartDataProcessor.createDoughnutChartData(tags, theme.isDark),
+    [tags, theme.isDark],
   )
 
   const chartOptions = useMemo(() => buildDoughnutOptions(theme.isDark, t), [theme.isDark, t])
 
   const periodOptions: SegmentedOption<PeriodType>[] = [
-    { value: 'MONTHLY', label: t('dashboard.v2.category.period.monthly') },
-    { value: 'YEARLY', label: t('dashboard.v2.category.period.yearly') },
+    { value: 'MONTHLY', label: t('dashboard.v2.tag.period.monthly') },
+    { value: 'YEARLY', label: t('dashboard.v2.tag.period.yearly') },
   ]
 
   const sumModeOptions: SegmentedOption<SumModeType>[] = [
-    { value: 'DISTRIBUTED', label: t('dashboard.v2.category.sumMode.distributed') },
-    { value: 'DOUBLE_COUNT', label: t('dashboard.v2.category.sumMode.doubleCount') },
+    { value: 'DISTRIBUTED', label: t('dashboard.v2.tag.sumMode.distributed') },
+    { value: 'DOUBLE_COUNT', label: t('dashboard.v2.tag.sumMode.doubleCount') },
   ]
 
   const hasError = !!error
   const isLoading = isFetching
-  const hasData = categories.length > 0
+  const hasData = tags.length > 0
 
   return (
     <section className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-mm-border dark:bg-mm-card">
@@ -183,23 +182,23 @@ export const CategoryPanel: React.FC = () => {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-mm-text">
-              {t('dashboard.v2.category.title')}
+              {t('dashboard.v2.tag.title')}
             </h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              {t('dashboard.v2.category.subtitle')}
+              {t('dashboard.v2.tag.subtitle')}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <SegmentedToggle
               options={periodOptions}
-              value={categoryPeriod}
-              onChange={setCategoryPeriod}
+              value={tagPeriod}
+              onChange={setTagPeriod}
               ariaLabel={t('dashboard.period')}
             />
             <SegmentedToggle
               options={sumModeOptions}
-              value={categorySumMode}
-              onChange={setCategorySumMode}
+              value={tagSumMode}
+              onChange={setTagSumMode}
               ariaLabel={t('dashboard.sumMode')}
             />
           </div>
@@ -235,20 +234,19 @@ export const CategoryPanel: React.FC = () => {
               <FontAwesomeIcon icon={faChartPie} />
             </div>
             <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-200">
-              {t('dashboard.v2.category.empty')}
+              {t('dashboard.v2.tag.empty')}
             </p>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {t('dashboard.v2.category.emptyHint')}
+              {t('dashboard.v2.tag.emptyHint')}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(200px,240px)_minmax(0,1fr)] lg:items-center">
-            {/* Donut with centred total */}
             <div className="relative mx-auto flex h-56 w-56 items-center justify-center">
               <Doughnut data={chartData} options={chartOptions} />
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  {t('dashboard.v2.category.totalSpent')}
+                  {t('dashboard.v2.tag.totalSpent')}
                 </span>
                 <span className="mt-1 text-lg font-semibold text-slate-900 dark:text-mm-text">
                   {formatTRY(totalSpent)}
@@ -256,12 +254,11 @@ export const CategoryPanel: React.FC = () => {
               </div>
             </div>
 
-            {/* HTML legend list */}
             <ul className="flex max-h-72 flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1">
-              {categories.map((category) => (
-                <CategoryLegendItem
-                  key={category.name}
-                  category={category}
+              {tags.map((tag) => (
+                <TagLegendItem
+                  key={tag.name}
+                  tag={tag}
                   total={totalSpent}
                 />
               ))}
@@ -273,4 +270,4 @@ export const CategoryPanel: React.FC = () => {
   )
 }
 
-export default CategoryPanel
+export default TagPanel

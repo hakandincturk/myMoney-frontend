@@ -3,16 +3,16 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { Table } from '@/components/ui/Table'
 import { TableSkeleton } from '@/components/ui/Skeleton'
-import { CategoryDTOs } from '@/types/index'
-import { CategoryActions } from './actions/CategoryActions'
-import { ViewCategoryModal } from './actions/ViewCategoryModal'
-import { RenameCategoryModal } from './actions/RenameCategoryModal'
-import { DeleteCategoryModal } from './actions/DeleteCategoryModal'
+import { TagDTOs } from '@/types/index'
+import { TagActions } from './actions/TagActions'
+import { ViewTagModal } from './actions/ViewTagModal'
+import { RenameTagModal } from './actions/RenameTagModal'
+import { DeleteTagModal } from './actions/DeleteTagModal'
 
-type SortablePageRequest = CategoryDTOs.SortablePageRequest
+type SortablePageRequest = TagDTOs.SortablePageRequest
 
-type CategoryTableProps = {
-  data: CategoryDTOs.ListItemWithMeta[]
+type TagTableProps = {
+  data: TagDTOs.ListItemWithMeta[]
   isLoading: boolean
   pageParams: SortablePageRequest
   totalPages: number
@@ -26,9 +26,9 @@ type CategoryTableProps = {
   onDelete?: (id: number) => Promise<void>
 }
 
-const columnHelper = createColumnHelper<CategoryDTOs.ListItemWithMeta>()
+const columnHelper = createColumnHelper<TagDTOs.ListItemWithMeta>()
 
-export const CategoryTable: React.FC<CategoryTableProps> = ({
+export const TagTable: React.FC<TagTableProps> = ({
   data,
   isLoading,
   pageParams,
@@ -43,23 +43,23 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
   onDelete,
 }) => {
   const { t, i18n } = useTranslation()
-  
+
   const [modalState, setModalState] = useState<{
     type: 'view' | 'rename' | 'delete' | null
-    category: CategoryDTOs.ListItemWithMeta | null
-  }>({ type: null, category: null })
+    tag: TagDTOs.ListItemWithMeta | null
+  }>({ type: null, tag: null })
 
-  const closeModal = () => setModalState({ type: null, category: null })
+  const closeModal = () => setModalState({ type: null, tag: null })
 
   const handleRenameConfirm = async (newName: string) => {
-    if (modalState.category && onRename) {
-      await onRename(modalState.category.id, newName)
+    if (modalState.tag && onRename) {
+      await onRename(modalState.tag.id, newName)
     }
   }
 
   const handleDeleteConfirm = async () => {
-    if (modalState.category && onDelete) {
-      await onDelete(modalState.category.id)
+    if (modalState.tag && onDelete) {
+      await onDelete(modalState.tag.id)
     }
   }
 
@@ -80,7 +80,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
           onClick={() => onSortClick('name')}
           className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-mm-text transition-colors w-full text-left"
         >
-          {t('table.columns.categoryName')}
+          {t('table.columns.tagName')}
           {getSortIndicator('name')}
         </button>
       ),
@@ -140,10 +140,10 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
       id: 'actions',
       header: () => <span className="sr-only">{t('common.actions.title', 'İşlemler')}</span>,
       cell: (info) => (
-        <CategoryActions
-          onView={() => setModalState({ type: 'view', category: info.row.original })}
-          onRename={() => setModalState({ type: 'rename', category: info.row.original })}
-          onDelete={() => setModalState({ type: 'delete', category: info.row.original })}
+        <TagActions
+          onView={() => setModalState({ type: 'view', tag: info.row.original })}
+          onRename={() => setModalState({ type: 'rename', tag: info.row.original })}
+          onDelete={() => setModalState({ type: 'delete', tag: info.row.original })}
         />
       ),
       meta: { className: 'w-[140px]' },
@@ -171,27 +171,27 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
         className="h-full"
       />
 
-      <ViewCategoryModal
+      <ViewTagModal
         isOpen={modalState.type === 'view'}
         onClose={closeModal}
-        category={modalState.category}
+        tag={modalState.tag}
       />
 
-      <RenameCategoryModal
+      <RenameTagModal
         isOpen={modalState.type === 'rename'}
         onClose={closeModal}
         onConfirm={handleRenameConfirm}
-        category={modalState.category}
+        tag={modalState.tag}
       />
 
-      <DeleteCategoryModal
+      <DeleteTagModal
         isOpen={modalState.type === 'delete'}
         onClose={closeModal}
         onConfirm={handleDeleteConfirm}
-        category={modalState.category}
+        tag={modalState.tag}
       />
     </>
   )
 }
 
-export default CategoryTable
+export default TagTable

@@ -4,7 +4,7 @@ export enum ApiUrl {
   TRANSACTION_MY = '/transaction/my',
   TRANSACTION_MY_BY_ID = '/transaction/my/{id}',
   TRANSACTION_BY_ID = '/transaction/{id}',
-  TRANSACTION_CATEGORY_ID = '/transaction/category/{id}',
+  TRANSACTION_TAG_ID = '/transaction/tag/{id}',
   TRANSACTION_INSTALLMENTS = '/transaction/{id}/installments/',
   
   // Account endpoints
@@ -21,12 +21,12 @@ export enum ApiUrl {
   CONTACT_MY_BY_ID = '/contact/my/{id}',
   CONTACT_BY_ID = '/contact/{id}',
   
-  // Category endpoints (tahmini isimlendirme backend ile aynı pattern)
-  CATEGORY = '/category/',
-  CATEGORY_MY = '/category/my',
-  CATEGORY_MY_ACTIVE = '/category/my/active',
-  CATEGORY_MY_BY_ID = '/category/my/{id}',
-  CATEGORY_BY_ID = '/category/{id}',
+  // Tag endpoints
+  TAG = '/tag/',
+  TAG_MY = '/tag/my',
+  TAG_MY_ACTIVE = '/tag/my/active',
+  TAG_MY_BY_ID = '/tag/my/{id}',
+  TAG_BY_ID = '/tag/{id}',
   
   // Installment endpoints
   INSTALLMENT_MONTH = '/installment/month',
@@ -42,7 +42,7 @@ export enum ApiUrl {
   // Dashboard endpoints
   DASHBOARD_QUICK_VIEW = '/dashboard/quick-view',
   DASHBOARD_MONTHLY_TREND = '/dashboard/monthly-trend',
-  DASHBOARD_CATEGORY_SUMMARY = '/dashboard/category-summary',
+  DASHBOARD_TAG_SUMMARY = '/dashboard/tag-summary',
   DASHBOARD_LAST_TRANSACTIONS = '/dashboard/last-transactions',
   DASHBOARD_INCOMING_TRANSACTIONS = '/dashboard/incoming-transactions',
 

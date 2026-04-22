@@ -3,20 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { CategoryDTOs } from '@/types/category'
+import { TagDTOs } from '@/types/tag'
 
-type RenameCategoryModalProps = {
+type RenameTagModalProps = {
   isOpen: boolean
   onClose: () => void
   onConfirm: (newName: string) => Promise<void>
-  category: CategoryDTOs.ListItemWithMeta | null
+  tag: TagDTOs.ListItemWithMeta | null
 }
 
-export const RenameCategoryModal: React.FC<RenameCategoryModalProps> = ({
+export const RenameTagModal: React.FC<RenameTagModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  category,
+  tag,
 }) => {
   const { t } = useTranslation()
   const [newName, setNewName] = useState('')
@@ -24,22 +24,21 @@ export const RenameCategoryModal: React.FC<RenameCategoryModalProps> = ({
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (isOpen && category) {
-      setNewName(category.name)
+    if (isOpen && tag) {
+      setNewName(tag.name)
       setError(null)
       setIsSubmitting(false)
     }
-  }, [isOpen, category])
+  }, [isOpen, tag])
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    
+
     if (!newName.trim()) {
-      // setError(t('validation.required', 'Bu alan zorunludur'));
       return
     }
 
-    if (newName.trim() === category?.name) {
+    if (newName.trim() === tag?.name) {
       onClose()
       return
     }
@@ -49,9 +48,8 @@ export const RenameCategoryModal: React.FC<RenameCategoryModalProps> = ({
       await onConfirm(newName.trim())
       onClose()
     } catch (err) {
-      // Hata yönetimi (gerçek uygulamada API'den gelen hata mesajı)
       console.error(err)
-      setError(t('common.genericError', 'Bir hata oluştu'))
+      setError(t('common.genericError'))
     } finally {
       setIsSubmitting(false)
     }
@@ -61,34 +59,34 @@ export const RenameCategoryModal: React.FC<RenameCategoryModalProps> = ({
     <Modal
       open={isOpen}
       onClose={onClose}
-      title={t('category.actions.renameTitle', 'Kategoriyi Yeniden Adlandır')}
+      title={t('tag.actions.renameTitle')}
       size="md"
       footer={
         <div className="flex justify-end gap-3 w-full">
           <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
-            {t('common.cancel', 'İptal')}
+            {t('common.cancel')}
           </Button>
-          <Button 
-            variant="primary" 
-            onClick={() => handleSubmit()} 
-            disabled={isSubmitting || !newName.trim() || newName.trim() === category?.name}
+          <Button
+            variant="primary"
+            onClick={() => handleSubmit()}
+            disabled={isSubmitting || !newName.trim() || newName.trim() === tag?.name}
           >
-            {isSubmitting ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+            {isSubmitting ? t('common.saving') : t('common.save')}
           </Button>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <p className="text-sm text-slate-500 dark:text-mm-subtleText">
-          {t('category.actions.renameDescription', 'Kategori adını aşağıdan güncelleyebilirsiniz.')}
+          {t('tag.actions.renameDescription')}
         </p>
-        
+
         <Input
-          id="category-rename-input"
+          id="tag-rename-input"
           value={newName}
           onChange={(val) => setNewName(String(val))}
-          label={t('category.fields.name', 'Kategori Adı')}
-          placeholder={t('category.fields.namePlaceholder', 'Kategori adı giriniz')}
+          label={t('tag.fields.name')}
+          placeholder={t('tag.fields.namePlaceholder')}
           error={error || undefined}
           autoFocus
         />
@@ -97,4 +95,4 @@ export const RenameCategoryModal: React.FC<RenameCategoryModalProps> = ({
   )
 }
 
-export default RenameCategoryModal
+export default RenameTagModal

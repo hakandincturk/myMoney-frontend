@@ -1,10 +1,9 @@
-export namespace CategoryDTOs {
+export namespace TagDTOs {
   export type ListItem = {
     id: number
     name: string
   }
 
-  // /category/my gibi yönetim ekranlarında kullanılan geniş liste öğesi
   export type ListItemWithMeta = {
     id: number
     name: string
@@ -33,7 +32,6 @@ export namespace CategoryDTOs {
     last: boolean
   }
 
-  // Kategori işlemleri (gelir/gider) tablosunda gösterilecek veriler
   export type Transaction = {
     id: number
     name: string
@@ -61,5 +59,3 @@ export namespace CategoryDTOs {
 
   export type TransactionPagedResponse = PagedResponse<Transaction>
 }
-
-

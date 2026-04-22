@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { Table } from '@/components/ui/Table'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { CategoryDTOs } from '@/types/category'
+import { TagDTOs } from '@/types/tag'
 import { TransactionStatus } from '@/enums/transaction'
 
-type CategoryTransactionTableProps = {
-  data: CategoryDTOs.Transaction[]
+type TagTransactionTableProps = {
+  data: TagDTOs.Transaction[]
   isLoading: boolean
   pageParams: {
     pageNumber: number
@@ -22,9 +22,9 @@ type CategoryTransactionTableProps = {
   onPageSizeChange: (pageSize: number) => void
 }
 
-const columnHelper = createColumnHelper<CategoryDTOs.Transaction>()
+const columnHelper = createColumnHelper<TagDTOs.Transaction>()
 
-export const CategoryTransactionTable: React.FC<CategoryTransactionTableProps> = ({
+export const TagTransactionTable: React.FC<TagTransactionTableProps> = ({
   data,
   isLoading,
   pageParams,
@@ -196,4 +196,4 @@ export const CategoryTransactionTable: React.FC<CategoryTransactionTableProps> =
   )
 }
 
-export default CategoryTransactionTable
+export default TagTransactionTable

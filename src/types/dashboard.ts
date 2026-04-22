@@ -23,22 +23,22 @@ export namespace DashboardDTOs {
     monthlyTrendData: MonthlyTrendData[]
   }
 
-  export type CategorySummaryData = {
+  export type TagSummaryData = {
     name: string
     amount: number
     percentage: number
   }
 
-  export type CategorySummary = {
-    categorySummaryDatas: CategorySummaryData[]
+  export type TagSummary = {
+    tagSummaryDatas: TagSummaryData[]
   }
 
-  export type CategorySummaryRequest = {
+  export type TagSummaryRequest = {
     startDate: string
     endDate: string
   }
 
-  export type CategorySummaryParams = {
+  export type TagSummaryParams = {
     type: 'MONTHLY' | 'YEARLY'
     sumMode: 'DOUBLE_COUNT' | 'DISTRIBUTED'
   }

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 
-type CategoryToolbarProps = {
+type TagToolbarProps = {
   searchValue: string
   onSearchChange: (value: string) => void
   isLoading?: boolean
@@ -12,7 +12,7 @@ type CategoryToolbarProps = {
   onRefresh?: () => void
 }
 
-export const CategoryToolbar: React.FC<CategoryToolbarProps> = ({
+export const TagToolbar: React.FC<TagToolbarProps> = ({
   searchValue,
   onSearchChange,
   isLoading,
@@ -32,10 +32,10 @@ export const CategoryToolbar: React.FC<CategoryToolbarProps> = ({
         <div className="flex flex-col md:flex-row gap-2 md:items-end md:justify-between">
           <div className="flex-1">
             <Input
-              id="categorySearch"
+              id="tagSearch"
               value={searchValue}
               onChange={(v) => onSearchChange(String(v))}
-              placeholder={t('category.search.placeholder')}
+              placeholder={t('tag.search.placeholder')}
               className="max-w-xl"
               size="sm"
             />
@@ -68,8 +68,8 @@ export const CategoryToolbar: React.FC<CategoryToolbarProps> = ({
         {hasSearch && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-mm-light-cardHover text-slate-700 border border-mm-light-border dark:bg-slate-800 dark:text-mm-subtleText dark:border-mm-border">
-              <span className="font-medium">{t('category.kpis.filteredBy')}</span>
-              <span className="font-semibold">“{searchValue.trim()}”</span>
+              <span className="font-medium">{t('tag.kpis.filteredBy')}</span>
+              <span className="font-semibold">"{searchValue.trim()}"</span>
             </span>
           </div>
         )}
@@ -78,4 +78,4 @@ export const CategoryToolbar: React.FC<CategoryToolbarProps> = ({
   )
 }
 
-export default CategoryToolbar
+export default TagToolbar

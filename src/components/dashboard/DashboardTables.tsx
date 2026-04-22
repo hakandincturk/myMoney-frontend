@@ -11,7 +11,7 @@ interface Transaction {
   amount: number
   date: string
   description: string
-  category?: string | null
+  tag?: string | null
   contact?: string
 }
 
@@ -134,10 +134,10 @@ export const DashboardTables: React.FC<DashboardTablesProps> = ({
                       </p>
                       <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <span>{formatDate(transaction.date)}</span>
-                        {transaction.category && (
+                        {transaction.tag && (
                           <>
                             <span>•</span>
-                            <span>{transaction.category}</span>
+                            <span>{transaction.tag}</span>
                           </>
                         )}
                         {transaction.contact && (

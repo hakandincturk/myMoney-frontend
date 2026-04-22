@@ -5,7 +5,7 @@ export interface ChartDataPoint {
   expense: number
 }
 
-export interface CategoryData {
+export interface TagData {
   name: string
   amount: number
   percentage: number
@@ -39,8 +39,8 @@ export type PeriodType = 'MONTHLY' | 'YEARLY'
 export type SumModeType = 'DOUBLE_COUNT' | 'DISTRIBUTED'
 
 export interface ChartControlsState {
-  categoryPeriod: PeriodType
-  categorySumMode: SumModeType
+  tagPeriod: PeriodType
+  tagSumMode: SumModeType
 }
 
 export interface DateRange {

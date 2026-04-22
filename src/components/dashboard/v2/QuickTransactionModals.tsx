@@ -25,13 +25,13 @@ export const QuickTransactionModals: React.FC<QuickTransactionModalsProps> = ({ 
     variantTypeOptions,
     accounts,
     contacts,
-    categoryOptions,
+    tagOptions,
     accountsLoading,
     contactsLoading,
     createLoading,
     handleAccountChange,
     handleTransactionSubmit,
-    handleCreateCategory,
+    handleCreateTag,
     contactForm,
     setContactForm,
     handleContactSubmit,
@@ -58,7 +58,7 @@ export const QuickTransactionModals: React.FC<QuickTransactionModalsProps> = ({ 
         errors={transactionErrors}
         accounts={accounts.map((a) => ({ value: a.id, label: a.name }))}
         contacts={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-        categoryOptions={categoryOptions}
+        tagOptions={tagOptions}
         typeOptions={variantTypeOptions}
         accountsLoading={accountsLoading}
         contactsLoading={contactsLoading}
@@ -66,7 +66,7 @@ export const QuickTransactionModals: React.FC<QuickTransactionModalsProps> = ({ 
         onSubmit={handleTransactionSubmit}
         onChange={(updater) => setTransactionForm((prev) => updater(prev))}
         onAccountChange={handleAccountChange}
-        onCreateCategory={handleCreateCategory}
+        onCreateTag={handleCreateTag}
       />
 
       <Modal

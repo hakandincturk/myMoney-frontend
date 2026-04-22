@@ -4,25 +4,25 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import { CategoryDTOs } from '@/types/category'
+import { TagDTOs } from '@/types/tag'
 
-type DeleteCategoryModalProps = {
+type DeleteTagModalProps = {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => Promise<void>
-  category: CategoryDTOs.ListItemWithMeta | null
+  tag: TagDTOs.ListItemWithMeta | null
 }
 
-export const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
+export const DeleteTagModal: React.FC<DeleteTagModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  category,
+  tag,
 }) => {
   const { t } = useTranslation()
   const [isDeleting, setIsDeleting] = useState(false)
 
-  if (!category) return null
+  if (!tag) return null
 
   const handleDelete = async () => {
     try {
@@ -36,26 +36,26 @@ export const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
     }
   }
 
-  const hasTransactions = (category.transactionCount || 0) > 0
+  const hasTransactions = (tag.transactionCount || 0) > 0
 
   return (
     <Modal
       open={isOpen}
       onClose={onClose}
-      title={t('category.actions.deleteTitle', 'Kategoriyi Sil')}
+      title={t('tag.actions.deleteTitle')}
       size="md"
       footer={
         <div className="flex justify-end gap-3 w-full">
           <Button variant="secondary" onClick={onClose} disabled={isDeleting}>
-            {t('common.cancel', 'İptal')}
+            {t('common.cancel')}
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={handleDelete}
             disabled={isDeleting}
             className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 focus:ring-red-500/50 dark:focus:ring-red-600/50 border-transparent text-white"
           >
-            {isDeleting ? t('common.deleting', 'Siliniyor...') : t('common.delete', 'Sil')}
+            {isDeleting ? t('common.deleting') : t('common.delete')}
           </Button>
         </div>
       }
@@ -64,13 +64,13 @@ export const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
         <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2">
           <FontAwesomeIcon icon={faExclamationTriangle} className="text-3xl text-red-500 dark:text-red-400" />
         </div>
-        
+
         <h4 className="text-xl font-semibold text-slate-900 dark:text-mm-text">
-          {t('category.actions.deleteConfirmationTitle', 'Emin misiniz?')}
+          {t('tag.actions.deleteConfirmationTitle')}
         </h4>
-        
+
         <p className="text-slate-600 dark:text-mm-subtleText">
-          <span className="font-semibold text-slate-900 dark:text-mm-text">“{category.name}”</span> {t('category.actions.deleteConfirmationBody', 'kategorisini silmek üzeresiniz. Bu işlem geri alınamaz.')}
+          <span className="font-semibold text-slate-900 dark:text-mm-text">"{tag.name}"</span> {t('tag.actions.deleteConfirmationBody')}
         </p>
 
         {hasTransactions && (
@@ -78,7 +78,7 @@ export const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
             <p className="text-sm text-orange-800 dark:text-orange-200 flex gap-2">
               <FontAwesomeIcon icon={faExclamationTriangle} className="mt-0.5" />
               <span>
-                {t('category.actions.hasTransactionsWarning', 'Bu kategoriye bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir.', { count: category.transactionCount })}
+                {t('tag.actions.hasTransactionsWarning', { count: tag.transactionCount })}
               </span>
             </p>
           </div>
@@ -88,4 +88,4 @@ export const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({
   )
 }
 
-export default DeleteCategoryModal
+export default DeleteTagModal

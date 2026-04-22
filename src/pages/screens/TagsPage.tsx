@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CategoryToolbar } from '@/components/category/CategoryToolbar'
-import { CategoryTable } from '@/components/category/CategoryTable'
+import { TagToolbar } from '@/components/tag/TagToolbar'
+import { TagTable } from '@/components/tag/TagTable'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { useListMyCategoriesQuery, useDeleteMyCategoryMutation } from '@/services/categoryApi'
-import { CategoryDTOs } from '@/types/index'
+import { useListMyTagsQuery, useDeleteMyTagMutation } from '@/services/tagApi'
+import { TagDTOs } from '@/types/index'
 
-type SortablePageRequest = Required<Pick<CategoryDTOs.SortablePageRequest, 'pageNumber' | 'pageSize' | 'columnName' | 'asc'>>
+type SortablePageRequest = Required<Pick<TagDTOs.SortablePageRequest, 'pageNumber' | 'pageSize' | 'columnName' | 'asc'>>
 
 type PageState = SortablePageRequest
 
-export const CategoriesPage: React.FC = () => {
+export const TagsPage: React.FC = () => {
   const { t } = useTranslation()
 
   const [search, setSearch] = useState('')
@@ -33,7 +33,7 @@ export const CategoriesPage: React.FC = () => {
     return () => window.clearTimeout(handle)
   }, [search])
 
-  const queryParams: CategoryDTOs.FilterRequest = useMemo(
+  const queryParams: TagDTOs.FilterRequest = useMemo(
     () => ({
       ...pageParams,
       name: debouncedSearch.trim() ? debouncedSearch.trim() : undefined,
@@ -42,20 +42,20 @@ export const CategoriesPage: React.FC = () => {
   )
 
   const {
-    data: categoriesData,
+    data: tagsData,
     isLoading,
     isFetching,
     isError,
     refetch,
     error,
-  } = useListMyCategoriesQuery(queryParams)
+  } = useListMyTagsQuery(queryParams)
 
-  const [deleteMyCategory] = useDeleteMyCategoryMutation()
+  const [deleteMyTag] = useDeleteMyTagMutation()
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteMyCategory(id).unwrap()
-      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('category.actions.deleteSuccess'), type: 'success' } })) } catch(_) {}
+      await deleteMyTag(id).unwrap()
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('tag.actions.deleteSuccess'), type: 'success' } })) } catch(_) {}
     } catch (err) {
       const message = (err as { data?: { message?: string } })?.data?.message || t('messages.operationFailed')
       try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
@@ -63,8 +63,8 @@ export const CategoriesPage: React.FC = () => {
     }
   }
 
-  const page = categoriesData?.data
-  const categories = page?.content ?? []
+  const page = tagsData?.data
+  const tags = page?.content ?? []
 
   const handlePageChange = (newPage: number) => {
     setPageParams((prev) => ({ ...prev, pageNumber: newPage }))
@@ -74,7 +74,6 @@ export const CategoriesPage: React.FC = () => {
     setPageParams((prev) => ({ ...prev, pageSize: newPageSize, pageNumber: 0 }))
   }
 
-  // 3 aşamalı sıralama: ASC -> DESC -> Default (id, DESC)
   const handleSortClick = (columnName: string) => {
     setPageParams((prev) => {
       if (prev.columnName === columnName) {
@@ -99,11 +98,11 @@ export const CategoriesPage: React.FC = () => {
       <div className="w-full flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-mm-light-text dark:text-mm-text">
-            {t('pages.categories')}
+            {t('pages.tags')}
           </h2>
         </div>
 
-        <CategoryToolbar
+        <TagToolbar
           searchValue={search}
           onSearchChange={setSearch}
           onClearSearch={() => setSearch('')}
@@ -120,7 +119,7 @@ export const CategoriesPage: React.FC = () => {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm text-slate-600 dark:text-mm-subtleText">
-                  {t('category.management.errorHint')}
+                  {t('tag.management.errorHint')}
                 </div>
                 <Button variant="primary" onClick={() => refetch()}>
                   {t('common.retry')}
@@ -128,8 +127,8 @@ export const CategoriesPage: React.FC = () => {
               </div>
             </Card>
           ) : (
-            <CategoryTable
-              data={categories}
+            <TagTable
+              data={tags}
               isLoading={isLoading}
               pageParams={pageParams}
               totalPages={page?.totalPages ?? 0}
@@ -148,4 +147,4 @@ export const CategoriesPage: React.FC = () => {
   )
 }
 
-export default CategoriesPage
+export default TagsPage

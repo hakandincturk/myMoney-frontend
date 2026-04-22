@@ -33,22 +33,22 @@ export const useChartTheme = (): ChartTheme => {
 
 export const useChartControls = () => {
   const [controls, setControls] = useState<ChartControlsState>({
-    categoryPeriod: 'MONTHLY',
-    categorySumMode: 'DISTRIBUTED',
+    tagPeriod: 'MONTHLY',
+    tagSumMode: 'DISTRIBUTED',
   })
 
-  const setCategoryPeriod = (period: PeriodType) => {
-    setControls(prev => ({ ...prev, categoryPeriod: period }))
+  const setTagPeriod = (period: PeriodType) => {
+    setControls(prev => ({ ...prev, tagPeriod: period }))
   }
 
-  const setCategorySumMode = (mode: SumModeType) => {
-    setControls(prev => ({ ...prev, categorySumMode: mode }))
+  const setTagSumMode = (mode: SumModeType) => {
+    setControls(prev => ({ ...prev, tagSumMode: mode }))
   }
 
   return {
     ...controls,
-    setCategoryPeriod,
-    setCategorySumMode,
+    setTagPeriod,
+    setTagSumMode,
   }
 }
 

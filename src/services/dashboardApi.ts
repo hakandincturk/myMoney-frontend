@@ -21,12 +21,12 @@ export const dashboardApi = createApi({
       providesTags: [{ type: 'Dashboard', id: 'MONTHLY_TREND' }],
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
-    getCategorySummary: build.query<
-      ApiResponse<DashboardDTOs.CategorySummary>, 
-      DashboardDTOs.CategorySummaryRequest & DashboardDTOs.CategorySummaryParams
+    getTagSummary: build.query<
+      ApiResponse<DashboardDTOs.TagSummary>,
+      DashboardDTOs.TagSummaryRequest & DashboardDTOs.TagSummaryParams
     >({
       query: ({ startDate, endDate, type, sumMode }) => ({
-        url: `${ApiUrl.DASHBOARD_CATEGORY_SUMMARY.toString()}?type=${type}&sumMode=${sumMode}`,
+        url: `${ApiUrl.DASHBOARD_TAG_SUMMARY.toString()}?type=${type}&sumMode=${sumMode}`,
         method: 'POST',
         body: {
           startDate,
@@ -34,7 +34,7 @@ export const dashboardApi = createApi({
         },
       }),
       providesTags: (result, error, { type, sumMode, startDate, endDate }) => [
-        { type: 'Dashboard', id: `CATEGORY_SUMMARY_${type}_${sumMode}_${startDate}_${endDate}` }
+        { type: 'Dashboard', id: `TAG_SUMMARY_${type}_${sumMode}_${startDate}_${endDate}` }
       ],
       keepUnusedDataFor: CACHE_CONFIG.isEnabled() ? CACHE_CONFIG.DURATIONS.DETAIL : 0,
     }),
@@ -54,7 +54,7 @@ export const dashboardApi = createApi({
 export const { 
   useGetQuickViewQuery, 
   useGetMonthlyTrendQuery, 
-  useGetCategorySummaryQuery,
+  useGetTagSummaryQuery,
   useGetLastTransactionsQuery,
   useGetIncomingTransactionsQuery
 } = dashboardApi

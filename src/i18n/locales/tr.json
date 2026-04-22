@@ -22,28 +22,28 @@
     "incomeDataLoadError": "Gelir verileri yüklenemedi",
     "expenseDataLoadError": "Gider verileri yüklenemedi",
     "monthlyTrendLoadError": "Aylık trend verileri yüklenemedi.",
-    "categoryDataLoadError": "Kategori verileri yüklenemedi.",
+    "tagDataLoadError": "Etiket verileri yüklenemedi.",
     "chartsLoadError": "Grafik verileri yüklenemedi",
-    "categoryChartsLoadError": "Kategori verileri yüklenemedi",
+    "tagChartsLoadError": "Etiket verileri yüklenemedi",
     "thisMonth": "Bu Ay",
     "thisYear": "Bu Yıl",
     "thisMonthLower": "bu ay",
     "thisYearLower": "bu yıl",
-    "noCategoryDataYet": "henüz kategori verisi bulunmuyor.",
-    "categoryDataWillAppear": "İlk harcamalarınızı yaptıktan sonra kategori dağılımı burada görünecek.",
-    "categoryDistributionPeriod": "dönemi kategori bazında harcama dağılımı.",
-    "categoryDistribution": "Harcama Kategorileri Dağılımı",
-    "categoryDataLoading": "Kategori verileri yükleniyor...",
+    "noTagDataYet": "henüz etiket verisi bulunmuyor.",
+    "tagDataWillAppear": "İlk harcamalarınızı yaptıktan sonra etiket dağılımı burada görünecek.",
+    "tagDistributionPeriod": "dönemi etiket bazında harcama dağılımı.",
+    "tagDistribution": "Harcama Etiketleri Dağılımı",
+    "tagDataLoading": "Etiket verileri yükleniyor...",
     "chartsDataLoading": "Grafik verileri yükleniyor...",
     "chartLoadError": "Grafik Yüklenemedi",
-    "categoryLoadError": "Kategori Verileri Yüklenemedi",
+    "tagLoadError": "Etiket Verileri Yüklenemedi",
     "pleaseTryRefresh": "Lütfen sayfayı yenilemeyi deneyin.",
     "pleaseTryAgain": "Lütfen tekrar deneyin.",
     "refreshPage": "Sayfayı Yenile",
     "tryAgain": "Tekrar Dene",
     "noDataYet": "Henüz Veri Yok",
     "noDataThisMonth": "{period} Henüz Veri Yok",
-    "dataWillAppearAfterTransactions": "İlk harcamalarınızı ekledikten sonra kategori dağılımınız burada görünecek.",
+    "dataWillAppearAfterTransactions": "İlk harcamalarınızı ekledikten sonra etiket dağılımınız burada görünecek.",
     "monthlyIncomeExpenseTrend": "Aylık Gelir/Gider Trendi",
     "monthlyTrendSubtitle": "Bu grafik, ay bazında gerçekleşen toplam gelir ve giderleri gösterir.",
     "period": "Dönem",
@@ -98,7 +98,7 @@
         "expected": "Beklenen",
         "total": "Toplam",
         "completion": "Tamamlanma",
-        "noFlow": "Bu kategori için bu ay hareket yok"
+        "noFlow": "Bu etiket için bu ay hareket yok"
       },
       "insights": {
         "savingsRate": "Tasarruf Oranı",
@@ -172,9 +172,9 @@
         "empty": "Henüz trend verisi yok",
         "emptyHint": "İlk işlemlerini kaydettikten sonra aylık trend grafiği burada görünecek."
       },
-      "category": {
-        "title": "Harcama Kategorileri",
-        "subtitle": "Seçili dönemde kategori bazında gider dağılımı",
+      "tag": {
+        "title": "Harcama Etiketleri",
+        "subtitle": "Seçili dönemde etiket bazında gider dağılımı",
         "totalSpent": "Toplam Harcama",
         "empty": "Bu dönem için harcama yok",
         "emptyHint": "Farklı bir dönem seç ya da yeni bir gider ekle.",
@@ -248,8 +248,8 @@
     "accounts": "Hesaplar",
     "debts": "Gelir/Gider",
     "installments": "Taksitler",
-    "categories": "Kategoriler",
-    "categoryManagement": "Kategori Yönetimi"
+    "tags": "Etiketler",
+    "tagManagement": "Etiket Yönetimi"
   },
   "pages": {
     "accounts": "Hesaplar",
@@ -259,18 +259,18 @@
       "monthly": "Aylık Taksitler",
       "thisMonth": "Bu Ay"
     },
-    "categories": "Kategoriler"
+    "tags": "Etiketler"
   },
-  "category": {
+  "tag": {
     "management": {
-      "title": "Kategori Yönetimi",
-      "subtitle": "Kategorilerinizi yönetin ve inceleyin.",
-      "subtitleHelp": "Bu ekran /category/my endpoint'ini kullanır ve arama/sıralamayı destekler. İleride oluşturma/düzenleme/silme ile genişletilebilir.",
+      "title": "Etiket Yönetimi",
+      "subtitle": "Etiketlerinizi yönetin ve inceleyin.",
+      "subtitleHelp": "Bu ekran /tag/my endpoint'ini kullanır ve arama/sıralamayı destekler. İleride oluşturma/düzenleme/silme ile genişletilebilir.",
       "errorHint": "Bağlantınızı kontrol edip tekrar deneyin."
     },
     "search": {
       "label": "Arama",
-      "placeholder": "Kategori adına göre ara"
+      "placeholder": "Etiket adına göre ara"
     },
     "kpis": {
       "total": "Toplam",
@@ -280,18 +280,18 @@
       "view": "İncele",
       "rename": "Yeniden Adlandır",
       "delete": "Sil",
-      "viewTitle": "Kategori Detayları",
-      "renameTitle": "Kategoriyi Yeniden Adlandır",
-      "renameDescription": "Kategori adını aşağıdan güncelleyebilirsiniz.",
-      "deleteTitle": "Kategoriyi Sil",
+      "viewTitle": "Etiket Detayları",
+      "renameTitle": "Etiketi Yeniden Adlandır",
+      "renameDescription": "Etiket adını aşağıdan güncelleyebilirsiniz.",
+      "deleteTitle": "Etiket Sil",
       "deleteConfirmationTitle": "Emin misiniz?",
-      "deleteConfirmationBody": "kategorisini silmek istediğinize emin misiniz? Kategoriye ait gelir/gider bağlantıları kaldırılacak, ancak gelir/giderleriniz silinmeyecektir.",
-      "deleteSuccess": "Kategori başarıyla silindi",
-      "hasTransactionsWarning": "Bu kategoriye bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
+      "deleteConfirmationBody": "etiketini silmek istediğinize emin misiniz? Etikete ait gelir/gider bağlantıları kaldırılacak, ancak gelir/giderleriniz silinmeyecektir.",
+      "deleteSuccess": "Etiket başarıyla silindi",
+      "hasTransactionsWarning": "Bu etikete bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
     },
     "fields": {
-      "name": "Kategori Adı",
-      "namePlaceholder": "Kategori adı giriniz",
+      "name": "Etiket Adı",
+      "namePlaceholder": "Etiket adı giriniz",
       "transactionCount": "İşlem Sayısı",
       "createdAt": "Oluşturulma Tarihi"
     }
@@ -378,8 +378,8 @@
       "help": "Bu seçenek işaretliyken toplam tutar seçtiğiniz taksit sayısına, her ay eşit tutar olacak şekilde bölünür. Örneğin 3.000₺ toplam tutar ve 3 taksit seçerseniz, her ay 1.000₺ olarak oluşturulur. İşaretli değilken taksit tutarlarını sistem, her ay için 3.000₺ tutarında işlem yapar."
     },
     "installmentsDetail": "Taksit Detayları",
-    "categories": "Kategoriler",
-    "categoryPlaceholder": "Kategori seçiniz veya yazıp Enter'a basın",
+    "tags": "Etiketler",
+    "tagPlaceholder": "Etiket seçiniz veya yazıp Enter'a basın",
     "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)"
   },
   "account": {
@@ -445,7 +445,7 @@
       "edit": "Düzenle",
       "paid": "Ödendi",
       "delete": "Sil",
-      "categoryName": "Kategori Adı",
+      "tagName": "Etiket Adı",
       "createdAt": "Oluşturma",
       "transactionCount": "İşlem Sayısı"
     },
@@ -454,7 +454,7 @@
       "contactList": "Kişi Listesi",
       "debtList": "Gelir/Gider Listesi",
       "installmentList": "Taksit Listesi",
-      "categoryList": "Kategori Listesi"
+      "tagList": "Etiket Listesi"
     }
   },
   "buttons": {
@@ -534,7 +534,8 @@
     "contactDeleted": "Kişi başarıyla silindi",
     "accountCreated": "Hesap başarıyla oluşturuldu",
     "accountUpdated": "Hesap başarıyla güncellendi",
-    "unknownTransaction": "Bilinmeyen İşlem"
+    "unknownTransaction": "Bilinmeyen İşlem",
+    "noTransactions": "Bu etikete ait işlem bulunamadı."
   },
   "installment": {
     "installment": "Taksit",

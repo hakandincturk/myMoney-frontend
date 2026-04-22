@@ -23,7 +23,7 @@ import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 // Toast gösterimi için App seviyesindeki ToastContainer ile çalışan yardımcı
 import { FilterChips } from '@/components/ui/FilterChips'
 import { AccountType } from '@/enums/account'
-import { useListMyActiveCategoriesQuery } from '@/services/categoryApi'
+import { useListMyActiveTagsQuery } from '@/services/tagApi'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
@@ -284,19 +284,19 @@ export const DebtsOverviewPage: React.FC = () => {
 		debtDate: new Date().toISOString().split('T')[0], // Bugünün tarihi
 		equalSharingBetweenInstallments: true,
 		// Kategori form state'i: mevcut kategori id'leri ve yeni isimler
-		categoryIds: [],
-		newCategories: [],
+		tagIds: [],
+		newTags: [],
 	})
 
 	// Kategori seçenekleri (mevcut backend endpoint'i gelene kadar local yönetim)
-	const [categoryOptions, setCategoryOptions] = useState<Array<{ value: string | number; label: string }>>([])
+	const [tagOptions, setTagOptions] = useState<Array<{ value: string | number; label: string }>>([])
 	const [errors, setErrors] = useState<{ [k: string]: string | undefined }>({})
-	const { data: categoriesData, isLoading: categoriesLoading } = useListMyActiveCategoriesQuery({ pageNumber: 0, pageSize: 50 })
+	const { data: tagsData, isLoading: categoriesLoading } = useListMyActiveTagsQuery({ pageNumber: 0, pageSize: 50 })
 	useEffect(() => {
-		if (categoriesData?.data?.content) {
-			setCategoryOptions(categoriesData.data.content.map(c => ({ value: c.id, label: c.name })))
+		if (tagsData?.data?.content) {
+			setTagOptions(tagsData.data.content.map(c => ({ value: c.id, label: c.name })))
 		}
-	}, [categoriesData])
+	}, [tagsData])
 
 	// Hesap türü kredi kartı ise işlem türlerini (DEBT, PAYMENT) ile sınırla
 	const selectedAccount = useMemo(() => {
@@ -947,16 +947,16 @@ export const DebtsOverviewPage: React.FC = () => {
 			totalInstallment: form.totalInstallment || undefined,
 			debtDate: form.debtDate,
 			equalSharingBetweenInstallments: form.equalSharingBetweenInstallments,
-			category: {
-				categoryIds: form.categoryIds,
-				newCategories: form.newCategories,
+			tag: {
+				tagIds: form.tagIds,
+				newTags: form.newTags,
 			},
 		}).unwrap()
 		
 		// Sadece başarılı sonuçta modal'ı kapat
 		if (result && result.type === true) {
 			setErrors({})
-			setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, categoryIds: [], newCategories: [] })
+			setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, tagIds: [], newTags: [] })
 			setModalOpen(false)
 			// showToast(t('messages.transactionCreated'), 'success') // Removed useToast
 		}
@@ -1029,7 +1029,7 @@ export const DebtsOverviewPage: React.FC = () => {
 					</Button>
 					<Button 
 						onClick={() => { 
-							setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, categoryIds: [], newCategories: [] })
+							setForm({ accountId: undefined, contactId: undefined, type: TransactionType.DEBT, totalAmount: '0', totalInstallment: 1, name: '', description: '', debtDate: new Date().toISOString().split('T')[0], equalSharingBetweenInstallments: true, tagIds: [], newTags: [] })
 							setModalOpen(true) 
 						}} 
 						variant="primary"
@@ -1083,7 +1083,7 @@ export const DebtsOverviewPage: React.FC = () => {
 				errors={errors}
 				accounts={accounts.map((a) => ({ value: a.id, label: a.name }))}
 				contacts={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-				categoryOptions={categoryOptions}
+				tagOptions={tagOptions}
 				typeOptions={typeOptions}
 				accountsLoading={accountsLoading}
 				contactsLoading={contactsLoading}
@@ -1097,9 +1097,9 @@ export const DebtsOverviewPage: React.FC = () => {
 				onSubmit={handleSubmit}
 				onChange={(updater) => setForm((prev) => updater(prev))}
 				onAccountChange={handleAccountChange}
-				onCreateCategory={(label) => {
-					setForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
-					setCategoryOptions((opts) => {
+				onCreateTag={(label) => {
+					setForm((p) => ({ ...p, newTags: Array.from(new Set([...(p.newTags || []), label])) }))
+					setTagOptions((opts) => {
 						if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
 						return [...opts, { value: label, label }]
 					})

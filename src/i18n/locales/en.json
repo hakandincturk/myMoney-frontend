@@ -22,28 +22,28 @@
     "incomeDataLoadError": "Failed to load income data",
     "expenseDataLoadError": "Failed to load expense data",
     "monthlyTrendLoadError": "Failed to load monthly trend data.",
-    "categoryDataLoadError": "Failed to load category data.",
+    "tagDataLoadError": "Failed to load tag data.",
     "chartsLoadError": "Failed to load chart data",
-    "categoryChartsLoadError": "Failed to load category data",
+    "tagChartsLoadError": "Failed to load tag data",
     "thisMonth": "This Month",
     "thisYear": "This Year",
     "thisMonthLower": "this month",
     "thisYearLower": "this year",
-    "noCategoryDataYet": "no category data available yet.",
-    "categoryDataWillAppear": "Category distribution will appear here after your first expenses.",
-    "categoryDistributionPeriod": "period category-based expense distribution.",
-    "categoryDistribution": "Category Distribution",
-    "categoryDataLoading": "Loading category data...",
+    "noTagDataYet": "no tag data available yet.",
+    "tagDataWillAppear": "Tag distribution will appear here after your first expenses.",
+    "tagDistributionPeriod": "period tag-based expense distribution.",
+    "tagDistribution": "Tag Distribution",
+    "tagDataLoading": "Loading tag data...",
     "chartsDataLoading": "Loading chart data...",
     "chartLoadError": "Chart Loading Failed",
-    "categoryLoadError": "Category Data Loading Failed",
+    "tagLoadError": "Tag Data Loading Failed",
     "pleaseTryRefresh": "Please try refreshing the page.",
     "pleaseTryAgain": "Please try again.",
     "refreshPage": "Refresh Page",
     "tryAgain": "Try Again",
     "noDataYet": "No Data Yet",
     "noDataThisMonth": "No Data {period} Yet",
-    "dataWillAppearAfterTransactions": "Your category distribution will appear here after adding your first expenses.",
+    "dataWillAppearAfterTransactions": "Your tag distribution will appear here after adding your first expenses.",
     "monthlyIncomeExpenseTrend": "Monthly Income/Expense Trend",
     "monthlyTrendSubtitle": "This chart shows total income and expenses on a monthly basis.",
     "period": "Period",
@@ -98,7 +98,7 @@
         "expected": "Expected",
         "total": "Total",
         "completion": "Completion",
-        "noFlow": "No movement in this category this month"
+        "noFlow": "No movement in this tag this month"
       },
       "insights": {
         "savingsRate": "Savings Rate",
@@ -172,9 +172,9 @@
         "empty": "No trend data yet",
         "emptyHint": "Your monthly trend will appear here after recording your first transactions."
       },
-      "category": {
-        "title": "Spending Categories",
-        "subtitle": "Category-level expense breakdown for the selected period",
+      "tag": {
+        "title": "Spending Tags",
+        "subtitle": "Tag-level expense breakdown for the selected period",
         "totalSpent": "Total Spent",
         "empty": "No spending in this period",
         "emptyHint": "Try a different period or add a new expense.",
@@ -201,7 +201,6 @@
     "delete": "Delete",
     "update": "Update",
     "create": "Create",
-    "categories": "Categories",
     "search": "Search",
     "close": "Close",
     "back": "Back",
@@ -249,8 +248,8 @@
     "accounts": "Accounts",
     "debts": "Income/Expense",
     "installments": "Installments",
-    "categories": "Categories",
-    "categoryManagement": "Category Management"
+    "tags": "Tags",
+    "tagManagement": "Tag Management"
   },
   "pages": {
     "accounts": "Accounts",
@@ -260,18 +259,18 @@
       "monthly": "Monthly Installments",
       "thisMonth": "This Month"
     },
-    "categories": "Categories"
+    "tags": "Tags"
   },
-  "category": {
+  "tag": {
     "management": {
-      "title": "Category Management",
-      "subtitle": "Manage and review your categories.",
-      "subtitleHelp": "This screen uses the /category/my endpoint and supports search and sorting. It is designed to be extended later with create/edit/delete.",
+      "title": "Tag Management",
+      "subtitle": "Manage and review your tags.",
+      "subtitleHelp": "This screen uses the /tag/my endpoint and supports search and sorting. It is designed to be extended later with create/edit/delete.",
       "errorHint": "Please check your connection and try again."
     },
     "search": {
       "label": "Search",
-      "placeholder": "Search by category name"
+      "placeholder": "Search by tag name"
     },
     "kpis": {
       "total": "Total",
@@ -281,18 +280,18 @@
       "view": "View",
       "rename": "Rename",
       "delete": "Delete",
-      "viewTitle": "Category Details",
-      "renameTitle": "Rename Category",
-      "renameDescription": "You can update the category name below.",
-      "deleteTitle": "Delete Category",
+      "viewTitle": "Tag Details",
+      "renameTitle": "Rename Tag",
+      "renameDescription": "You can update the tag name below.",
+      "deleteTitle": "Delete Tag",
       "deleteConfirmationTitle": "Are you sure?",
-      "deleteConfirmationBody": "are you sure you want to delete this category? Income/expense associations will be removed, but your income/expenses will not be deleted.",
-      "deleteSuccess": "Category deleted successfully",
-      "hasTransactionsWarning": "This category has {{count}} associated transactions. Deleting may affect these transactions."
+      "deleteConfirmationBody": "are you sure you want to delete this tag? Income/expense associations will be removed, but your income/expenses will not be deleted.",
+      "deleteSuccess": "Tag deleted successfully",
+      "hasTransactionsWarning": "This tag has {{count}} associated transactions. Deleting may affect these transactions."
     },
     "fields": {
-      "name": "Category Name",
-      "namePlaceholder": "Enter category name",
+      "name": "Tag Name",
+      "namePlaceholder": "Enter tag name",
       "transactionCount": "Transaction Count",
       "createdAt": "Created At"
     }
@@ -330,7 +329,7 @@
       "edit": "Edit",
       "paid": "Paid",
       "delete": "Delete",
-      "categoryName": "Category Name",
+      "tagName": "Tag Name",
       "createdAt": "Created",
       "transactionCount": "Transactions"
     },
@@ -339,7 +338,7 @@
       "contactList": "Contact List",
       "debtList": "Debt List",
       "installmentList": "Installment List",
-      "categoryList": "Category List"
+      "tagList": "Tag List"
     }
   },
   "buttons": {
@@ -469,8 +468,8 @@
       "help": "When enabled, the total amount is split equally into the selected number of installments. For example, a total of 3,000₺ with 3 installments will create 1,000₺ per month. If disabled, the system will create 3,000₺ installments for each month."
     },
     "installmentsDetail": "Installment Details",
-    "categories": "Categories",
-    "categoryPlaceholder": "Select or type and press Enter"
+    "tags": "Tags",
+    "tagPlaceholder": "Select or type and press Enter"
   },
   "account": {
     "types": {
@@ -525,7 +524,8 @@
     "contactDeleted": "Contact deleted successfully",
     "accountCreated": "Account created successfully",
     "accountUpdated": "Account updated successfully",
-    "unknownTransaction": "Unknown Transaction"
+    "unknownTransaction": "Unknown Transaction",
+    "noTransactions": "No transactions found for this tag."
   },
   "installment": {
     "installment": "Installment",

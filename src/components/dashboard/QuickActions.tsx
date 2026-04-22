@@ -16,7 +16,7 @@ import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { useListMyActiveContactsQuery } from '@/services/contactApi'
 import { TransactionType } from '@/services/transactionApi'
 import { AccountType, CurrencyType } from '@/services/accountApi'
-import { useListMyActiveCategoriesQuery } from '@/services/categoryApi'
+import { useListMyActiveTagsQuery } from '@/services/tagApi'
 import { TransactionHelpers } from '../../types'
 
 interface QuickAction {
@@ -57,7 +57,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     asc: false
   })
 
-  const { data: categoriesData } = useListMyActiveCategoriesQuery({ pageNumber: 0, pageSize: 50 })
+  const { data: tagsData } = useListMyActiveTagsQuery({ pageNumber: 0, pageSize: 50 })
   
   // Form state'leri
   const [transactionForm, setTransactionForm] = useState<TransactionFormValues>({
@@ -70,8 +70,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     description: '',
     debtDate: new Date().toISOString().split('T')[0],
     equalSharingBetweenInstallments: true,
-    categoryIds: [],
-    newCategories: [],
+    tagIds: [],
+    newTags: [],
   })
   const [transactionErrors, setTransactionErrors] = useState<Record<string, string | undefined>>({})
   
@@ -87,17 +87,17 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
     balance: '0',
   })
 
-  const [categoryOptions, setCategoryOptions] = useState<Array<{ value: number | string; label: string }>>([])
+  const [tagOptions, setTagOptions] = useState<Array<{ value: number | string; label: string }>>([])
   
   // Helper functions
   const accounts = accountsData?.data?.content || []
   const contacts = contactsData?.data?.content || []
 
   useEffect(() => {
-    if (categoriesData?.data?.content) {
-      setCategoryOptions(categoriesData.data.content.map((c) => ({ value: c.id, label: c.name })))
+    if (tagsData?.data?.content) {
+      setTagOptions(tagsData.data.content.map((c) => ({ value: c.id, label: c.name })))
     }
-  }, [categoriesData])
+  }, [tagsData])
 
   const getColorClasses = (color: string) => {
     const colorMap = {
@@ -240,8 +240,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         description: '',
         debtDate: new Date().toISOString().split('T')[0],
         equalSharingBetweenInstallments: true,
-        categoryIds: [],
-        newCategories: [],
+        tagIds: [],
+        newTags: [],
       })
     } else if (actionType === 'contact') {
       setContactForm({ fullName: '', note: '' })
@@ -280,9 +280,9 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         totalInstallment: transactionForm.totalInstallment || undefined,
         debtDate: transactionForm.debtDate,
         equalSharingBetweenInstallments: transactionForm.equalSharingBetweenInstallments,
-        category: {
-          categoryIds: transactionForm.categoryIds,
-          newCategories: transactionForm.newCategories,
+        tag: {
+          tagIds: transactionForm.tagIds,
+          newTags: transactionForm.newTags,
         },
       }).unwrap()
 
@@ -298,8 +298,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         description: '',
         debtDate: new Date().toISOString().split('T')[0],
         equalSharingBetweenInstallments: true,
-        categoryIds: [],
-        newCategories: [],
+        tagIds: [],
+        newTags: [],
       })
       try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.transactionCreated') || 'İşlem başarıyla oluşturuldu', type: 'success' } })) } catch(_) {}
     } catch (error) {
@@ -443,7 +443,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         errors={transactionErrors}
         accounts={accounts.map((a) => ({ value: a.id, label: a.name }))}
         contacts={contacts.map((c) => ({ value: c.id, label: c.fullName }))}
-        categoryOptions={categoryOptions}
+        tagOptions={tagOptions}
         typeOptions={variantTypeOptions}
         accountsLoading={accountsLoading}
         contactsLoading={contactsLoading}
@@ -451,9 +451,9 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         onSubmit={handleTransactionSubmit}
         onChange={(updater) => setTransactionForm((prev) => updater(prev))}
         onAccountChange={handleAccountChange}
-        onCreateCategory={(label) => {
-          setTransactionForm((p) => ({ ...p, newCategories: Array.from(new Set([...(p.newCategories || []), label])) }))
-          setCategoryOptions((opts) => {
+        onCreateTag={(label) => {
+          setTransactionForm((p) => ({ ...p, newTags: Array.from(new Set([...(p.newTags || []), label])) }))
+          setTagOptions((opts) => {
             if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
             return [...opts, { value: label, label }]
           })

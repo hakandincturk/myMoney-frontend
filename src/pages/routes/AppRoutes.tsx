@@ -4,7 +4,7 @@ const HomePage = lazy(() => import('@/pages/screens/HomePage'))
 const OldDashboardPage = lazy(() => import('@/pages/screens/OldDashboardPage'))
 const ContactsPage = lazy(() => import('../screens/ContactsPage'))
 const AccountsPage = lazy(() => import('../screens/AccountsPage'))
-const CategoriesPage = lazy(() => import('../screens/CategoriesPage'))
+const TagsPage = lazy(() => import('../screens/TagsPage'))
 const DebtsOverviewPage = lazy(() => import('../screens/DebtsOverviewPage'))
 const InstallmentsPage = lazy(() => import('../screens/InstallmentsPage'))
 const LoginPage = lazy(() => import('@/pages/screens/auth/LoginPage'))
@@ -62,13 +62,13 @@ export const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Kategoriler */}
+      {/* Etiketler */}
       <Route
-        path="/categories"
+        path="/tags"
         element={
           <ProtectedRoute requireAuth={true}>
             <Suspense fallback={<div>Yükleniyor…</div>}>
-              <CategoriesPage />
+              <TagsPage />
             </Suspense>
           </ProtectedRoute>
         }

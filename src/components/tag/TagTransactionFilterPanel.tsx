@@ -4,13 +4,13 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
-import { CategoryDTOs } from '@/types/category'
+import { TagDTOs } from '@/types/tag'
 
-export type CategoryTransactionFilters = {
+export type TagTransactionFilters = {
   transactionName?: string
   accountIds?: number[]
-  types?: CategoryDTOs.TransactionFilterType[]
-  statuses?: CategoryDTOs.TransactionFilterStatus[]
+  types?: TagDTOs.TransactionFilterType[]
+  statuses?: TagDTOs.TransactionFilterStatus[]
   minAmount?: number
   maxAmount?: number
   minInstallmentCount?: number
@@ -20,20 +20,18 @@ export type CategoryTransactionFilters = {
 type Props = {
   isOpen: boolean
   onToggle: () => void
-  appliedFilters: CategoryTransactionFilters
+  appliedFilters: TagTransactionFilters
   activeCount: number
-  onApply: (filters: CategoryTransactionFilters) => void
+  onApply: (filters: TagTransactionFilters) => void
   onClear: () => void
 }
 
-const TYPE_VALUES: CategoryDTOs.TransactionFilterType[] = ['DEBT', 'CREDIT', 'PAYMENT', 'COLLECTION']
-const STATUS_VALUES: CategoryDTOs.TransactionFilterStatus[] = ['PENDING', 'PARTIAL', 'PAID']
+const TYPE_VALUES: TagDTOs.TransactionFilterType[] = ['DEBT', 'CREDIT', 'PAYMENT', 'COLLECTION']
+const STATUS_VALUES: TagDTOs.TransactionFilterStatus[] = ['PENDING', 'PARTIAL', 'PAID']
 
-// Parses a TR-formatted amount string (e.g. "1.234,56" or "1234,5") into a number
 const parseAmountText = (raw: string): number | undefined => {
   const trimmed = raw.trim()
   if (!trimmed) return undefined
-  // Reject anything outside digits, comma, dot
   if (!/^[\d.,]+$/.test(trimmed)) return undefined
   const normalized = trimmed.replace(/\./g, '').replace(',', '.')
   const num = parseFloat(normalized)
@@ -57,9 +55,8 @@ const parseIntText = (raw: string): number | undefined => {
 const formatIntForInput = (n: number | undefined): string =>
   typeof n === 'number' ? String(n) : ''
 
-// Cleans empty strings, undefined, NaN and empty arrays out of the filter payload
-const sanitize = (draft: CategoryTransactionFilters): CategoryTransactionFilters => {
-  const clean: CategoryTransactionFilters = {}
+const sanitize = (draft: TagTransactionFilters): TagTransactionFilters => {
+  const clean: TagTransactionFilters = {}
   if (draft.transactionName && draft.transactionName.trim().length > 0) {
     clean.transactionName = draft.transactionName.trim()
   }
@@ -77,7 +74,7 @@ const sanitize = (draft: CategoryTransactionFilters): CategoryTransactionFilters
   return clean
 }
 
-export const CategoryTransactionFilterPanel: React.FC<Props> = ({
+export const TagTransactionFilterPanel: React.FC<Props> = ({
   isOpen,
   onToggle,
   appliedFilters,
@@ -87,16 +84,13 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
 
-  const [draft, setDraft] = useState<CategoryTransactionFilters>(appliedFilters)
+  const [draft, setDraft] = useState<TagTransactionFilters>(appliedFilters)
 
-  // Text-state for numeric inputs — kept separately so empty state stays empty
-  // (Number('') === 0 would otherwise collapse a cleared field to 0)
   const [minAmountText, setMinAmountText] = useState(formatAmountForInput(appliedFilters.minAmount))
   const [maxAmountText, setMaxAmountText] = useState(formatAmountForInput(appliedFilters.maxAmount))
   const [minInstallmentText, setMinInstallmentText] = useState(formatIntForInput(appliedFilters.minInstallmentCount))
   const [maxInstallmentText, setMaxInstallmentText] = useState(formatIntForInput(appliedFilters.maxInstallmentCount))
 
-  // Keep local state in sync when applied filters change externally (e.g. on clear)
   useEffect(() => {
     setDraft(appliedFilters)
     setMinAmountText(formatAmountForInput(appliedFilters.minAmount))
@@ -105,7 +99,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
     setMaxInstallmentText(formatIntForInput(appliedFilters.maxInstallmentCount))
   }, [appliedFilters])
 
-  // Load account options only when the panel is open to avoid needless requests
   const { data: accountsData } = useListMyActiveAccountsQuery(
     { pageNumber: 0, pageSize: 100, columnName: 'name', asc: true },
     { skip: !isOpen }
@@ -138,8 +131,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
     [t]
   )
 
-  // Parse numeric text state. Empty text -> undefined (no filter).
-  // Non-empty but unparseable -> undefined + parseError flag true.
   const parsedMinAmount = parseAmountText(minAmountText)
   const parsedMaxAmount = parseAmountText(maxAmountText)
   const parsedMinInstallment = parseIntText(minInstallmentText)
@@ -190,7 +181,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
     onClear()
   }
 
-  // Integer input: strip anything that isn't a digit, keep as plain string
   const handleIntChange = (setter: (v: string) => void) => (raw: string | number) => {
     const s = typeof raw === 'string' ? raw : String(raw)
     setter(s.replace(/\D/g, ''))
@@ -198,7 +188,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-mm-border bg-white dark:bg-mm-card overflow-hidden">
-      {/* Toggle header */}
       <button
         type="button"
         onClick={onToggle}
@@ -222,7 +211,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
 
       {isOpen && (
         <div className="p-4 space-y-4 border-t border-slate-100 dark:border-mm-border">
-          {/* Row 1: name + accounts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               id="filter-transaction-name"
@@ -252,7 +240,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
             />
           </div>
 
-          {/* Row 2: types + statuses */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
               id="filter-types"
@@ -262,8 +249,8 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
                 setDraft((prev) => ({
                   ...prev,
                   types: Array.isArray(value)
-                    ? (value as CategoryDTOs.TransactionFilterType[])
-                    : [value as CategoryDTOs.TransactionFilterType],
+                    ? (value as TagDTOs.TransactionFilterType[])
+                    : [value as TagDTOs.TransactionFilterType],
                 }))
               }
               options={typeOptions}
@@ -281,8 +268,8 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
                 setDraft((prev) => ({
                   ...prev,
                   statuses: Array.isArray(value)
-                    ? (value as CategoryDTOs.TransactionFilterStatus[])
-                    : [value as CategoryDTOs.TransactionFilterStatus],
+                    ? (value as TagDTOs.TransactionFilterStatus[])
+                    : [value as TagDTOs.TransactionFilterStatus],
                 }))
               }
               options={statusOptions}
@@ -294,7 +281,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
             />
           </div>
 
-          {/* Row 3: amount range — text inputs with TR currency formatting on blur */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
               {t('filters.amountRange')}
@@ -327,7 +313,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Row 4: installment range — digit-only text inputs */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
               {t('filters.installmentRange')}
@@ -358,7 +343,6 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Footer actions */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={handleClear}>
               {t('buttons.clearFilters')}
@@ -378,4 +362,4 @@ export const CategoryTransactionFilterPanel: React.FC<Props> = ({
   )
 }
 
-export default CategoryTransactionFilterPanel
+export default TagTransactionFilterPanel

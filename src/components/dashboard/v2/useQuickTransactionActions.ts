@@ -5,7 +5,7 @@ import { useCreateContactMutation } from '@/services/contactApi'
 import { useCreateAccountMutation } from '@/services/accountApi'
 import { useListMyActiveAccountsQuery } from '@/services/accountApi'
 import { useListMyActiveContactsQuery } from '@/services/contactApi'
-import { useListMyActiveCategoriesQuery } from '@/services/categoryApi'
+import { useListMyActiveTagsQuery } from '@/services/tagApi'
 import { TransactionType } from '@/services/transactionApi'
 import { AccountType, CurrencyType } from '@/services/accountApi'
 import type { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
@@ -22,7 +22,7 @@ export type QuickActionKind =
 
 export type ActiveModal = QuickActionKind | null
 
-type CategoryOption = { value: number | string; label: string }
+type TagOption = { value: number | string; label: string }
 
 const makeInitialTransactionForm = (kind: QuickActionKind | null): TransactionFormValues => {
   const baseType = kind === 'income' ? TransactionType.CREDIT : TransactionType.DEBT
@@ -36,8 +36,8 @@ const makeInitialTransactionForm = (kind: QuickActionKind | null): TransactionFo
     description: '',
     debtDate: new Date().toISOString().split('T')[0],
     equalSharingBetweenInstallments: true,
-    categoryIds: [],
-    newCategories: [],
+    tagIds: [],
+    newTags: [],
   }
 }
 
@@ -77,7 +77,7 @@ export const useQuickTransactionActions = () => {
     asc: false,
   })
 
-  const { data: categoriesData } = useListMyActiveCategoriesQuery({ pageNumber: 0, pageSize: 50 })
+  const { data: tagsData } = useListMyActiveTagsQuery({ pageNumber: 0, pageSize: 50 })
 
   const [transactionForm, setTransactionForm] = useState<TransactionFormValues>(
     makeInitialTransactionForm(null),
@@ -92,16 +92,16 @@ export const useQuickTransactionActions = () => {
     balance: '0',
   })
 
-  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([])
+  const [tagOptions, setTagOptions] = useState<TagOption[]>([])
 
   const accounts = accountsData?.data?.content || []
   const contacts = contactsData?.data?.content || []
 
   useEffect(() => {
-    if (categoriesData?.data?.content) {
-      setCategoryOptions(categoriesData.data.content.map((c) => ({ value: c.id, label: c.name })))
+    if (tagsData?.data?.content) {
+      setTagOptions(tagsData.data.content.map((c) => ({ value: c.id, label: c.name })))
     }
-  }, [categoriesData])
+  }, [tagsData])
 
   const selectedAccount = useMemo(
     () => accounts.find((a) => a.id === transactionForm.accountId),
@@ -208,9 +208,9 @@ export const useQuickTransactionActions = () => {
         totalInstallment: transactionForm.totalInstallment || undefined,
         debtDate: transactionForm.debtDate,
         equalSharingBetweenInstallments: transactionForm.equalSharingBetweenInstallments,
-        category: {
-          categoryIds: transactionForm.categoryIds,
-          newCategories: transactionForm.newCategories,
+        tag: {
+          tagIds: transactionForm.tagIds,
+          newTags: transactionForm.newTags,
         },
       }).unwrap()
 
@@ -262,12 +262,12 @@ export const useQuickTransactionActions = () => {
     }
   }
 
-  const handleCreateCategory = (label: string) => {
+  const handleCreateTag = (label: string) => {
     setTransactionForm((p) => ({
       ...p,
-      newCategories: Array.from(new Set([...(p.newCategories || []), label])),
+      newTags: Array.from(new Set([...(p.newTags || []), label])),
     }))
-    setCategoryOptions((opts) => {
+    setTagOptions((opts) => {
       if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
       return [...opts, { value: label, label }]
     })
@@ -284,13 +284,13 @@ export const useQuickTransactionActions = () => {
     variantTypeOptions,
     accounts,
     contacts,
-    categoryOptions,
+    tagOptions,
     accountsLoading,
     contactsLoading,
     createLoading,
     handleAccountChange,
     handleTransactionSubmit,
-    handleCreateCategory,
+    handleCreateTag,
     // Contact modal wiring
     contactForm,
     setContactForm,
