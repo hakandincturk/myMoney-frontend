@@ -474,7 +474,7 @@ export const DebtsOverviewPage: React.FC = () => {
 		const listItem: InstallmentDTOs.ListItem = {
 			...ins,
 			status: ins.status || InstallmentStatus.ACTIVE,
-			transaction: { id: selectedTransaction.id, name: selectedTransaction.name, type: selectedTransaction.type as 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION' },
+			transaction: { id: selectedTransaction.id, name: selectedTransaction.name || '', type: selectedTransaction.type as 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION' },
 		}
 		setEditingInstallment(listItem)
 		setEditInstallmentModalOpen(true)
