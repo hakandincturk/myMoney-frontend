@@ -30,6 +30,7 @@ export enum ApiUrl {
   
   // Installment endpoints
   INSTALLMENT_MONTH = '/installment/month',
+  INSTALLMENT_BY_ID = '/installment/{id}',
   // Bulk pay endpoint (new): accepts body { ids: number[], paidDate: string }
   INSTALLMENT_PAY_BULK = '/installment/pay',
   

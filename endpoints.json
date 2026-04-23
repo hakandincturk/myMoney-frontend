@@ -477,6 +477,49 @@
         }
       }
     },
+    "/installment/{installmentId}": {
+      "patch": {
+        "tags": [
+          "Installment"
+        ],
+        "summary": "Update installment",
+        "description": "Taksit tutarını veya durumunu günceller",
+        "operationId": "updateInstallment",
+        "parameters": [
+          {
+            "name": "installmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInstallmentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/installment/pay": {
       "patch": {
         "tags": [
@@ -1341,6 +1384,22 @@
           "type"
         ]
       },
+      "UpdateInstallmentRequestDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SKIPPED"
+            ]
+          }
+        }
+      },
       "PayInstallmentRequestDto": {
         "type": "object",
         "properties": {
@@ -1396,8 +1455,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "descripton": {
+          "description": {
             "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SKIPPED"
+            ]
           },
           "paid": {
             "type": "boolean"
@@ -1840,8 +1906,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "descripton": {
+          "description": {
             "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SKIPPED"
+            ]
           },
           "paid": {
             "type": "boolean"

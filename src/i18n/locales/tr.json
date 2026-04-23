@@ -548,7 +548,16 @@
     "paymentSuccess": "Taksit ödemesi başarıyla kaydedildi",
     "descriptionUpdateSuccess": "Taksit açıklaması başarıyla güncellendi",
     "enterDescription": "Açıklama giriniz",
-    "selectPaymentDate": "Ödeme tarihini seçiniz"
+    "selectPaymentDate": "Ödeme tarihini seçiniz",
+    "editInstallment": "Taksit Düzenle",
+    "updateSuccess": "Taksit başarıyla güncellendi",
+    "updateFailed": "Taksit güncellenemedi",
+    "status": "Durum",
+    "statusActive": "Aktif",
+    "statusSkipped": "Ödenmeyecek",
+    "amountLabel": "Taksit Tutarı",
+    "cannotSkipPaid": "Ödenmiş taksit ödenmeyecek olarak işaretlenemez",
+    "cannotEditSkipped": "Ödenmeyecek durumdaki taksidin tutarı değiştirilemez"
   },
   "bulkPay": {
     "warning": "Toplu ödeme işlevi yalnızca borçlar için geçerlidir.",

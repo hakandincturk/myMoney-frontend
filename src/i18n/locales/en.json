@@ -538,7 +538,16 @@
     "paymentSuccess": "Installment payment saved successfully",
     "descriptionUpdateSuccess": "Installment description updated successfully",
     "enterDescription": "Enter description",
-    "selectPaymentDate": "Select payment date"
+    "selectPaymentDate": "Select payment date",
+    "editInstallment": "Edit Installment",
+    "updateSuccess": "Installment updated successfully",
+    "updateFailed": "Failed to update installment",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusSkipped": "Skipped",
+    "amountLabel": "Installment Amount",
+    "cannotSkipPaid": "Paid installment cannot be marked as skipped",
+    "cannotEditSkipped": "Cannot change amount of a skipped installment"
   },
   "bulkPay": {
     "warning": "Bulk payment function is valid for debts only.",

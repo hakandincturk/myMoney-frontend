@@ -10,7 +10,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import TransactionFormModal, { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
 import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, useListTransactionInstallmentsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
-import { usePayInstallmentsMutation } from '@/services/installmentApi'
+import { usePayInstallmentsMutation, useUpdateInstallmentMutation } from '@/services/installmentApi'
 import { TransactionHelpers, TransactionDTOs, AccountDTOs } from '../../types'
 import type { ListMyContactsResponseDto } from '@/services/contactApi'
 
@@ -23,6 +23,9 @@ import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 // Toast gösterimi için App seviyesindeki ToastContainer ile çalışan yardımcı
 import { FilterChips } from '@/components/ui/FilterChips'
 import { AccountType } from '@/enums/account'
+import { InstallmentStatus } from '@/enums/installment'
+import { EditInstallmentModal } from '@/components/ui/EditInstallmentModal'
+import { InstallmentDTOs } from '@/types/installment'
 import { useListMyActiveTagsQuery } from '@/services/tagApi'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
@@ -261,6 +264,11 @@ export const DebtsOverviewPage: React.FC = () => {
   
   // Ödeme işlemi için mutation hook
   const [payInstallments] = usePayInstallmentsMutation()
+  const [updateInstallment] = useUpdateInstallmentMutation()
+
+  // Edit installment modal state
+  const [editInstallmentModalOpen, setEditInstallmentModalOpen] = useState(false)
+  const [editingInstallment, setEditingInstallment] = useState<InstallmentDTOs.ListItem | null>(null)
   
   // Taksit verilerini manuel olarak yönet
   type TransactionInstallmentRow = {
@@ -270,6 +278,7 @@ export const DebtsOverviewPage: React.FC = () => {
     installmentNumber: number
     description?: string
     paid: boolean
+    status?: 'ACTIVE' | 'SKIPPED'
   }
   const [currentInstallments, setCurrentInstallments] = useState<TransactionInstallmentRow[]>([])
   const [currentInstallmentsLoading, setCurrentInstallmentsLoading] = useState(false)
@@ -459,6 +468,37 @@ export const DebtsOverviewPage: React.FC = () => {
 				try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('messages.operationFailed'), type: 'error' } })) } catch(_) {}
 			}
 		}
+
+	const handleEditInstallment = (ins: TransactionInstallmentRow) => {
+		if (!selectedTransaction) return
+		const listItem: InstallmentDTOs.ListItem = {
+			...ins,
+			status: ins.status || InstallmentStatus.ACTIVE,
+			transaction: { id: selectedTransaction.id, name: selectedTransaction.name, type: selectedTransaction.type as 'DEBT' | 'CREDIT' | 'PAYMENT' | 'COLLECTION' },
+		}
+		setEditingInstallment(listItem)
+		setEditInstallmentModalOpen(true)
+	}
+
+	const handleEditInstallmentClose = () => {
+		setEditInstallmentModalOpen(false)
+		setEditingInstallment(null)
+		if (selectedTransactionId) refetchInstallments()
+	}
+
+	const handleQuickToggleInstallmentStatus = async (ins: TransactionInstallmentRow) => {
+		if (ins.paid) return
+		const newStatus = ins.status === InstallmentStatus.SKIPPED ? InstallmentStatus.ACTIVE : InstallmentStatus.SKIPPED
+		try {
+			await updateInstallment({ id: ins.id, status: newStatus }).unwrap()
+			try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.updateSuccess'), type: 'success' } })) } catch(_) {}
+			refetchInstallments()
+		} catch (e) {
+			const errData = (e as { data?: { message?: string } })?.data
+			const message = errData?.message || t('installment.updateFailed')
+			try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
+		}
+	}
 
 	// API'den gelen işlemleri sadece borçlar olarak filtrele
 	const debts: TransactionListItem[] = useMemo(() => {
@@ -1249,10 +1289,13 @@ export const DebtsOverviewPage: React.FC = () => {
 											</tr>
 										</thead>
 										<tbody>
-											{currentInstallments.map((ins) => (
-												<tr 
-													key={ins.id} 
+											{currentInstallments.map((ins) => {
+												const isSkipped = ins.status === InstallmentStatus.SKIPPED
+												return (
+												<tr
+													key={ins.id}
 													className={`border-t border-slate-100 dark:border-mm-border transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
+														isSkipped ? 'opacity-60 bg-amber-50/50 dark:bg-amber-900/10 hover:!bg-amber-100/50 dark:hover:!bg-amber-900/20' :
 														ins.paid ? 'bg-green-50/30 dark:bg-green-900/10' : ''
 													}`}
 												>
@@ -1266,46 +1309,78 @@ export const DebtsOverviewPage: React.FC = () => {
 													<td className="px-3 py-2 text-slate-700 dark:text-mm-subtleText">
 														{new Date(ins.debtDate).toLocaleDateString(
 															i18n.language === 'tr' ? 'tr-TR' : 'en-US',
-															{ 
-																year: 'numeric', 
-																month: 'short', 
-																day: 'numeric' 
+															{
+																year: 'numeric',
+																month: 'short',
+																day: 'numeric'
 															}
 														)}
 													</td>
 													<td className="px-3 py-2 text-right">
 														<span className={`font-semibold ${
+															isSkipped ? 'line-through text-slate-400 dark:text-slate-500' :
 															ins.paid ? 'text-green-700 dark:text-green-400' : 'text-slate-900 dark:text-mm-text'
 														}`}>
 															₺{Number(ins.amount || 0).toLocaleString('tr-TR')}
 														</span>
 													</td>
-														<td className="px-3 py-2 text-center">
+													<td className="px-3 py-2 text-center">
+														{isSkipped ? (
+															<div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+																<span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+																{t('installment.statusSkipped')}
+															</div>
+														) : (
 															<div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-															ins.paid 
-																? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-																: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-														}`}>
+																ins.paid
+																	? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+																	: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+															}`}>
 																<span className={`w-1.5 h-1.5 rounded-full ${
 																	ins.paid ? 'bg-green-500' : 'bg-slate-400 dark:bg-slate-500'
 																}`}></span>
 																{ins.paid ? t('status.paid') : t('status.pending')}
 															</div>
-														</td>
-														{/* Paid Date cell removed */}
-									<td className="px-3 py- text-center">
-										{ !ins.paid && (
-											<Button
-												onClick={() => payInstallmentNow(ins.id)}
-												variant="secondary"
-												className="!px-0.5 !py-0 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50 !min-w-[40px] text-center !h-6"
-											>
-												{getActionLabelForType(selectedTransaction?.type as string)}
-											</Button>
-										)}
-									</td>
-								</tr>
-											))}
+														)}
+													</td>
+													<td className="px-3 py-2 text-center">
+														<div className="flex gap-1 justify-center items-center">
+															{!ins.paid && (
+																<Button
+																	onClick={() => handleQuickToggleInstallmentStatus(ins)}
+																	variant="secondary"
+																	className={`!px-1.5 !py-0 !text-xs !min-w-[64px] text-center !h-6 ${
+																		isSkipped
+																			? '!bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700'
+																			: '!bg-amber-500 hover:!bg-amber-600 !text-white !border-amber-500 hover:!border-amber-600'
+																	}`}
+																>
+																	{isSkipped ? t('installment.statusActive') : t('installment.statusSkipped')}
+																</Button>
+															)}
+															{!ins.paid && (
+																<Button
+																	onClick={() => handleEditInstallment(ins)}
+																	variant="secondary"
+																	className="!px-1.5 !py-0 !text-xs !min-w-[40px] text-center !h-6"
+																>
+																	{t('buttons.edit')}
+																</Button>
+															)}
+															{!ins.paid && !isSkipped && (
+																<Button
+																	onClick={() => payInstallmentNow(ins.id)}
+																	variant="secondary"
+																	className="!px-1.5 !py-0 !text-xs !bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50 !min-w-[40px] text-center !h-6"
+																>
+																	{getActionLabelForType(selectedTransaction?.type as string)}
+																</Button>
+															)}
+														</div>
+													</td>
+												</tr>
+												)
+											})}
 										</tbody>
 									</table>
 								</div>
@@ -1326,7 +1401,7 @@ export const DebtsOverviewPage: React.FC = () => {
 											<div className="text-slate-600 dark:text-mm-subtleText">{t('installment.totalPending')}</div>
 											<div className="text-orange-600 dark:text-orange-400 font-medium">
 												₺{currentInstallments
-													.filter(ins => !ins.paid)
+													.filter(ins => !ins.paid && ins.status !== InstallmentStatus.SKIPPED)
 													.reduce((sum, ins) => sum + Number(ins.amount || 0), 0)
 													.toLocaleString('tr-TR')}
 											</div>
@@ -1344,6 +1419,13 @@ export const DebtsOverviewPage: React.FC = () => {
 					</div>
 				)}
 			</Modal>
+
+			{/* Edit Installment Modal */}
+			<EditInstallmentModal
+				open={editInstallmentModalOpen}
+				onClose={handleEditInstallmentClose}
+				installment={editingInstallment}
+			/>
 
 			{/* Filter Modal */}
 			<Modal

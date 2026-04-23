@@ -7,14 +7,14 @@ import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import { FilterChips } from '@/components/ui/FilterChips'
-import { useListMonthlyInstallmentsQuery, usePayInstallmentsMutation } from '@/services/installmentApi'
+import { useListMonthlyInstallmentsQuery, usePayInstallmentsMutation, useUpdateInstallmentMutation } from '@/services/installmentApi'
 import { InstallmentDTOs } from '../../types/installment'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Checkbox from '@/components/ui/Checkbox'
-import { TransactionStatus } from '../../enums'
-// import PayInstallmentsModal from '@/components/ui/PayInstallmentsModal'
+import { TransactionStatus, InstallmentStatus } from '../../enums'
+import { EditInstallmentModal } from '@/components/ui/EditInstallmentModal'
 
 // Kısa alias'lar oluştur
 type FilterRequest = InstallmentDTOs.FilterRequest
@@ -156,9 +156,14 @@ export const InstallmentsPage: React.FC = () => {
 
   // Payment mutation
   const [payInstallments] = usePayInstallmentsMutation()
+  // Update mutation (for quick toggle)
+  const [updateInstallment] = useUpdateInstallmentMutation()
   // Selection for bulk operations
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [selectAllOnPage, setSelectAllOnPage] = useState(false)
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingInstallment, setEditingInstallment] = useState<InstallmentDTOs.ListItem | null>(null)
 
   // Bugünün tarihini formatla (YYYY-MM-DD)
   const today = (() => {
@@ -198,7 +203,28 @@ export const InstallmentsPage: React.FC = () => {
     }
   }
 
-  // Ödeme işlemi artık doğrudan handlePay ile yapılıyor (modal yok)
+  const handleEdit = (installment: InstallmentDTOs.ListItem) => {
+    setEditingInstallment(installment)
+    setEditModalOpen(true)
+  }
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false)
+    setEditingInstallment(null)
+  }
+
+  const handleQuickToggleStatus = async (installment: InstallmentDTOs.ListItem) => {
+    if (installment.paid) return
+    const newStatus = installment.status === InstallmentStatus.SKIPPED ? InstallmentStatus.ACTIVE : InstallmentStatus.SKIPPED
+    try {
+      await updateInstallment({ id: installment.id, status: newStatus }).unwrap()
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('installment.updateSuccess'), type: 'success' } })) } catch(_) {}
+    } catch (e) {
+      const errData = (e as { data?: { message?: string } })?.data
+      const message = errData?.message || t('installment.updateFailed')
+      try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error' } })) } catch(_) {}
+    }
+  }
 
   // Sayfalama işlemleri
   const handlePageChange = (newPage: number) => {
@@ -435,7 +461,7 @@ export const InstallmentsPage: React.FC = () => {
     columnHelper.display({
       id: 'select',
       header: () => {
-        const idsOnPage = rows.filter(r => !r.paid && r.transaction?.type === 'DEBT').map(r => r.id)
+        const idsOnPage = rows.filter(r => !r.paid && r.status !== InstallmentStatus.SKIPPED && r.transaction?.type === 'DEBT').map(r => r.id)
         return (
           <Checkbox
             checked={selectAllOnPage}
@@ -453,8 +479,7 @@ export const InstallmentsPage: React.FC = () => {
       },
       cell: (info) => {
         const installment = info.row.original
-        // If installment is not DEBT or already paid, render empty cell (no checkbox)
-        if (installment.transaction?.type !== 'DEBT' || installment.paid) return null
+        if (installment.transaction?.type !== 'DEBT' || installment.paid || installment.status === InstallmentStatus.SKIPPED) return null
 
         return (
           <Checkbox
@@ -546,14 +571,21 @@ export const InstallmentsPage: React.FC = () => {
       }
     }),
     columnHelper.accessor('paid', {
-      header: t('table.columns.paid'),
+      header: t('table.columns.status'),
       cell: (info) => {
         const installment = info.row.original
-        const status = installment.paid ? TransactionStatus.PAID : TransactionStatus.PENDING
-        return <StatusBadge status={status} />
+        if (installment.status === InstallmentStatus.SKIPPED) {
+          return (
+            <div className="flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium w-24 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700">
+              {t('installment.statusSkipped')}
+            </div>
+          )
+        }
+        const txStatus = installment.paid ? TransactionStatus.PAID : TransactionStatus.PENDING
+        return <StatusBadge status={txStatus} />
       },
       meta: {
-        className: 'min-w-[100px] text-center'
+        className: 'min-w-[120px] text-center'
       }
     }),
     columnHelper.display({
@@ -561,9 +593,35 @@ export const InstallmentsPage: React.FC = () => {
       header: t('table.columns.actions'),
       cell: (info) => {
         const installment = info.row.original
+        const isSkipped = installment.status === InstallmentStatus.SKIPPED
         return (
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2 justify-end items-center">
+            {/* Quick status toggle */}
             {!installment.paid && (
+              <Button
+                onClick={() => handleQuickToggleStatus(installment)}
+                variant="secondary"
+                className={`px-3 py-1 !text-xs min-w-[64px] text-center ${
+                  isSkipped
+                    ? '!bg-green-600 hover:!bg-green-700 !text-white !border-green-600 hover:!border-green-700 focus:!ring-green-600/50'
+                    : '!bg-amber-500 hover:!bg-amber-600 !text-white !border-amber-500 hover:!border-amber-600 focus:!ring-amber-500/50'
+                }`}
+              >
+                {isSkipped ? t('installment.statusActive') : t('installment.statusSkipped')}
+              </Button>
+            )}
+            {/* Edit button */}
+            {!installment.paid && (
+              <Button
+                onClick={() => handleEdit(installment)}
+                variant="secondary"
+                className="px-3 py-1 !text-xs min-w-[64px] text-center"
+              >
+                {t('buttons.edit')}
+              </Button>
+            )}
+            {/* Pay button - hidden for SKIPPED and paid installments */}
+            {!installment.paid && !isSkipped && (
               <Button
                 onClick={() => handlePay([installment.id])}
                 variant="secondary"
@@ -576,7 +634,7 @@ export const InstallmentsPage: React.FC = () => {
         )
       },
       meta: {
-        className: 'min-w-[100px]'
+        className: 'min-w-[180px]'
       }
     }),
   ]
@@ -713,7 +771,11 @@ export const InstallmentsPage: React.FC = () => {
               isFirstPage={data?.data?.first}
               isLastPage={data?.data?.last}
               className="h-full"
-              getRowClassName={(row) => row.paid ? 'bg-green-50/50 dark:bg-green-900/10 hover:!bg-green-100/50 dark:hover:!bg-green-900/20' : ''}
+              getRowClassName={(row) => {
+                if (row.status === InstallmentStatus.SKIPPED) return 'opacity-60 bg-amber-50/50 dark:bg-amber-900/10 hover:!bg-amber-100/50 dark:hover:!bg-amber-900/20 [&_td:nth-child(6)]:line-through'
+                if (row.paid) return 'bg-green-50/50 dark:bg-green-900/10 hover:!bg-green-100/50 dark:hover:!bg-green-900/20'
+                return ''
+              }}
             />
           )}
         </div>
@@ -824,6 +886,13 @@ export const InstallmentsPage: React.FC = () => {
 
           </div>
         </Modal>
+
+        {/* Edit Installment Modal */}
+        <EditInstallmentModal
+          open={editModalOpen}
+          onClose={handleEditModalClose}
+          installment={editingInstallment}
+        />
 
         </div>
     </div>

@@ -13,6 +13,7 @@ export namespace InstallmentDTOs {
     installmentNumber: number
     description?: string
     paid: boolean
+    status: 'ACTIVE' | 'SKIPPED'
   }
 
   // Sayfalama parametreleri
@@ -40,6 +41,12 @@ export namespace InstallmentDTOs {
     // For bulk payments `ids` contains the list of installment ids to pay.
     ids?: number[]
     paidDate: string
+  }
+
+  // Installment update request
+  export type UpdateRequest = {
+    amount?: number
+    status?: 'ACTIVE' | 'SKIPPED'
   }
 
   // Aylık taksit filtreleme isteği - endpoints.json FilterListMyInstallmentRequestDto'dan
