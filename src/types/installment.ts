@@ -11,7 +11,7 @@ export namespace InstallmentDTOs {
     amount: number
     debtDate: string
     installmentNumber: number
-    descripton?: string
+    description?: string
     paid: boolean
   }
 

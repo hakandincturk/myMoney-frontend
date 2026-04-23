@@ -268,7 +268,7 @@ export const DebtsOverviewPage: React.FC = () => {
     amount: number
     debtDate: string
     installmentNumber: number
-    descripton?: string
+    description?: string
     paid: boolean
   }
   const [currentInstallments, setCurrentInstallments] = useState<TransactionInstallmentRow[]>([])
