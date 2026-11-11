@@ -249,7 +249,8 @@
     "debts": "Income/Expense",
     "installments": "Installments",
     "tags": "Tags",
-    "tagManagement": "Tag Management"
+    "tagManagement": "Tag Management",
+    "reports": "Reports"
   },
   "pages": {
     "accounts": "Accounts",
@@ -259,7 +260,8 @@
       "monthly": "Monthly Installments",
       "thisMonth": "This Month"
     },
-    "tags": "Tags"
+    "tags": "Tags",
+    "reports": "Reports"
   },
   "tag": {
     "management": {
@@ -351,8 +353,8 @@
     "filter": "Filter",
     "clearFilters": "Clear Filters",
     "clearAll": "Clear All",
-    "applyFilters": "Apply Filters"
-    ,"bulkPay": "Bulk Pay"
+    "applyFilters": "Apply Filters",
+    "bulkPay": "Bulk Pay"
   },
   "modals": {
     "editContact": "Edit Contact",
@@ -376,7 +378,7 @@
     "selectType": "Select type",
     "transactionName": "E.g. Electricity Bill",
     "descriptionPlaceholder": "Add description (optional)",
-  "selectStatus": "Select status",
+    "selectStatus": "Select status",
     "selectStartDate": "Select start date",
     "selectEndDate": "Select end date",
     "searchByTransactionName": "Search by transaction name...",
@@ -451,7 +453,7 @@
     "expenseOccurredAmount": "Last Paid",
     "expenseWaitingAmount": "Spent This Month",
     "expensePlanningAmount": "Total Expense",
-        "pendingPayments": "Pending Payments",
+    "pendingPayments": "Pending Payments",
     "pendingPaymentsTooltip": "Installments with 3+ payments and more than 30% paid",
     "totalBalanceTooltip": "Total balance across all your accounts",
     "savingsRateTooltip": "Savings rate = (Income - Expense) / Income",
@@ -600,7 +602,7 @@
   "date": {
     "months": {
       "0": "January",
-      "1": "February", 
+      "1": "February",
       "2": "March",
       "3": "April",
       "4": "May",
@@ -611,6 +613,114 @@
       "9": "October",
       "10": "November",
       "11": "December"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Month-centred financial analysis. The selected month is compared with the previous and next one.",
+    "flow": {
+      "label": "Flow type",
+      "expense": "Expense",
+      "income": "Income"
+    },
+    "window": {
+      "label": "Time window",
+      "months": "{{count}}M"
+    },
+    "period": {
+      "title": "Period selection",
+      "subtitle": "Defaults to the last completed month. Future months are computed from scheduled installments only.",
+      "actual": "Settled",
+      "partial": "In progress",
+      "projected": "Planned",
+      "previous": "Previous month",
+      "next": "Next month"
+    },
+    "comparison": {
+      "income": "Income",
+      "expense": "Expense",
+      "net": "Net",
+      "netFlow": "Net flow",
+      "realized": "Realized",
+      "pending": "Pending"
+    },
+    "kpi": {
+      "totalExpense": "Total expense",
+      "totalIncome": "Total income",
+      "pendingPart": "{{amount}} not paid yet",
+      "savingRate": "Savings rate",
+      "savingRateHint": "The share of income left after expenses",
+      "savingRateNet": "Net flow {{amount}}",
+      "dailyAverage": "Daily average",
+      "dailyAverageSoFar": "Daily avg. (realized)",
+      "daysOf": "{{elapsed}}/{{total}} days",
+      "busiestDay": "Busiest day {{date}} — {{amount}}",
+      "noBusiestDay": "No spending recorded this month"
+    },
+    "timeline": {
+      "title": "Income / expense timeline",
+      "projectedHint": "Dashed months are projections: they only include scheduled installments, not ad-hoc spending.",
+      "loading": "Loading chart…",
+      "income": "Income",
+      "expense": "Expense",
+      "net": "Net",
+      "remainingDebt": "Remaining debt",
+      "carriedDebt": "Carried debt",
+      "plan": "Projection",
+      "empty": "No chart data yet",
+      "emptyHint": "Your monthly trend will appear here as you add transactions."
+    },
+    "tags": {
+      "title": "Category comparison",
+      "subtitle": "Solid bar is the selected month, thin bar is {{month}}",
+      "loading": "Loading breakdown…",
+      "untagged": "Untagged",
+      "other": "Other",
+      "previousMonth": "Last month: {{amount}}",
+      "sumMode": "Sum mode",
+      "distributed": "Distributed",
+      "doubleCount": "Double count",
+      "distributionTitle": "Category distribution",
+      "distributionSubtitle": "Total {{total}} · {{count}} categories",
+      "categoryCount": "{{count}} categories",
+      "untaggedCallout": "{{amount}} of your spending has no tag ({{share}}). Tagging it makes the analysis more accurate.",
+      "empty": "No category data this month",
+      "emptyHint": "Add tags to your transactions to see the breakdown."
+    },
+    "top": {
+      "title": "What did you spend most on?",
+      "subtitle": "Largest items of the selected month",
+      "biggestItem": "The largest item is {{name}} — {{share}} of your total expense.",
+      "paid": "Paid",
+      "pending": "Pending",
+      "empty": "No items this month",
+      "emptyHint": "There is no activity recorded for the selected month."
+    },
+    "recurring": {
+      "title": "Recurring expenses",
+      "subtitle": "Items that repeat regularly in recent months",
+      "installment": "Installment",
+      "repeated": "Recurring",
+      "months": "for {{count}} months",
+      "next": "next {{date}}",
+      "estimatedHint": "Estimated date — derived from the past repeat interval",
+      "perMonth": "avg. / month",
+      "fixedCost": "Your fixed cost",
+      "fixedCostHint": "{{share}} of your income is committed every month",
+      "sparklineLabel": "{{name}} trend over recent months",
+      "empty": "No recurring expenses",
+      "emptyHint": "No regularly repeating item was detected."
+    },
+    "insight": {
+      "title": "Things worth noticing",
+      "subtitle": "Derived automatically from the data above",
+      "tagIncreased": "Your {{name}} spending rose {{rate}} versus last month — {{from}} → {{to}}.",
+      "projectedDeficit": "In {{month}} {{year}} your expenses look set to exceed income by {{amount}}.",
+      "longestRecurring": "Longest running item is {{name}} — going for {{count}} months, {{share}} of your fixed cost.",
+      "negativeSaving": "Expenses exceeded income this month; your savings rate is {{rate}} negative."
+    },
+    "errors": {
+      "loadFailed": "Could not load data"
     }
   }
 }

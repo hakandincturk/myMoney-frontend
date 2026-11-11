@@ -47,6 +47,13 @@ export enum ApiUrl {
   DASHBOARD_LAST_TRANSACTIONS = '/dashboard/last-transactions',
   DASHBOARD_INCOMING_TRANSACTIONS = '/dashboard/incoming-transactions',
 
+  // Report endpoints
+  REPORT_SUMMARY = '/report/summary',
+  REPORT_TIMELINE = '/report/timeline',
+  REPORT_TAG_BREAKDOWN = '/report/tag-breakdown',
+  REPORT_TOP_EXPENSES = '/report/top-expenses',
+  REPORT_RECURRING = '/report/recurring',
+
   // User endpoints
   USER_PROFILE = '/user/profile',
   USER_UPDATE = '/user/update',

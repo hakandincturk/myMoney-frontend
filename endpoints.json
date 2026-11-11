@@ -48,9 +48,46 @@
     {
       "name": "Dashboard",
       "description": "Ana sayfa işlemleri"
+    },
+    {
+      "name": "Report",
+      "description": "Rapor işlemleri"
     }
   ],
   "paths": {
+    "/tag/my/{tagId}": {
+      "delete": {
+        "tags": [
+          "Tag"
+        ],
+        "summary": "Delete tag",
+        "description": "Kullanıcıya ait etiketi siler",
+        "operationId": "deleteTag",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/contact/my/{contactId}": {
       "put": {
         "tags": [
@@ -679,6 +716,313 @@
         }
       }
     },
+    "/report/top-expenses": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Report Top Expenses",
+        "description": "Seçilen ayın en büyük kalemlerini getirir",
+        "operationId": "topExpenses",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2100,
+              "minimum": 2000
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 12,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPENSE",
+                "INCOME"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReportTopExpensesResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/timeline": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Report Timeline",
+        "description": "Geçmiş ve gelecek aylara ait gelir/gider serisini getirir",
+        "operationId": "timeline",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2100,
+              "minimum": 2000
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 12,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pastMonths",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "futureMonths",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReportTimelineResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/tag-breakdown": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Report Tag Breakdown",
+        "description": "Etiket bazlı kırılımı ve önceki ay karşılaştırmasını getirir",
+        "operationId": "tagBreakdown",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2100,
+              "minimum": 2000
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 12,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPENSE",
+                "INCOME"
+              ]
+            }
+          },
+          {
+            "name": "sumMode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DOUBLE_COUNT",
+                "DISTRIBUTED"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReportTagBreakdownResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/summary": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Report Summary",
+        "description": "Seçilen ayı önceki ve sonraki ayla karşılaştıran özet verilerini getirir",
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2100,
+              "minimum": 2000
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 12,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReportSummaryResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report/recurring": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Report Recurring Expenses",
+        "description": "Tekrar eden harcamaları ve aylık sabit gider yükünü getirir",
+        "operationId": "recurring",
+        "parameters": [
+          {
+            "name": "lookbackMonths",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "minOccurrence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReportRecurringResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/installment/month": {
       "get": {
         "tags": [
@@ -893,56 +1237,21 @@
           }
         }
       }
-    },
-    "/tag/my/{tagId}": {
-      "delete": {
-        "tags": [
-          "Tag"
-        ],
-        "summary": "Delete tag",
-        "description": "Kullanıcıya ait etiketi siler",
-        "operationId": "deleteTag",
-        "parameters": [
-          {
-            "name": "tagId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseObject"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "UpdateMyContactRequestDto": {
+      "TransactionTagInfoDto": {
         "type": "object",
         "properties": {
-          "fullName": {
-            "type": "string"
+          "id": {
+            "type": "integer",
+            "format": "int64"
           },
-          "note": {
+          "name": {
             "type": "string"
           }
-        },
-        "required": [
-          "fullName"
-        ]
+        }
       },
       "ApiResponseObject": {
         "type": "object",
@@ -957,10 +1266,22 @@
             "type": "string",
             "format": "date-time"
           },
-          "data": {
-
-          }
+          "data": {}
         }
+      },
+      "UpdateMyContactRequestDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fullName"
+        ]
       },
       "UpdateAccountRequestDto": {
         "type": "object",
@@ -1642,18 +1963,6 @@
           }
         }
       },
-      "TransactionTagInfoDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
       "FilterListUserTags": {
         "type": "object",
         "properties": {
@@ -1819,6 +2128,546 @@
           },
           "last": {
             "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseReportTopExpensesResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportTopExpensesResponseDto"
+          }
+        }
+      },
+      "ReportTagRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportTopExpensesResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopExpenseItemDto"
+            }
+          },
+          "periodTotal": {
+            "type": "number"
+          }
+        }
+      },
+      "TopExpenseItemDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "installmentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportTagRefDto"
+            }
+          },
+          "installmentNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInstallment": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseReportTimelineResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportTimelineResponseDto"
+          }
+        }
+      },
+      "ReportTimelineResponseDto": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelinePointDto"
+            }
+          }
+        }
+      },
+      "TimelinePointDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ACTUAL",
+              "PARTIAL",
+              "PROJECTED"
+            ]
+          },
+          "income": {
+            "type": "number"
+          },
+          "expense": {
+            "type": "number"
+          },
+          "net": {
+            "type": "number"
+          },
+          "realizedIncome": {
+            "type": "number"
+          },
+          "pendingIncome": {
+            "type": "number"
+          },
+          "realizedExpense": {
+            "type": "number"
+          },
+          "pendingExpense": {
+            "type": "number"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "installmentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cumulativeRemainingDebt": {
+            "type": "number"
+          },
+          "projectedRemainingDebt": {
+            "type": "number"
+          }
+        }
+      },
+      "ApiResponseReportTagBreakdownResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportTagBreakdownResponseDto"
+          }
+        }
+      },
+      "ReportTagBreakdownResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagBreakdownItemDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "previousTotal": {
+            "type": "number"
+          },
+          "untaggedAmount": {
+            "type": "number"
+          }
+        }
+      },
+      "TagBreakdownItemDto": {
+        "type": "object",
+        "properties": {
+          "tagId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "previousAmount": {
+            "type": "number"
+          },
+          "changeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseReportSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportSummaryResponseDto"
+          }
+        }
+      },
+      "BusiestDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "PeriodDeltaDto": {
+        "type": "object",
+        "properties": {
+          "incomeChangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "expenseChangeRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "netChangeAmount": {
+            "type": "number"
+          }
+        }
+      },
+      "PeriodTotalsDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ACTUAL",
+              "PARTIAL",
+              "PROJECTED"
+            ]
+          },
+          "income": {
+            "type": "number"
+          },
+          "expense": {
+            "type": "number"
+          },
+          "net": {
+            "type": "number"
+          },
+          "realizedIncome": {
+            "type": "number"
+          },
+          "pendingIncome": {
+            "type": "number"
+          },
+          "realizedExpense": {
+            "type": "number"
+          },
+          "pendingExpense": {
+            "type": "number"
+          },
+          "transactionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "installmentCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReportSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "previous": {
+            "$ref": "#/components/schemas/PeriodTotalsDto"
+          },
+          "current": {
+            "$ref": "#/components/schemas/PeriodTotalsDto"
+          },
+          "next": {
+            "$ref": "#/components/schemas/PeriodTotalsDto"
+          },
+          "deltaVsPrevious": {
+            "$ref": "#/components/schemas/PeriodDeltaDto"
+          },
+          "deltaVsNext": {
+            "$ref": "#/components/schemas/PeriodDeltaDto"
+          },
+          "savingRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageDailyExpense": {
+            "type": "number"
+          },
+          "daysInMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysElapsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "busiestDay": {
+            "$ref": "#/components/schemas/BusiestDayDto"
+          },
+          "topTag": {
+            "$ref": "#/components/schemas/TopTagDto"
+          }
+        }
+      },
+      "TopTagDto": {
+        "type": "object",
+        "properties": {
+          "tagId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "share": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ApiResponseReportRecurringResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReportRecurringResponseDto"
+          }
+        }
+      },
+      "RecurringItemDto": {
+        "type": "object",
+        "properties": {
+          "groupKey": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "INSTALLMENT",
+              "REPEATED"
+            ]
+          },
+          "occurrenceCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "monthsSpan": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageAmount": {
+            "type": "number"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "lastAmount": {
+            "type": "number"
+          },
+          "lastDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "nextExpectedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "amountByMonth": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecurringMonthAmountDto"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportTagRefDto"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RecurringMonthAmountDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "ReportPeriodRefDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportRecurringResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecurringItemDto"
+            }
+          },
+          "monthlyFixedCost": {
+            "type": "number"
+          },
+          "fixedCostShareOfIncome": {
+            "type": "number",
+            "format": "double"
+          },
+          "windowStart": {
+            "$ref": "#/components/schemas/ReportPeriodRefDto"
+          },
+          "windowEnd": {
+            "$ref": "#/components/schemas/ReportPeriodRefDto"
           }
         }
       },

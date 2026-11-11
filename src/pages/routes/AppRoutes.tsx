@@ -7,6 +7,7 @@ const AccountsPage = lazy(() => import('../screens/AccountsPage'))
 const TagsPage = lazy(() => import('../screens/TagsPage'))
 const DebtsOverviewPage = lazy(() => import('../screens/DebtsOverviewPage'))
 const InstallmentsPage = lazy(() => import('../screens/InstallmentsPage'))
+const ReportsPage = lazy(() => import('../screens/ReportsPage'))
 const LoginPage = lazy(() => import('@/pages/screens/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/screens/auth/RegisterPage'))
 import { ProtectedRoute } from '@/components/ProtectedRoute'
@@ -97,7 +98,19 @@ export const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      
+
+      {/* Raporlar */}
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute requireAuth={true}>
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <ReportsPage />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+
       {/* Login sayfası - authentication gerekmez, giriş yapmışsa ana sayfaya yönlendir */}
       <Route 
         path="/login" 
