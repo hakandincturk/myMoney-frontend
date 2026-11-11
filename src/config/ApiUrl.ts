@@ -38,8 +38,10 @@ export enum ApiUrl {
   // Auth endpoints
   AUTH_LOGIN = '/auth/login',
   AUTH_REGISTER = '/auth/register',
-  AUTH_REFRESH = '/auth/refresh',
   AUTH_LOGOUT = '/auth/logout',
+  AUTH_ME = '/auth/me',
+  AUTH_SESSIONS = '/auth/sessions',
+  AUTH_SESSION_BY_ID = '/auth/sessions/{id}',
   
   // Dashboard endpoints
   DASHBOARD_QUICK_VIEW = '/dashboard/quick-view',

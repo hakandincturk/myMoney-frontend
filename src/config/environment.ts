@@ -10,14 +10,14 @@ export const ENV_CONFIG = {
   getMode: () => import.meta.env.MODE,
   
   // API base URL
-  getApiBaseUrl: () => import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
+  getApiBaseUrl: () => import.meta.env.VITE_API_BASE_URL || '/api',
   
   // Debug info
   getDebugInfo: () => ({
     mode: import.meta.env.MODE,
     isDev: import.meta.env.DEV,
     isProd: import.meta.env.PROD,
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api'
   })
 }
 

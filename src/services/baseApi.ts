@@ -1,21 +1,19 @@
 import { fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { RootState } from '@/store/store'
 import { authSlice } from '@/store/slices/authSlice'
 import { ENV_CONFIG } from '../config/environment'
+import { ApiUrl } from '../config/ApiUrl'
 
+// The session travels in an HttpOnly cookie; the browser attaches it, the app never sees it.
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`)
-    }
-    return headers
-  },
+  baseUrl: ENV_CONFIG.getApiBaseUrl(),
+  credentials: 'include',
 })
 
-// Navigate event'i sadece bir kez gönder
-let navigateEventSent = false
+// Calls whose 401 is an expected answer, not an expired session:
+// /auth/me on start means "not logged in", /auth/login means "wrong credentials" (shown on the form).
+const QUIET_401_URLS: string[] = [ApiUrl.AUTH_ME.toString(), ApiUrl.AUTH_LOGIN.toString()]
+
+const requestUrl = (args: string | FetchArgs) => (typeof args === 'string' ? args : args.url)
 
 // 500 hataları için toast gösterme helper fonksiyonu
 const showServerErrorToast = (errorData: any) => {
@@ -55,8 +53,10 @@ export const baseQueryWithReauth: BaseQueryFn<
     const status = result.error.status
     const errorData = result.error.data as any
 
-    if (status === 401) {
-      // Token'ı temizle
+    if (status === 401 && QUIET_401_URLS.includes(requestUrl(args))) {
+      // Expected 401: the caller handles it (AuthBootstrap / login form)
+    } else if (status === 401) {
+      // Session ended on the server (expired, revoked from another device, logged out elsewhere)
       api.dispatch(authSlice.actions.clearAuth())
 
       if (typeof window !== 'undefined') {
@@ -72,15 +72,7 @@ export const baseQueryWithReauth: BaseQueryFn<
         })
         window.dispatchEvent(event)
 
-        // Navigate event'ini sadece bir kez gönder
-        if (!navigateEventSent) {
-          navigateEventSent = true
-          
-          setTimeout(() => {
-            const navigateEvent = new CustomEvent('navigateToLogin')
-            window.dispatchEvent(navigateEvent)
-          }, 5000)
-        }
+        // No navigation here: clearAuth() makes ProtectedRoute redirect to /login right away.
       }
     } else if (status === 500) {
       // 500 Internal Server Error için özel toast göster

@@ -1,48 +1,52 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type AuthState = {
-  token: string | null
+// The session lives in an HttpOnly cookie the app cannot read. The app only knows whether
+// the backend accepted it: 'unknown' until GET /auth/me answers on start.
+export type AuthStatus = 'unknown' | 'authenticated' | 'anonymous'
+
+export type AuthUser = {
+  id?: number
+  fullName: string
+  email: string
 }
 
-// localStorage'dan token'ı oku
-const getInitialToken = (): string | null => {
-  if (typeof window === 'undefined') return null
+export type AuthState = {
+  status: AuthStatus
+  user: AuthUser | null
+}
+
+// Older builds kept a JWT here; remove it so no stale credential lingers in localStorage.
+if (typeof window !== 'undefined') {
   try {
-    return localStorage.getItem('auth_token')
+    localStorage.removeItem('auth_token')
   } catch {
-    return null
+    // storage unavailable (private mode): nothing to clean
   }
 }
 
 const initialState: AuthState = {
-  token: getInitialToken(),
+  status: 'unknown',
+  user: null,
 }
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setToken(state, action: PayloadAction<string | null>) {
-      state.token = action.payload
-      // localStorage'a kaydet
-      if (action.payload) {
-        localStorage.setItem('auth_token', action.payload)
-      } else {
-        localStorage.removeItem('auth_token')
-      }
+    setUser(state, action: PayloadAction<AuthUser>) {
+      state.status = 'authenticated'
+      state.user = action.payload
     },
-    logout(state) {
-      state.token = null
-      localStorage.removeItem('auth_token')
+    setAnonymous(state) {
+      state.status = 'anonymous'
+      state.user = null
     },
     clearAuth(state) {
-      state.token = null
-      localStorage.removeItem('auth_token')
+      state.status = 'anonymous'
+      state.user = null
     },
   },
 })
 
-export const { setToken, logout, clearAuth } = authSlice.actions
+export const { setUser, setAnonymous, clearAuth } = authSlice.actions
 export default authSlice.reducer
-
-

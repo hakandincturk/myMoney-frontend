@@ -9,6 +9,7 @@ import {
   faMoneyBillWave, 
   faCalendarAlt,
   faChartPie,
+  faUserGear,
   faBars,
   faTimes
 } from '@fortawesome/free-solid-svg-icons'
@@ -17,6 +18,8 @@ import { LanguageToggle } from '@/components/ui/LanguageToggle'
 import { Button } from '@/components/ui/Button'
 import { useAppDispatch } from '@/store/hooks'
 import { authSlice } from '@/store/slices/authSlice'
+import { useLogoutMutation } from '@/services/authApi'
+import { resetAllApiState } from '@/store/resetApiState'
 import { useTranslation } from 'react-i18next'
 
 type AppLayoutProps = {
@@ -85,8 +88,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // (Removed) desktop floating open button pulse state
 
-  const logout = () => {
-    dispatch(authSlice.actions.logout())
+  const [logoutRequest] = useLogoutMutation()
+
+  const logout = async () => {
+    try {
+      // Ends the session on the server; the response also expires the cookie
+      await logoutRequest().unwrap()
+    } catch {
+      // Already ended (401) or offline: still leave the app locally
+    }
+    dispatch(authSlice.actions.clearAuth())
+    resetAllApiState(dispatch)
     navigate('/login')
   }
 
@@ -317,6 +329,28 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                       <FontAwesomeIcon icon={faChartPie} className="text-lg" />
                     </span>
                     {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.reports')}</span>}
+                  </>
+                )}
+              </NavLink>
+
+              {/* Account settings (Hesabım) */}
+              <NavLink
+                to="/account-settings"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.accountSettings')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faUserGear} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.accountSettings')}</span>}
                   </>
                 )}
               </NavLink>

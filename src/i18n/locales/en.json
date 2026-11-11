@@ -250,7 +250,8 @@
     "installments": "Installments",
     "tags": "Tags",
     "tagManagement": "Tag Management",
-    "reports": "Reports"
+    "reports": "Reports",
+    "accountSettings": "My account"
   },
   "pages": {
     "accounts": "Accounts",
@@ -399,6 +400,7 @@
     "welcome": "Welcome",
     "startFinance": "Start your personal finance management",
     "loginInProgress": "Logging in...",
+    "loginFailed": "Login failed. Please check your details",
     "registerInProgress": "Creating account...",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
@@ -725,6 +727,27 @@
     },
     "errors": {
       "loadFailed": "Could not load data"
+    }
+  },
+  "accountSettings": {
+    "title": "My account",
+    "sessions": {
+      "title": "Sessions",
+      "subtitle": "Devices where your account is signed in. Log out any session you do not recognise.",
+      "thisDevice": "This device",
+      "logout": "Log out",
+      "revokeOthers": "Log out all other sessions",
+      "confirmTitle": "Log out this session?",
+      "confirmBody": "The session on {{device}} will end immediately.",
+      "confirmCurrentBody": "You will be logged out on this device.",
+      "confirmOthersTitle": "Log out other sessions?",
+      "confirmOthersBody": "Every session except this device will end immediately.",
+      "noOthers": "No other active sessions",
+      "lastActive": "Last active {{time}}",
+      "revoked": "Session logged out",
+      "othersRevoked": "{{count}} sessions logged out",
+      "revokeFailed": "Could not log out the session",
+      "loadFailed": "Could not load sessions"
     }
   }
 }

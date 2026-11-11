@@ -250,7 +250,8 @@
     "installments": "Taksitler",
     "tags": "Etiketler",
     "tagManagement": "Etiket Yönetimi",
-    "reports": "Raporlar"
+    "reports": "Raporlar",
+    "accountSettings": "Hesabım"
   },
   "pages": {
     "accounts": "Hesaplar",
@@ -310,6 +311,7 @@
     "welcome": "Hoş Geldiniz",
     "startFinance": "Kişisel finans yönetiminizi başlatın",
     "loginInProgress": "Giriş yapılıyor...",
+    "loginFailed": "Giriş başarısız. Lütfen bilgilerinizi kontrol edin",
     "registerInProgress": "Kayıt oluşturuluyor...",
     "noAccount": "Hesabınız yok mu?",
     "hasAccount": "Zaten hesabınız var mı?",
@@ -735,6 +737,27 @@
     },
     "errors": {
       "loadFailed": "Veri yüklenemedi"
+    }
+  },
+  "accountSettings": {
+    "title": "Hesabım",
+    "sessions": {
+      "title": "Oturumlar",
+      "subtitle": "Hesabının açık olduğu cihazlar. Tanımadığın bir oturumu buradan kapatabilirsin.",
+      "thisDevice": "Bu cihaz",
+      "logout": "Çıkış yap",
+      "revokeOthers": "Diğer tüm oturumları kapat",
+      "confirmTitle": "Oturum kapatılsın mı?",
+      "confirmBody": "{{device}} cihazındaki oturum hemen sona erecek.",
+      "confirmCurrentBody": "Bu cihazdan çıkış yapacaksın.",
+      "confirmOthersTitle": "Diğer oturumlar kapatılsın mı?",
+      "confirmOthersBody": "Bu cihaz dışındaki tüm oturumlar hemen sona erecek.",
+      "noOthers": "Başka aktif oturum yok",
+      "lastActive": "Son etkinlik {{time}}",
+      "revoked": "Oturum kapatıldı",
+      "othersRevoked": "{{count}} oturum kapatıldı",
+      "revokeFailed": "Oturum kapatılamadı",
+      "loadFailed": "Oturumlar yüklenemedi"
     }
   }
 }
