@@ -2,7 +2,8 @@ export namespace DashboardDTOs {
   export type QuickViewIncomeAndExpenseDetailDto = {
     occured: number
     waiting: number
-    lastMonthChangeRate: number
+    // Change of this month's due total vs. last month's; null when nothing was due last month
+    lastMonthChangeRate: number | null
   }
 
   export type QuickViewResponseDto = {

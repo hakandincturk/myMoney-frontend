@@ -9,7 +9,7 @@ interface DetailedIncomeExpenseCardProps {
   data: {
     occured: number
     waiting: number
-    lastMonthChangeRate?: number
+    lastMonthChangeRate?: number | null
   }
   title: string
 }
@@ -66,7 +66,7 @@ export const DetailedIncomeExpenseCard: React.FC<DetailedIncomeExpenseCardProps>
               </p>
             </div>
           </div>
-          {data.lastMonthChangeRate !== undefined && (
+          {data.lastMonthChangeRate != null && (
             <div className={`text-sm ${
               data.lastMonthChangeRate === 0
                 ? 'text-slate-500 dark:text-slate-400'
