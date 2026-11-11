@@ -10,6 +10,11 @@ export const dashboardApi = createApi({
   reducerPath: 'dashboardApi',
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Dashboard'],
+  // Money figures must never look stale: refetch when the tab regains focus (e.g. after adding a
+  // transaction on the phone) and when a screen mounts with data older than 30 seconds.
+  // Each request is a few grouped queries, so this is cheap on the server.
+  refetchOnFocus: true,
+  refetchOnMountOrArgChange: 30,
   endpoints: (build) => ({
     getQuickView: build.query<ApiResponse<DashboardDTOs.QuickViewResponseDto>, void>({
       query: () => ({ url: ApiUrl.DASHBOARD_QUICK_VIEW.toString() }),

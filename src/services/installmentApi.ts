@@ -4,7 +4,6 @@ import { CACHE_CONFIG } from '../config/cache'
 import { ApiUrl } from '../config/ApiUrl'
 import { InstallmentDTOs } from '../types/installment'
 import { CommonTypes } from '../types'
-import { dashboardApi } from './dashboardApi'
 
 // Kısa alias'lar oluştur
 type SortablePageRequest = InstallmentDTOs.SortablePageRequest
@@ -49,10 +48,6 @@ export const installmentApi = createApi({
         body,
       }),
       invalidatesTags: [{ type: 'Installment', id: 'LIST' }],
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        await queryFulfilled
-        dispatch(dashboardApi.util.invalidateTags([{ type: 'Dashboard', id: 'QUICK_VIEW' }, { type: 'Dashboard', id: 'INCOMING_TRANSACTIONS' }]))
-      },
     }),
   }),
 })
