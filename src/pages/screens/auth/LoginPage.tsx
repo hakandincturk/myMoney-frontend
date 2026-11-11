@@ -9,6 +9,7 @@ import { useLoginMutation } from '@/services/authApi'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/hooks'
 import { authSlice } from '@/store/slices/authSlice'
+import { resetAllApiState } from '@/store/resetApiState'
 
 export const LoginPage: React.FC = () => {
   const { t } = useTranslation()
@@ -54,12 +55,17 @@ export const LoginPage: React.FC = () => {
 
     try {
       const result = await login(form).unwrap()
-      if (result.type && result.data?.token) {
-        dispatch(authSlice.actions.setToken(result.data.token))
+      if (result.type && result.data) {
+        // Drop anything cached for a previous session (it may belong to another user), then keep
+        // only the user info; the session itself is the HttpOnly cookie set by this response.
+        resetAllApiState(dispatch)
+        dispatch(authSlice.actions.setUser(result.data))
         navigate('/')
       }
     } catch (error) {
-      console.error('Login failed:', error)
+      // A 401 from /auth/login is skipped by the global session handler, so show it here.
+      const message = (error as { data?: { message?: string } })?.data?.message || t('auth.loginFailed')
+      window.dispatchEvent(new CustomEvent('showToast', { detail: { message, type: 'error', duration: 5000 } }))
     }
   }
 

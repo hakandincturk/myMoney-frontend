@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   // Environment variables'ları yükle
   const env = loadEnv(mode, '.', '')
+  const apiProxy = {
+    target: env.VITE_DEV_API_TARGET || 'http://127.0.0.1:8090',
+    changeOrigin: true,
+    rewrite: (path: string) => path.replace(/^\/api/, ''),
+  }
   
   return {
     plugins: [react()],
@@ -12,9 +17,16 @@ export default defineConfig(({ mode }) => {
         '@': '/src',
       },
     },
+    // Dev and preview mirror production's same-origin setup: the SPA calls /api and Vite forwards it
+    // to the backend (which has no /api context path locally). Needed because the session cookie is
+    // SameSite=Strict and localhost:5174 -> 127.0.0.1:8090 would be cross-site.
     server: {
       port: 5173,
       host: true,
+      proxy: { '/api': apiProxy },
+    },
+    preview: {
+      proxy: { '/api': apiProxy },
     },
     build: {
       target: 'ES2022',

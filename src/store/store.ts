@@ -27,9 +27,9 @@ const rootReducer = combineReducers({
   [reportApi.reducerPath]: reportApi.reducer,
 })
 
-// Only the session survives a page reload. Server data is never persisted: a cached dashboard or
-// installment list restored from localStorage would show old numbers until something refetched it.
-const PERSISTED_KEYS = ['auth']
+// Nothing is persisted any more. Server data never was (a restored dashboard would show old numbers),
+// and auth state must not be either: the session is an HttpOnly cookie and GET /auth/me decides on start.
+const PERSISTED_KEYS: string[] = []
 
 const migrations = {
   // v1: drop the API caches earlier versions persisted, keep the session so nobody is logged out
@@ -40,11 +40,16 @@ const migrations = {
     )
     return kept as PersistedState
   },
+  // v2: drop the persisted auth slice (the JWT era); auth is resolved from the session cookie
+  2: (state: PersistedState) => {
+    if (!state) return state
+    return { _persist: state._persist } as PersistedState
+  },
 }
 
 const persistConfig = {
   key: 'root-v2',
-  version: 1,
+  version: 2,
   storage,
   whitelist: PERSISTED_KEYS,
   migrate: createMigrate(migrations, { debug: false }),

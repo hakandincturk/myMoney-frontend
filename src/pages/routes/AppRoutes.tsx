@@ -8,6 +8,7 @@ const TagsPage = lazy(() => import('../screens/TagsPage'))
 const DebtsOverviewPage = lazy(() => import('../screens/DebtsOverviewPage'))
 const InstallmentsPage = lazy(() => import('../screens/InstallmentsPage'))
 const ReportsPage = lazy(() => import('../screens/ReportsPage'))
+const AccountSettingsPage = lazy(() => import('../screens/AccountSettingsPage'))
 const LoginPage = lazy(() => import('@/pages/screens/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/screens/auth/RegisterPage'))
 import { ProtectedRoute } from '@/components/ProtectedRoute'
@@ -106,6 +107,18 @@ export const AppRoutes: React.FC = () => {
           <ProtectedRoute requireAuth={true}>
             <Suspense fallback={<div>Yükleniyor…</div>}>
               <ReportsPage />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Hesabım (account settings: sessions) */}
+      <Route
+        path="/account-settings"
+        element={
+          <ProtectedRoute requireAuth={true}>
+            <Suspense fallback={<div>Yükleniyor…</div>}>
+              <AccountSettingsPage />
             </Suspense>
           </ProtectedRoute>
         }

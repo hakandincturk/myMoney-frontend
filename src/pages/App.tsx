@@ -4,6 +4,7 @@ import { AppLayout } from '@/pages/layouts/AppLayout'
 import { AppRoutes } from '@/pages/routes/AppRoutes'
 import { ToastContainer } from '@/components/ui/ToastContainer'
 import { useToast } from '../hooks/useToast'
+import { AuthBootstrap } from '@/components/AuthBootstrap'
 
 const App: React.FC = () => {
   const navigate = useNavigate()
@@ -32,9 +33,11 @@ const App: React.FC = () => {
 
   return (
     <>
-      <AppLayout>
-        <AppRoutes />
-      </AppLayout>
+      <AuthBootstrap>
+        <AppLayout>
+          <AppRoutes />
+        </AppLayout>
+      </AuthBootstrap>
       
       <ToastContainer 
         toasts={toasts} 
