@@ -5,6 +5,7 @@ export enum ApiUrl {
   TRANSACTION_MY_BY_ID = '/transaction/my/{id}',
   TRANSACTION_BY_ID = '/transaction/{id}',
   TRANSACTION_TAG_ID = '/transaction/tag/{id}',
+  TRANSACTION_MY_TAGS = '/transaction/my/{id}/tags',
   TRANSACTION_INSTALLMENTS = '/transaction/{id}/installments/',
   
   // Account endpoints
@@ -46,6 +47,13 @@ export enum ApiUrl {
   DASHBOARD_TAG_SUMMARY = '/dashboard/tag-summary',
   DASHBOARD_LAST_TRANSACTIONS = '/dashboard/last-transactions',
   DASHBOARD_INCOMING_TRANSACTIONS = '/dashboard/incoming-transactions',
+
+  // Report endpoints
+  REPORT_SUMMARY = '/report/summary',
+  REPORT_TIMELINE = '/report/timeline',
+  REPORT_TAG_BREAKDOWN = '/report/tag-breakdown',
+  REPORT_TOP_EXPENSES = '/report/top-expenses',
+  REPORT_RECURRING = '/report/recurring',
 
   // User endpoints
   USER_PROFILE = '/user/profile',

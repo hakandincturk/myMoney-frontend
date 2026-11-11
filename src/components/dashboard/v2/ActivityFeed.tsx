@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import type { DashboardDTOs } from '@/types/dashboard'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { formatTRY, formatShortDate, bucketOfDate, type ActivityBucket } from './formatters'
+import { formatTRY, formatShortDate, bucketOfDate, type ActivityBucket } from '@/utils/formatters'
 
 type ActivityFeedProps = {
   lastTransactions?: DashboardDTOs.LastTransactions

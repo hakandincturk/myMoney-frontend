@@ -8,6 +8,7 @@ import {
   faTags,
   faMoneyBillWave, 
   faCalendarAlt,
+  faChartPie,
   faBars,
   faTimes
 } from '@fortawesome/free-solid-svg-icons'
@@ -297,6 +298,28 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   </>
                 )}
               </NavLink>
+
+              {/* Reports */}
+              <NavLink
+                to="/reports"
+                className={({ isActive }) => `relative ${(!isMobile && !sidebarOpen) ? 'flex items-center justify-center h-12' : 'flex items-center gap-3 px-4 py-3'} rounded-lg text-base transition-all duration-200 ease-in-out ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-700 dark:text-mm-text hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                }`}
+                onClick={() => { if (isMobile) hideSidebar() }}
+                title={t('sidebar.reports')}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-500" />}
+                    <span className={`${(!isMobile && !sidebarOpen) ? 'h-10 w-10 flex items-center justify-center rounded-lg ' + (isActive ? 'bg-blue-900/30 text-blue-300' : 'bg-transparent') : ''}`}>
+                      <FontAwesomeIcon icon={faChartPie} className="text-lg" />
+                    </span>
+                    {(!isMobile && !sidebarOpen) ? null : <span>{t('sidebar.reports')}</span>}
+                  </>
+                )}
+              </NavLink>
             </nav>
             {(!isMobile && !sidebarOpen) ? null : (
               <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 dark:border-mm-border bg-slate-50 dark:bg-mm-card">
@@ -381,9 +404,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               marginLeft: !isMobile ? (sidebarOpen ? `${sidebarWidth}px` : `${collapsedWidth}px`) : '0px'
             }}
           >
-            {/* Content area uses full viewport on desktop; on mobile subtract top bar height */}
+            {/* On mobile the floating menu button (top 0.75rem, 2.25rem tall) would sit on the page title; leave room for it */}
             <main
-              className={`w-full custom-scrollbar overflow-y-auto flex flex-col ${isMobile ? 'h-screen' : 'h-screen'}`}
+              className={`w-full custom-scrollbar overflow-y-auto flex flex-col h-screen ${isMobile ? 'pt-12 bg-slate-50 dark:bg-mm-bg' : ''}`}
             >
               {children}
             </main>

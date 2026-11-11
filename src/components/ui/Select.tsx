@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
+import { isSameText, normalizeForMatch } from '@/utils/textMatch'
 
 type Option = {
   value: string | number
@@ -87,13 +88,15 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       onLoadMore()
     }
   }
+  // Turkish-aware matching: plain toLowerCase turns "AYLIK" into "aylik", which never matches "aylık"
   const filteredOptions = searchable 
     ? options.filter(option => 
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        normalizeForMatch(option.label).includes(normalizeForMatch(searchTerm))
       )
     : options
 
-  const canCreate = creatable && searchable && !!searchTerm.trim() && !options.some(o => o.label.toLowerCase() === searchTerm.trim().toLowerCase())
+  const exactMatch = searchable && searchTerm.trim() ? filteredOptions.find(o => isSameText(o.label, searchTerm)) : undefined
+  const canCreate = creatable && searchable && !!searchTerm.trim() && !options.some(o => isSameText(o.label, searchTerm))
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -112,7 +115,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   }, [])
 
   useEffect(() => {
-    if (isOpen && searchable && inputRef.current) {
+    // On touch screens focusing the search box pops up the keyboard, which scrolls the page and
+    // leaves a fixed-position menu at the wrong place; the user taps the box when they want to type.
+    const isTouchScreen = window.matchMedia?.('(pointer: coarse)').matches
+    if (isOpen && searchable && inputRef.current && !isTouchScreen) {
       inputRef.current.focus()
     }
   }, [isOpen, searchable])
@@ -125,19 +131,36 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       if (!root) return
       const rect = root.getBoundingClientRect()
       const gap = 4
-      const dir = autoDirection || dropdownDirection
-      if (dir === 'up') {
+      // The visual viewport is the part actually on screen (it shrinks when the mobile keyboard opens)
+      const viewportTop = window.visualViewport?.offsetTop ?? 0
+      const viewportBottom = viewportTop + (window.visualViewport?.height ?? window.innerHeight)
+      const spaceAbove = rect.top - viewportTop - gap
+      const spaceBelow = viewportBottom - rect.bottom - gap
+      const menuHeight = portalMenuRef.current?.offsetHeight ?? 0
+      const preferred = autoDirection || dropdownDirection
+      // Keep the preferred side unless the measured menu does not fit there and the other side has more room
+      const openUp = preferred === 'up'
+        ? !(menuHeight > spaceAbove && spaceBelow > spaceAbove)
+        : menuHeight > spaceBelow && spaceAbove > spaceBelow
+      if (openUp) {
         setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.top - gap, transform: 'translateY(-100%)', zIndex: 10050 })
       } else {
         setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.bottom + gap, zIndex: 10050 })
       }
     }
     updatePosition()
+    // Re-run once the menu has rendered, so the flip decision uses its real height
+    const frame = requestAnimationFrame(updatePosition)
     window.addEventListener('scroll', updatePosition, true)
     window.addEventListener('resize', updatePosition)
+    window.visualViewport?.addEventListener('resize', updatePosition)
+    window.visualViewport?.addEventListener('scroll', updatePosition)
     return () => {
+      cancelAnimationFrame(frame)
       window.removeEventListener('scroll', updatePosition, true)
       window.removeEventListener('resize', updatePosition)
+      window.visualViewport?.removeEventListener('resize', updatePosition)
+      window.visualViewport?.removeEventListener('scroll', updatePosition)
     }
   }, [isOpen, usePortal, autoDirection, dropdownDirection])
 
@@ -161,6 +184,24 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       })
     }
   }, [isOpen, options, value])
+
+  /**
+   * Enter on the typed text: an existing option with the same label (case/whitespace-insensitive) is picked,
+   * otherwise a new option is created when allowed. Never toggles an already selected value off.
+   * The search is cleared and the menu stays open for the next entry.
+   */
+  const commitSearchTerm = () => {
+    if (exactMatch) {
+      const alreadySelected = isMulti && Array.isArray(value) && value.includes(exactMatch.value)
+      if (!alreadySelected) handleSelect(exactMatch.value)
+      setSearchTerm('')
+      return
+    }
+    if (canCreate && onCreateOption) {
+      onCreateOption(searchTerm.trim())
+      setSearchTerm('')
+    }
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -188,11 +229,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         e.preventDefault()
         if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
           handleSelect(filteredOptions[highlightedIndex].value)
-        } else if (canCreate && onCreateOption) {
-          const label = searchTerm.trim()
-          onCreateOption(label)
-          // oluşturma sonrası aramayı temizle ve açık bırak
-          setSearchTerm('')
+        } else {
+          commitSearchTerm()
         }
         break
       case 'Escape':
@@ -328,11 +366,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       e.stopPropagation()
-                      if (canCreate && onCreateOption) {
-                        const label = searchTerm.trim()
-                        onCreateOption(label)
-                        setSearchTerm('')
-                      }
+                      commitSearchTerm()
                     }
                   }}
                   placeholder="Ara..."
@@ -414,11 +448,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
                       if (e.key === 'Enter') {
                         e.preventDefault()
                         e.stopPropagation()
-                        if (canCreate && onCreateOption) {
-                          const label = searchTerm.trim()
-                          onCreateOption(label)
-                          setSearchTerm('')
-                        }
+                        commitSearchTerm()
                       }
                     }}
                     placeholder="Ara..."

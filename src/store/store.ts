@@ -10,6 +10,7 @@ import { tagApi } from '@/services/tagApi'
 import { installmentApi } from '@/services/installmentApi'
 import { CACHE_CONFIG } from '../config/cache'
 import { dashboardApi } from '@/services/dashboardApi'
+import { reportApi } from '@/services/reportApi'
 
 // Root reducer
 const rootReducer = combineReducers({
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   [installmentApi.reducerPath]: installmentApi.reducer,
   [tagApi.reducerPath]: tagApi.reducer,
   [dashboardApi.reducerPath]: dashboardApi.reducer,
+  [reportApi.reducerPath]: reportApi.reducer,
 })
 
 // Persist konfigürasyonu - sadece cache aktifse
@@ -28,7 +30,7 @@ const persistConfig = {
   key: 'root-v2',
   storage,
   whitelist: CACHE_CONFIG.isEnabled() 
-    ? ['auth', 'authApi', 'accountApi', 'contactApi', 'transactionApi', 'installmentApi', 'tagApi', 'dashboardApi']
+    ? ['auth', 'authApi', 'accountApi', 'contactApi', 'transactionApi', 'installmentApi', 'tagApi', 'dashboardApi', 'reportApi']
     : ['auth'],
   serialize: true,
   deserialize: true,
@@ -44,7 +46,7 @@ export const store = configureStore({
       // Serializable check'i devre dışı bırak (RTK Query için)
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredPaths: ['authApi', 'accountApi', 'contactApi', 'transactionApi', 'tagApi', 'dashboardApi'],
+        ignoredPaths: ['authApi', 'accountApi', 'contactApi', 'transactionApi', 'tagApi', 'dashboardApi', 'reportApi'],
       },
     }).concat(
       authApi.middleware,
@@ -54,6 +56,7 @@ export const store = configureStore({
       installmentApi.middleware,
       tagApi.middleware,
       dashboardApi.middleware,
+      reportApi.middleware,
     ),
   // Development'ta devtools'u etkinleştir
   devTools: import.meta.env.DEV,

@@ -10,6 +10,7 @@ import { TransactionType } from '@/services/transactionApi'
 import { AccountType, CurrencyType } from '@/services/accountApi'
 import type { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
 import { TransactionHelpers } from '@/types/index'
+import { isSameText } from '@/utils/textMatch'
 
 // Quick action identifiers used by both the legacy QuickActions card and the v2 CommandBar.
 export type QuickActionKind =
@@ -268,7 +269,7 @@ export const useQuickTransactionActions = () => {
       newTags: Array.from(new Set([...(p.newTags || []), label])),
     }))
     setTagOptions((opts) => {
-      if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
+      if (opts.some((o) => isSameText(o.label, label))) return opts
       return [...opts, { value: label, label }]
     })
   }

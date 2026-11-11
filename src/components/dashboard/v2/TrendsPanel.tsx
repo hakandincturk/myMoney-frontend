@@ -6,7 +6,7 @@ import { faChartLine, faTriangleExclamation } from '@fortawesome/free-solid-svg-
 import type { ChartDataPoint } from '../../../types/charts'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useChartTheme } from '../../../hooks/useCharts'
-import { formatTRY, formatCompactTRY } from './formatters'
+import { formatTRY, formatCompactTRY } from '@/utils/formatters'
 
 type TrendsPanelProps = {
   data: ChartDataPoint[]

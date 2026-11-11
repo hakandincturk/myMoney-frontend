@@ -249,7 +249,8 @@
     "debts": "Gelir/Gider",
     "installments": "Taksitler",
     "tags": "Etiketler",
-    "tagManagement": "Etiket Yönetimi"
+    "tagManagement": "Etiket Yönetimi",
+    "reports": "Raporlar"
   },
   "pages": {
     "accounts": "Hesaplar",
@@ -259,7 +260,8 @@
       "monthly": "Aylık Taksitler",
       "thisMonth": "Bu Ay"
     },
-    "tags": "Etiketler"
+    "tags": "Etiketler",
+    "reports": "Raporlar"
   },
   "tag": {
     "management": {
@@ -287,7 +289,8 @@
       "deleteConfirmationTitle": "Emin misiniz?",
       "deleteConfirmationBody": "etiketini silmek istediğinize emin misiniz? Etikete ait gelir/gider bağlantıları kaldırılacak, ancak gelir/giderleriniz silinmeyecektir.",
       "deleteSuccess": "Etiket başarıyla silindi",
-      "hasTransactionsWarning": "Bu etikete bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
+      "hasTransactionsWarning": "Bu etikete bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir.",
+      "renameSuccess": "Etiket yeniden adlandırıldı"
     },
     "fields": {
       "name": "Etiket Adı",
@@ -357,7 +360,7 @@
     "incomeExpenseTrend": "Aylık Gelir-Gider Trendi",
     "recentTransactions": "Son İşlemler",
     "occurredAmount": "Gerçekleşen",
-    "waitingAmount": "Beklenen", 
+    "waitingAmount": "Beklenen",
     "planningAmount": "Planlanan",
     "expenseOccurredAmount": "En Son Ödenen",
     "expenseWaitingAmount": "Bu Ay Harcanan",
@@ -380,7 +383,10 @@
     "installmentsDetail": "Taksit Detayları",
     "tags": "Etiketler",
     "tagPlaceholder": "Etiket seçiniz veya yazıp Enter'a basın",
-    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)"
+    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)",
+    "editTags": "Etiketleri düzenle",
+    "noTags": "Bu işlemde etiket yok",
+    "tagsUpdated": "Etiketler güncellendi"
   },
   "account": {
     "types": {
@@ -477,8 +483,8 @@
     "clearFilters": "Filtreleri Temizle",
     "clearAll": "Tümünü Temizle",
     "applyFilters": "Filtreleri Uygula",
-    "payInstallment": "Taksit Öde"
-    ,"bulkPay": "Toplu Ödeme"
+    "payInstallment": "Taksit Öde",
+    "bulkPay": "Toplu Ödeme"
   },
   "modals": {
     "editContact": "Kişiyi Düzenle",
@@ -502,7 +508,7 @@
     "selectType": "Tür seçiniz",
     "transactionName": "Örn: Elektrik Faturası",
     "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)",
-  "selectStatus": "Durum seçiniz",
+    "selectStatus": "Durum seçiniz",
     "selectStartDate": "Başlangıç tarihi seçiniz",
     "selectEndDate": "Bitiş tarihi seçiniz",
     "searchByTransactionName": "İşlem adına göre ara...",
@@ -610,7 +616,7 @@
   "date": {
     "months": {
       "0": "Ocak",
-      "1": "Şubat", 
+      "1": "Şubat",
       "2": "Mart",
       "3": "Nisan",
       "4": "Mayıs",
@@ -621,6 +627,114 @@
       "9": "Ekim",
       "10": "Kasım",
       "11": "Aralık"
+    }
+  },
+  "reports": {
+    "title": "Raporlar",
+    "subtitle": "Ay merkezli finansal analiz. Seçilen ay, önceki ve sonraki ayla karşılaştırmalı gösterilir.",
+    "flow": {
+      "label": "Akış türü",
+      "expense": "Gider",
+      "income": "Gelir"
+    },
+    "window": {
+      "label": "Zaman penceresi",
+      "months": "{{count}}A"
+    },
+    "period": {
+      "title": "Dönem seçimi",
+      "subtitle": "Varsayılan: son tamamlanmış ay. Gelecek aylar yalnızca planlı taksitlerden hesaplanır.",
+      "actual": "Kesin",
+      "partial": "Devam eden",
+      "projected": "Plan",
+      "previous": "Önceki ay",
+      "next": "Sonraki ay"
+    },
+    "comparison": {
+      "income": "Gelir",
+      "expense": "Gider",
+      "net": "Net",
+      "netFlow": "Net akış",
+      "realized": "Gerçekleşen",
+      "pending": "Bekleyen"
+    },
+    "kpi": {
+      "totalExpense": "Toplam gider",
+      "totalIncome": "Toplam gelir",
+      "pendingPart": "{{amount}} kadarı henüz ödenmedi",
+      "savingRate": "Tasarruf oranı",
+      "savingRateHint": "Gelirin giderden arta kalan kısmı",
+      "savingRateNet": "Net akış {{amount}}",
+      "dailyAverage": "Günlük ortalama",
+      "dailyAverageSoFar": "Günlük ort. (gerçekleşen)",
+      "daysOf": "{{elapsed}}/{{total}} gün",
+      "busiestDay": "En yoğun gün {{date}} — {{amount}}",
+      "noBusiestDay": "Bu ay harcama kaydı yok"
+    },
+    "timeline": {
+      "title": "Gelir / gider zaman serisi",
+      "projectedHint": "Kesikli aylar projeksiyondur: yalnızca planlı taksitleri içerir, düzensiz harcamalar yansımaz.",
+      "loading": "Grafik yükleniyor…",
+      "income": "Gelir",
+      "expense": "Gider",
+      "net": "Net",
+      "remainingDebt": "Kalan borç",
+      "carriedDebt": "Taşınan borç",
+      "plan": "Projeksiyon",
+      "empty": "Henüz grafik verisi yok",
+      "emptyHint": "İşlem ekledikçe aylık seyrin burada oluşacak."
+    },
+    "tags": {
+      "title": "Kategori karşılaştırma",
+      "subtitle": "Dolu bar seçili ay, ince bar {{month}}",
+      "loading": "Dağılım yükleniyor…",
+      "untagged": "Etiketsiz",
+      "other": "Diğer",
+      "previousMonth": "Geçen ay: {{amount}}",
+      "sumMode": "Toplama yöntemi",
+      "distributed": "Dağıtılmış",
+      "doubleCount": "Tam sayım",
+      "distributionTitle": "Kategori dağılımı",
+      "distributionSubtitle": "Toplam {{total}} · {{count}} kategori",
+      "categoryCount": "{{count}} kategori",
+      "untaggedCallout": "Harcamanın {{amount}} kadarı hiçbir etikete bağlı değil ({{share}}). Etiketlersen analiz daha isabetli olur.",
+      "empty": "Bu ay kategori verisi yok",
+      "emptyHint": "İşlemlerine etiket ekleyerek kırılımı görebilirsin."
+    },
+    "top": {
+      "title": "Bu ay en çok neye harcadın?",
+      "subtitle": "Seçilen ayın en büyük kalemleri",
+      "biggestItem": "Ayın en büyük kalemi {{name}} — toplam giderinin {{share}} kadarı.",
+      "paid": "Ödendi",
+      "pending": "Bekliyor",
+      "empty": "Bu ay kalem yok",
+      "emptyHint": "Seçilen ayda kayıtlı bir hareket bulunmuyor."
+    },
+    "recurring": {
+      "title": "Tekrar eden harcamalar",
+      "subtitle": "Son aylarda düzenli tekrar eden kalemler",
+      "installment": "Taksitli",
+      "repeated": "Tekrar eden",
+      "months": "{{count}} aydır",
+      "next": "sonraki {{date}}",
+      "estimatedHint": "Tahmini tarih — geçmiş tekrar aralığından hesaplandı",
+      "perMonth": "ort. / ay",
+      "fixedCost": "Sabit giderin",
+      "fixedCostHint": "Gelirinin {{share}} kadarı her ay peşinen bağlı",
+      "sparklineLabel": "{{name}} son aylardaki seyri",
+      "empty": "Tekrar eden harcama yok",
+      "emptyHint": "Düzenli tekrar eden bir kalem tespit edilmedi."
+    },
+    "insight": {
+      "title": "Dikkatini çeken şeyler",
+      "subtitle": "Yukarıdaki verilerden otomatik çıkarıldı",
+      "tagIncreased": "{{name}} harcaman geçen aya göre {{rate}} arttı — {{from}} → {{to}}.",
+      "projectedDeficit": "{{month}} {{year}} ayında giderin gelirini {{amount}} aşıyor görünüyor.",
+      "longestRecurring": "En uzun süredir tekrar eden kalem {{name}} — {{count}} aydır sürüyor, sabit giderinin {{share}} kadarı.",
+      "negativeSaving": "Bu ay giderin gelirini aştı, tasarruf oranın {{rate}} eksi."
+    },
+    "errors": {
+      "loadFailed": "Veri yüklenemedi"
     }
   }
 }

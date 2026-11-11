@@ -22,6 +22,23 @@ export namespace TagDTOs {
     name?: string
   }
 
+  export type RenameRequest = {
+    id: number
+    name: string
+  }
+
+  // Replaces the whole tag set of a transaction; a typed name matching an existing tag reuses it
+  export type UpdateTransactionTagsRequest = {
+    transactionId: number
+    tagIds: number[]
+    newTags: string[]
+  }
+
+  export type UpdateTransactionTagsResponse = {
+    transactionId: number
+    tags: ListItem[]
+  }
+
   export type PagedResponse<T> = {
     content: T[]
     pageNumber: number
