@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  BarController,
   BarElement,
   CategoryScale,
   Chart as ChartJS,
   Filler,
   Legend,
   LinearScale,
+  LineController,
   LineElement,
   PointElement,
   Tooltip,
@@ -22,7 +24,11 @@ import { formatCompactTRY, formatTRY } from '@/utils/formatters'
 import { labelOfMonth, samePeriod, type Period } from './periodUtils'
 
 // Registered once for the report bundle; chart.js registration is idempotent.
+// The generic <Chart> component does not register controllers on its own
+// (unlike <Bar>/<Line>), so the bar and line controllers must be listed here.
 ChartJS.register(
+  BarController,
+  LineController,
   CategoryScale,
   LinearScale,
   BarElement,
