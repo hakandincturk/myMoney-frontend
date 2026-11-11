@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowTrendUp, faArrowTrendDown } from '@fortawesome/free-solid-svg-icons'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { DashboardDTOs } from '@/types/dashboard'
-import { formatTRY, formatPercent } from './formatters'
+import { formatTRY, formatPercent } from '@/utils/formatters'
 
 type FlowKind = 'income' | 'expense'
 

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPiggyBank, faHourglassHalf, faScaleBalanced } from '@fortawesome/free-solid-svg-icons'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { DashboardDTOs } from '@/types/dashboard'
-import { formatPercent, formatCompactTRY } from './formatters'
+import { formatPercent, formatCompactTRY } from '@/utils/formatters'
 
 type InsightsStripProps = {
   quickView?: DashboardDTOs.QuickViewResponseDto

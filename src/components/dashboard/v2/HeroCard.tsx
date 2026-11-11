@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowTrendUp, faArrowTrendDown } from '@fortawesome/free-solid-svg-icons'
 import type { DashboardDTOs } from '@/types/dashboard'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { formatTRY, formatCompactTRY } from './formatters'
+import { formatTRY, formatCompactTRY } from '@/utils/formatters'
 import CommandBar from './CommandBar'
 import type { QuickActionKind } from './useQuickTransactionActions'
 

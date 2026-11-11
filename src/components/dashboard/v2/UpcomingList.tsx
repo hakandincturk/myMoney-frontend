@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import type { DashboardDTOs } from '@/types/dashboard'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { formatTRY, formatShortDate, daysUntil } from './formatters'
+import { formatTRY, formatShortDate, daysUntil } from '@/utils/formatters'
 
 type UpcomingListProps = {
   incoming?: DashboardDTOs.IncomingInstallments

@@ -1,4 +1,5 @@
-// Shared formatting helpers used across v2 dashboard widgets.
+// Shared formatting helpers for currency, percentage and date display.
+// Used across dashboard widgets and report panels.
 
 export const formatTRY = (amount: number, options: { signed?: boolean } = {}): string => {
   const sign = options.signed && amount > 0 ? '+' : ''

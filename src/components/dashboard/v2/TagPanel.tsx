@@ -8,7 +8,7 @@ import { useChartControls, useChartTheme } from '../../../hooks/useCharts'
 import { ChartDataProcessor, DateUtils } from '../../../utils/chartUtils'
 import type { TagData, PeriodType, SumModeType } from '../../../types/charts'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { formatTRY, formatCompactTRY, formatPercent } from './formatters'
+import { formatTRY, formatCompactTRY, formatPercent } from '@/utils/formatters'
 
 type SegmentedOption<T extends string> = {
   value: T
