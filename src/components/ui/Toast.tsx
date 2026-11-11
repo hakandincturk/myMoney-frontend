@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/Button'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faCircleCheck,
+  faCircleInfo,
+  faCircleXmark,
+  faTriangleExclamation,
+  faXmark,
+  IconDefinition,
+} from '@fortawesome/free-solid-svg-icons'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
@@ -8,129 +17,122 @@ export interface ToastProps {
   message: string
   type: ToastType
   duration?: number
+  count?: number
+  version?: number
   onClose: (id: string) => void
 }
 
-export const Toast: React.FC<ToastProps> = ({ 
-  id, 
-  message, 
-  type, 
-  duration = 5000, 
-  onClose 
+const DEFAULT_DURATION = 5000
+const EXIT_ANIMATION_MS = 200
+
+// Solid pastel surfaces, no borders or glow; each type keeps readable contrast in both themes
+const TYPE_STYLES: Record<ToastType, { surface: string; icon: string; progress: string; glyph: IconDefinition }> = {
+  success: {
+    surface: 'bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100',
+    icon: 'text-emerald-600 dark:text-emerald-300',
+    progress: 'bg-emerald-500/60 dark:bg-emerald-300/60',
+    glyph: faCircleCheck,
+  },
+  error: {
+    surface: 'bg-rose-50 text-rose-900 dark:bg-rose-950 dark:text-rose-100',
+    icon: 'text-rose-600 dark:text-rose-300',
+    progress: 'bg-rose-500/60 dark:bg-rose-300/60',
+    glyph: faCircleXmark,
+  },
+  warning: {
+    surface: 'bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100',
+    icon: 'text-amber-600 dark:text-amber-300',
+    progress: 'bg-amber-500/60 dark:bg-amber-300/60',
+    glyph: faTriangleExclamation,
+  },
+  info: {
+    surface: 'bg-sky-50 text-sky-900 dark:bg-sky-950 dark:text-sky-100',
+    icon: 'text-sky-600 dark:text-sky-300',
+    progress: 'bg-sky-500/60 dark:bg-sky-300/60',
+    glyph: faCircleInfo,
+  },
+}
+
+/**
+ * A single toast. Auto-dismisses after `duration` ms (0 keeps it until closed); hovering or focusing
+ * it pauses the timer so a long message can be read. `version` changes restart the timer.
+ */
+export const Toast: React.FC<ToastProps> = ({
+  id,
+  message,
+  type,
+  duration = DEFAULT_DURATION,
+  count = 1,
+  version = 0,
+  onClose,
 }) => {
-  const [isVisible, setIsVisible] = useState(true)
-  const [progress, setProgress] = useState(100)
+  const { t } = useTranslation()
+  const [isLeaving, setIsLeaving] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const remainingRef = useRef(duration)
+  const startedAtRef = useRef(0)
+  const style = TYPE_STYLES[type] ?? TYPE_STYLES.info
+
+  const dismiss = useCallback(() => {
+    setIsLeaving(true)
+    window.setTimeout(() => onClose(id), EXIT_ANIMATION_MS)
+  }, [id, onClose])
+
+  // A re-shown toast gets its full time back
+  useEffect(() => {
+    remainingRef.current = duration
+  }, [version, duration])
 
   useEffect(() => {
-    if (duration > 0) {
-      // Progress bar animasyonu
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev <= 0) {
-            clearInterval(progressInterval)
-            return 0
-          }
-          return prev - (100 / (duration / 100))
-        })
-      }, 100)
-
-      // Toast'u otomatik kapat
-      const timer = setTimeout(() => {
-        setIsVisible(false)
-        setTimeout(() => {
-          onClose(id)
-        }, 300) // Animasyon süresi
-      }, duration)
-
-      return () => {
-        clearTimeout(timer)
-        clearInterval(progressInterval)
-      }
+    if (duration <= 0 || isPaused || isLeaving) return
+    startedAtRef.current = Date.now()
+    const timer = window.setTimeout(dismiss, remainingRef.current)
+    return () => {
+      window.clearTimeout(timer)
+      remainingRef.current = Math.max(0, remainingRef.current - (Date.now() - startedAtRef.current))
     }
-  }, [duration, id, onClose])
-
-  const handleClose = () => {
-    setIsVisible(false)
-    setTimeout(() => {
-      onClose(id)
-    }, 300)
-  }
-
-  const getToastStyles = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-500 text-white border-green-600'
-      case 'error':
-        return 'bg-red-500 text-white border-red-600'
-      case 'warning':
-        return 'bg-yellow-500 text-white border-yellow-600'
-      case 'info':
-        return 'bg-blue-500 text-white border-blue-600'
-      default:
-        return 'bg-gray-500 text-white border-gray-600'
-    }
-  }
-
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return '✅'
-      case 'error':
-        return '❌'
-      case 'warning':
-        return '⚠️'
-      case 'info':
-        return 'ℹ️'
-      default:
-        return '💬'
-    }
-  }
-
-  if (!isVisible) return null
+  }, [duration, isPaused, isLeaving, version, dismiss])
 
   return (
     <div
-      className={`
-        transform transition-all duration-300 ease-out
-        ${isVisible ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-full opacity-0 scale-95'}
-      `}
-      style={{
-        animation: isVisible ? 'slideInFromRight 0.3s ease-out' : 'none'
-      }}
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
+      className={`${isLeaving ? 'toast-exit' : 'toast-enter'} overflow-hidden rounded-xl shadow-lg ${style.surface}`}
     >
-      <div className={`
-        flex flex-col rounded-lg shadow-2xl border-2 overflow-hidden 
-        ${getToastStyles()} 
-        min-w-[350px] max-w-[600px]
-      `}>
-        {/* Toast Content */}
-        <div className="flex items-start gap-3 px-4 py-3">
-          <span className="text-lg flex-shrink-0 mt-0.5">{getIcon()}</span>
-          <div className="flex-1 text-sm font-medium break-words">
-            {message.split('\n').map((line, index) => (
-              <div key={index} className={index > 0 ? 'mt-2' : ''}>
-                {line}
-              </div>
-            ))}
-          </div>
-          <Button
-            onClick={handleClose}
-            variant="secondary"
-            className="text-white/80 hover:text-white text-lg font-bold transition-colors duration-200 hover:scale-110 flex-shrink-0 bg-transparent border-none hover:bg-transparent p-0 min-w-0 h-auto mt-0.5"
-            aria-label="Toast'u kapat"
-          >
-            ×
-          </Button>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full h-1 bg-black/20">
+      <div className="flex items-start gap-3 py-3 pl-4 pr-2">
+        <FontAwesomeIcon icon={style.glyph} className={`mt-0.5 h-5 w-5 flex-shrink-0 ${style.icon}`} />
+        {/* Long server messages (e.g. dev debug info) scroll inside the toast instead of growing it */}
+        <p className="max-h-24 sm:max-h-40 min-w-0 flex-1 overflow-y-auto whitespace-pre-line break-words text-sm font-medium leading-5">
+          {message}
+        </p>
+        {count > 1 && (
+          <span className="mt-0.5 flex-shrink-0 rounded-full bg-black/10 px-2 text-xs font-semibold leading-5 dark:bg-white/15">
+            ×{count}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label={t('buttons.close')}
+          className="-my-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg opacity-70 transition hover:bg-black/10 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-current dark:hover:bg-white/10"
+        >
+          <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
+        </button>
+      </div>
+
+      {duration > 0 && (
+        <div className="h-1 w-full bg-black/5 dark:bg-white/10">
           <div
-            className="h-full bg-white/80 transition-all duration-100 ease-linear"
-            style={{ width: `${progress}%` }}
+            key={version}
+            className={`toast-progress h-full ${style.progress}`}
+            style={{ animationDuration: `${duration}ms`, animationPlayState: isPaused || isLeaving ? 'paused' : 'running' }}
           />
         </div>
-      </div>
+      )}
     </div>
   )
 }

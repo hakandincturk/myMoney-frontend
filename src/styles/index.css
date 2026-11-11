@@ -110,34 +110,58 @@
 }
 
 /* Toast Animations */
-@keyframes slideInFromRight {
+@keyframes toastIn {
   from {
-    transform: translateX(100%);
+    transform: translateY(-8px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-@keyframes slideOutToRight {
+@keyframes toastOut {
   from {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
   to {
-    transform: translateX(100%);
+    transform: translateY(-8px);
     opacity: 0;
+  }
+}
+
+/* Remaining time; paused through animation-play-state while the toast is hovered */
+@keyframes toastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
   }
 }
 
 .toast-enter {
-  animation: slideInFromRight 0.3s ease-out;
+  animation: toastIn 0.2s ease-out;
 }
 
 .toast-exit {
-  animation: slideOutToRight 0.3s ease-out;
+  animation: toastOut 0.2s ease-in forwards;
+}
+
+.toast-progress {
+  transform-origin: left;
+  animation-name: toastProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter,
+  .toast-exit {
+    animation: none;
+  }
 }
 
 

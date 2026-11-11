@@ -179,6 +179,7 @@ export const Table = <T extends object>({
                   ]}
                   className="w-24"
                   dropdownDirection="up"
+                  searchable={false}
                   usePortal
                 />
               </div>

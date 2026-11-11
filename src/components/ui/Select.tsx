@@ -115,7 +115,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
   }, [])
 
   useEffect(() => {
-    if (isOpen && searchable && inputRef.current) {
+    // On touch screens focusing the search box pops up the keyboard, which scrolls the page and
+    // leaves a fixed-position menu at the wrong place; the user taps the box when they want to type.
+    const isTouchScreen = window.matchMedia?.('(pointer: coarse)').matches
+    if (isOpen && searchable && inputRef.current && !isTouchScreen) {
       inputRef.current.focus()
     }
   }, [isOpen, searchable])
@@ -128,19 +131,36 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       if (!root) return
       const rect = root.getBoundingClientRect()
       const gap = 4
-      const dir = autoDirection || dropdownDirection
-      if (dir === 'up') {
+      // The visual viewport is the part actually on screen (it shrinks when the mobile keyboard opens)
+      const viewportTop = window.visualViewport?.offsetTop ?? 0
+      const viewportBottom = viewportTop + (window.visualViewport?.height ?? window.innerHeight)
+      const spaceAbove = rect.top - viewportTop - gap
+      const spaceBelow = viewportBottom - rect.bottom - gap
+      const menuHeight = portalMenuRef.current?.offsetHeight ?? 0
+      const preferred = autoDirection || dropdownDirection
+      // Keep the preferred side unless the measured menu does not fit there and the other side has more room
+      const openUp = preferred === 'up'
+        ? !(menuHeight > spaceAbove && spaceBelow > spaceAbove)
+        : menuHeight > spaceBelow && spaceAbove > spaceBelow
+      if (openUp) {
         setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.top - gap, transform: 'translateY(-100%)', zIndex: 10050 })
       } else {
         setPortalStyle({ position: 'fixed', left: rect.left, width: rect.width, top: rect.bottom + gap, zIndex: 10050 })
       }
     }
     updatePosition()
+    // Re-run once the menu has rendered, so the flip decision uses its real height
+    const frame = requestAnimationFrame(updatePosition)
     window.addEventListener('scroll', updatePosition, true)
     window.addEventListener('resize', updatePosition)
+    window.visualViewport?.addEventListener('resize', updatePosition)
+    window.visualViewport?.addEventListener('scroll', updatePosition)
     return () => {
+      cancelAnimationFrame(frame)
       window.removeEventListener('scroll', updatePosition, true)
       window.removeEventListener('resize', updatePosition)
+      window.visualViewport?.removeEventListener('resize', updatePosition)
+      window.visualViewport?.removeEventListener('scroll', updatePosition)
     }
   }, [isOpen, usePortal, autoDirection, dropdownDirection])
 

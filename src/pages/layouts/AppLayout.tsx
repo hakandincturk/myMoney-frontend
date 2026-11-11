@@ -404,9 +404,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               marginLeft: !isMobile ? (sidebarOpen ? `${sidebarWidth}px` : `${collapsedWidth}px`) : '0px'
             }}
           >
-            {/* Content area uses full viewport on desktop; on mobile subtract top bar height */}
+            {/* On mobile the floating menu button (top 0.75rem, 2.25rem tall) would sit on the page title; leave room for it */}
             <main
-              className={`w-full custom-scrollbar overflow-y-auto flex flex-col ${isMobile ? 'h-screen' : 'h-screen'}`}
+              className={`w-full custom-scrollbar overflow-y-auto flex flex-col h-screen ${isMobile ? 'pt-12 bg-slate-50 dark:bg-mm-bg' : ''}`}
             >
               {children}
             </main>
