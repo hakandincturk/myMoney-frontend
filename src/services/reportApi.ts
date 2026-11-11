@@ -17,6 +17,11 @@ export const reportApi = createApi({
   reducerPath: 'reportApi',
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Report'],
+  // Money figures must never look stale: refetch when the tab regains focus (e.g. after adding a
+  // transaction on the phone) and when a screen mounts with data older than 30 seconds.
+  // Each request is a few grouped queries, so this is cheap on the server.
+  refetchOnFocus: true,
+  refetchOnMountOrArgChange: 30,
   endpoints: (build) => ({
     getReportSummary: build.query<ApiResponse<ReportDTOs.SummaryResponse>, ReportDTOs.SummaryRequest>({
       query: ({ year, month }) => ({

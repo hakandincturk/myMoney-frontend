@@ -1,5 +1,7 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit'
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
+import { setupListeners } from '@reduxjs/toolkit/query'
+import { persistStore, persistReducer, createMigrate, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
+import type { PersistedState } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { authSlice } from '@/store/slices/authSlice'
 import { authApi } from '@/services/authApi'
@@ -8,9 +10,9 @@ import { contactApi } from '@/services/contactApi'
 import { transactionApi } from '@/services/transactionApi'
 import { tagApi } from '@/services/tagApi'
 import { installmentApi } from '@/services/installmentApi'
-import { CACHE_CONFIG } from '../config/cache'
 import { dashboardApi } from '@/services/dashboardApi'
 import { reportApi } from '@/services/reportApi'
+import { financialCacheListener } from '@/store/financialCacheListener'
 
 // Root reducer
 const rootReducer = combineReducers({
@@ -25,13 +27,27 @@ const rootReducer = combineReducers({
   [reportApi.reducerPath]: reportApi.reducer,
 })
 
-// Persist konfigürasyonu - sadece cache aktifse
+// Only the session survives a page reload. Server data is never persisted: a cached dashboard or
+// installment list restored from localStorage would show old numbers until something refetched it.
+const PERSISTED_KEYS = ['auth']
+
+const migrations = {
+  // v1: drop the API caches earlier versions persisted, keep the session so nobody is logged out
+  1: (state: PersistedState) => {
+    if (!state) return state
+    const kept = Object.fromEntries(
+      Object.entries(state).filter(([key]) => key === '_persist' || PERSISTED_KEYS.includes(key))
+    )
+    return kept as PersistedState
+  },
+}
+
 const persistConfig = {
   key: 'root-v2',
+  version: 1,
   storage,
-  whitelist: CACHE_CONFIG.isEnabled() 
-    ? ['auth', 'authApi', 'accountApi', 'contactApi', 'transactionApi', 'installmentApi', 'tagApi', 'dashboardApi', 'reportApi']
-    : ['auth'],
+  whitelist: PERSISTED_KEYS,
+  migrate: createMigrate(migrations, { debug: false }),
   serialize: true,
   deserialize: true,
 }
@@ -48,7 +64,10 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         ignoredPaths: ['authApi', 'accountApi', 'contactApi', 'transactionApi', 'tagApi', 'dashboardApi', 'reportApi'],
       },
-    }).concat(
+    })
+      // Refreshes every financial cache after any write; see financialCacheListener
+      .prepend(financialCacheListener.middleware)
+      .concat(
       authApi.middleware,
       accountApi.middleware,
       contactApi.middleware,
@@ -64,6 +83,9 @@ export const store = configureStore({
 
 // Persist store
 export const persistor = persistStore(store)
+
+// Enables refetchOnFocus / refetchOnReconnect for the slices that opt in (dashboard, reports)
+setupListeners(store.dispatch)
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
