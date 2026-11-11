@@ -9,6 +9,7 @@ import { DatePicker } from '@/components/ui/DatePicker'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { TableSkeleton } from '@/components/ui/Skeleton'
 import TransactionFormModal, { TransactionFormValues } from '@/components/transaction/TransactionFormModal'
+import { TransactionTagEditor } from '@/components/transaction/TransactionTagEditor'
 import { useCreateTransactionMutation, useListMyTransactionsQuery, useDeleteTransactionMutation, useListTransactionInstallmentsQuery, TransactionType, TransactionStatus } from '@/services/transactionApi'
 import { usePayInstallmentsMutation, useUpdateInstallmentMutation } from '@/services/installmentApi'
 import { TransactionHelpers, TransactionDTOs, AccountDTOs } from '../../types'
@@ -27,6 +28,7 @@ import { InstallmentStatus } from '@/enums/installment'
 import { EditInstallmentModal } from '@/components/ui/EditInstallmentModal'
 import { InstallmentDTOs } from '@/types/installment'
 import { useListMyActiveTagsQuery } from '@/services/tagApi'
+import { isSameText } from '@/utils/textMatch'
 
 // Dummy veriler kaldırıldı; tablo gerçek API verisine bağlandı
 
@@ -1140,7 +1142,7 @@ export const DebtsOverviewPage: React.FC = () => {
 				onCreateTag={(label) => {
 					setForm((p) => ({ ...p, newTags: Array.from(new Set([...(p.newTags || []), label])) }))
 					setTagOptions((opts) => {
-						if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
+						if (opts.some((o) => isSameText(o.label, label))) return opts
 						return [...opts, { value: label, label }]
 					})
 				}}
@@ -1167,7 +1169,7 @@ export const DebtsOverviewPage: React.FC = () => {
 			>
 				{selectedTransaction && (
 					<div className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
 								<label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
 									{t('table.columns.contact')}
@@ -1182,7 +1184,7 @@ export const DebtsOverviewPage: React.FC = () => {
 							</div>
 						</div>
 						
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
 								<label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
 									{t('table.columns.type')}
@@ -1197,7 +1199,7 @@ export const DebtsOverviewPage: React.FC = () => {
 							</div>
 						</div>
 						
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
 								<label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-1">
 									{t('table.columns.amount')}
@@ -1226,23 +1228,12 @@ export const DebtsOverviewPage: React.FC = () => {
 						)}
 
 						{/* Etiketler */}
-						{selectedTransaction.tags && selectedTransaction.tags.length > 0 && (
-							<div>
-								<label className="block text-sm font-medium text-slate-700 dark:text-mm-text mb-2">
-									{t('transaction.tags')}
-								</label>
-								<div className="flex flex-wrap gap-2">
-									{selectedTransaction.tags.map((tag) => (
-										<span
-											key={tag.id}
-											className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/40"
-										>
-											{tag.name}
-										</span>
-									))}
-								</div>
-							</div>
-						)}
+						<TransactionTagEditor
+							key={selectedTransaction.id}
+							transactionId={selectedTransaction.id}
+							tags={selectedTransaction.tags ?? []}
+							onUpdated={(tags) => setSelectedTransaction((prev) => (prev ? { ...prev, tags } : prev))}
+						/>
 
 						{/* Taksitler */}
 						{currentInstallmentsLoading ? (
@@ -1263,8 +1254,9 @@ export const DebtsOverviewPage: React.FC = () => {
 									</div>
 								</div>
 								
-								<div className="border border-slate-200 dark:border-mm-border rounded-lg overflow-hidden">
-									<table className="w-full text-sm">
+								{/* Scrolls sideways on phones instead of squeezing the action buttons out of view */}
+								<div className="border border-slate-200 dark:border-mm-border rounded-lg overflow-x-auto">
+									<table className="w-full min-w-[560px] text-sm">
 										<thead className="bg-slate-50 dark:bg-slate-800">
 											<tr>
 												<th className="text-left px-3 py-2 font-medium text-slate-700 dark:text-mm-text">

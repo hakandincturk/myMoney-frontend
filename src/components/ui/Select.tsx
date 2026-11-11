@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
+import { isSameText, normalizeForMatch } from '@/utils/textMatch'
 
 type Option = {
   value: string | number
@@ -87,13 +88,15 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
       onLoadMore()
     }
   }
+  // Turkish-aware matching: plain toLowerCase turns "AYLIK" into "aylik", which never matches "aylık"
   const filteredOptions = searchable 
     ? options.filter(option => 
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        normalizeForMatch(option.label).includes(normalizeForMatch(searchTerm))
       )
     : options
 
-  const canCreate = creatable && searchable && !!searchTerm.trim() && !options.some(o => o.label.toLowerCase() === searchTerm.trim().toLowerCase())
+  const exactMatch = searchable && searchTerm.trim() ? filteredOptions.find(o => isSameText(o.label, searchTerm)) : undefined
+  const canCreate = creatable && searchable && !!searchTerm.trim() && !options.some(o => isSameText(o.label, searchTerm))
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -162,6 +165,24 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
     }
   }, [isOpen, options, value])
 
+  /**
+   * Enter on the typed text: an existing option with the same label (case/whitespace-insensitive) is picked,
+   * otherwise a new option is created when allowed. Never toggles an already selected value off.
+   * The search is cleared and the menu stays open for the next entry.
+   */
+  const commitSearchTerm = () => {
+    if (exactMatch) {
+      const alreadySelected = isMulti && Array.isArray(value) && value.includes(exactMatch.value)
+      if (!alreadySelected) handleSelect(exactMatch.value)
+      setSearchTerm('')
+      return
+    }
+    if (canCreate && onCreateOption) {
+      onCreateOption(searchTerm.trim())
+      setSearchTerm('')
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -188,11 +209,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
         e.preventDefault()
         if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
           handleSelect(filteredOptions[highlightedIndex].value)
-        } else if (canCreate && onCreateOption) {
-          const label = searchTerm.trim()
-          onCreateOption(label)
-          // oluşturma sonrası aramayı temizle ve açık bırak
-          setSearchTerm('')
+        } else {
+          commitSearchTerm()
         }
         break
       case 'Escape':
@@ -328,11 +346,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       e.stopPropagation()
-                      if (canCreate && onCreateOption) {
-                        const label = searchTerm.trim()
-                        onCreateOption(label)
-                        setSearchTerm('')
-                      }
+                      commitSearchTerm()
                     }
                   }}
                   placeholder="Ara..."
@@ -414,11 +428,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(({
                       if (e.key === 'Enter') {
                         e.preventDefault()
                         e.stopPropagation()
-                        if (canCreate && onCreateOption) {
-                          const label = searchTerm.trim()
-                          onCreateOption(label)
-                          setSearchTerm('')
-                        }
+                        commitSearchTerm()
                       }
                     }}
                     placeholder="Ara..."

@@ -18,6 +18,7 @@ import { TransactionType } from '@/services/transactionApi'
 import { AccountType, CurrencyType } from '@/services/accountApi'
 import { useListMyActiveTagsQuery } from '@/services/tagApi'
 import { TransactionHelpers } from '../../types'
+import { isSameText } from '@/utils/textMatch'
 
 interface QuickAction {
   title: string
@@ -454,7 +455,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ className = '' }) =>
         onCreateTag={(label) => {
           setTransactionForm((p) => ({ ...p, newTags: Array.from(new Set([...(p.newTags || []), label])) }))
           setTagOptions((opts) => {
-            if (opts.some((o) => o.label.toLowerCase() === label.toLowerCase())) return opts
+            if (opts.some((o) => isSameText(o.label, label))) return opts
             return [...opts, { value: label, label }]
           })
         }}

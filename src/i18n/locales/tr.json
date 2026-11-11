@@ -289,7 +289,8 @@
       "deleteConfirmationTitle": "Emin misiniz?",
       "deleteConfirmationBody": "etiketini silmek istediğinize emin misiniz? Etikete ait gelir/gider bağlantıları kaldırılacak, ancak gelir/giderleriniz silinmeyecektir.",
       "deleteSuccess": "Etiket başarıyla silindi",
-      "hasTransactionsWarning": "Bu etikete bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir."
+      "hasTransactionsWarning": "Bu etikete bağlı {{count}} işlem bulunmaktadır. Silme işlemi bu işlemleri de etkileyebilir.",
+      "renameSuccess": "Etiket yeniden adlandırıldı"
     },
     "fields": {
       "name": "Etiket Adı",
@@ -382,7 +383,10 @@
     "installmentsDetail": "Taksit Detayları",
     "tags": "Etiketler",
     "tagPlaceholder": "Etiket seçiniz veya yazıp Enter'a basın",
-    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)"
+    "descriptionPlaceholder": "Açıklama ekleyiniz (opsiyonel)",
+    "editTags": "Etiketleri düzenle",
+    "noTags": "Bu işlemde etiket yok",
+    "tagsUpdated": "Etiketler güncellendi"
   },
   "account": {
     "types": {

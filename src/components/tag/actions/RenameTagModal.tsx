@@ -48,8 +48,8 @@ export const RenameTagModal: React.FC<RenameTagModalProps> = ({
       await onConfirm(newName.trim())
       onClose()
     } catch (err) {
-      console.error(err)
-      setError(t('common.genericError'))
+      const serverMessage = (err as { data?: { message?: string } })?.data?.message
+      setError(serverMessage || t('common.genericError'))
     } finally {
       setIsSubmitting(false)
     }

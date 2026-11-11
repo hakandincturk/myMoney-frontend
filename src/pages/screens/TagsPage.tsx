@@ -4,7 +4,7 @@ import { TagToolbar } from '@/components/tag/TagToolbar'
 import { TagTable } from '@/components/tag/TagTable'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { useListMyTagsQuery, useDeleteMyTagMutation } from '@/services/tagApi'
+import { useListMyTagsQuery, useDeleteMyTagMutation, useRenameMyTagMutation } from '@/services/tagApi'
 import { TagDTOs } from '@/types/index'
 
 type SortablePageRequest = Required<Pick<TagDTOs.SortablePageRequest, 'pageNumber' | 'pageSize' | 'columnName' | 'asc'>>
@@ -51,6 +51,13 @@ export const TagsPage: React.FC = () => {
   } = useListMyTagsQuery(queryParams)
 
   const [deleteMyTag] = useDeleteMyTagMutation()
+  const [renameMyTag] = useRenameMyTagMutation()
+
+  // Errors are rethrown so the modal stays open and shows the server message (e.g. duplicate name)
+  const handleRename = async (id: number, name: string) => {
+    await renameMyTag({ id, name }).unwrap()
+    try { window.dispatchEvent(new CustomEvent('showToast', { detail: { message: t('tag.actions.renameSuccess'), type: 'success' } })) } catch(_) {}
+  }
 
   const handleDelete = async (id: number) => {
     try {
@@ -139,6 +146,7 @@ export const TagsPage: React.FC = () => {
               onPageSizeChange={handlePageSizeChange}
               onSortClick={handleSortClick}
               onDelete={handleDelete}
+              onRename={handleRename}
             />
           )}
         </div>
